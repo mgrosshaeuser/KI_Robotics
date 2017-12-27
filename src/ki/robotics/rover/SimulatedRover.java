@@ -39,7 +39,7 @@ public class SimulatedRover extends JFrame implements Robot{
         pose.setLocation(Rover.BOT_DIAMETER/2 , Rover.BOT_DIAMETER/2);
         this.setTitle("Simulated Rover");
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         add(mapOverlay);
         mapOverlay.add(rover);
         this.setVisible(true);
@@ -49,7 +49,7 @@ public class SimulatedRover extends JFrame implements Robot{
 
     /**
      * Paints the JFrame after updating the scale-factor and offsets to cope with resizing of the window.
-     * @param g
+     * @param g     The graphical context.
      */
     @Override
     public void paint(Graphics g) {
@@ -65,8 +65,8 @@ public class SimulatedRover extends JFrame implements Robot{
      * - the x- and y-offsets to center the simulation in the window.
      */
     private void updateVisualParameters() {
-        int maxX = map.getRequieredMinWidht();
-        int maxY = map.getRequieredMinHeight();
+        int maxX = map.getRequiredMinWidht();
+        int maxY = map.getRequiredMinHeight();
 
         double widht = mapOverlay.getVisibleRect().getWidth();
         double height = mapOverlay.getVisibleRect().getHeight();
@@ -187,8 +187,7 @@ public class SimulatedRover extends JFrame implements Robot{
         double b = measureDistance();
         sensorHeadTurnRight(90);
         double c = measureDistance();
-        double[] distances = new double[]{a, b, c};
-        return distances;
+        return new double[]{a, b, c};
     }
 
     @Override
@@ -296,7 +295,7 @@ public class SimulatedRover extends JFrame implements Robot{
          *
          * Any resemblance to video-games from the 1980's is pure coincidence ;-)
          *
-         * @param g
+         * @param g     The graphical context.
          */
         @Override
         public void paint(Graphics g) {
@@ -312,16 +311,15 @@ public class SimulatedRover extends JFrame implements Robot{
             int headY = ((int)Math.round((pose.getY() - (BOT_DIAMETER * SCALE_FOR_SENSOR_HEAD) / 2)) * scaleFactor) + yOffset;
             int headDia = (int) Math.round(BOT_DIAMETER  * scaleFactor * SCALE_FOR_SENSOR_HEAD);
             int startAngle = Math.round(sensorHeadOrientation + pose.getHeading() - SENSOR_HEAD_ANGLE / 2);
-            int arcAngle = SENSOR_HEAD_ANGLE;
 
             g2d.setColor(color);
-            g2d.fillArc(headX, headY, headDia, headDia, startAngle, arcAngle);
+            g2d.fillArc(headX, headY, headDia, headDia, startAngle, SENSOR_HEAD_ANGLE);
         }
 
 
         private void paintRobot(Graphics2D g2d, Color bot, Color background) {
-            int botX = ((int)Math.round((pose.getX() - BOT_DIAMETER / 2)) * scaleFactor) + xOffset;
-            int botY = ((int)Math.round((pose.getY() - BOT_DIAMETER / 2)) * scaleFactor) + yOffset;
+            int botX = (Math.round((pose.getX() - BOT_DIAMETER / 2)) * scaleFactor) + xOffset;
+            int botY = (Math.round((pose.getY() - BOT_DIAMETER / 2)) * scaleFactor) + yOffset;
             int botDia = BOT_DIAMETER * scaleFactor;
 
             g2d.setColor(background);

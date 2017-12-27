@@ -13,15 +13,15 @@ import java.util.regex.Pattern;
  * Map-Representation including methods for parsing the map from an SVG-File, painting the map within a
  * graphical context and calculating distances within the map.
  *
- * @version 1.0, 12/26/17
+ * @version 1.1, 12/27/17
  */
 public class Map {
 
-    public static final double EPSILON = 0.000001;
+    private static final double EPSILON = 0.00001;
 
-    private ArrayList<Wall> map = new ArrayList<>();
-    private int requieredMinWidht;
-    private int requieredMinHeight;
+    private ArrayList<Wall> map;
+    private int requiredMinWidht;
+    private int requiredMinHeight;
 
 
 
@@ -32,8 +32,8 @@ public class Map {
      */
     public Map(File file) {
         this.map = parseSVGFile(file);
-        requieredMinWidht = calculateRequiredMinWidth();
-        requieredMinHeight = calculateRequiredMinHeight();
+        requiredMinWidht = calculateRequiredMinWidth();
+        requiredMinHeight = calculateRequiredMinHeight();
     }
 
 
@@ -61,8 +61,8 @@ public class Map {
      *
      * @return  Minimum width for displaying the map.
      */
-    public int getRequieredMinWidht() {
-        return this.requieredMinWidht;
+    public int getRequiredMinWidht() {
+        return this.requiredMinWidht;
     }
 
 
@@ -72,8 +72,8 @@ public class Map {
      *
      * @return  Minimum height for displaying the map.
      */
-    public int getRequieredMinHeight() {
-        return  this.requieredMinHeight;
+    public int getRequiredMinHeight() {
+        return  this.requiredMinHeight;
     }
 
 
@@ -124,7 +124,7 @@ public class Map {
      */
     public double getDistanceToObstacle(float x, float y, float angle) {
         // Maximum distance possible within the map-boundaries.
-        double maxLine = Math.sqrt(Math.pow(requieredMinHeight, 2) + Math.pow(requieredMinWidht,2));
+        double maxLine = Math.sqrt(Math.pow(requiredMinHeight, 2) + Math.pow(requiredMinWidht,2));
 
         double nearestObstacle = Double.MAX_VALUE;
         for (Wall w : map) {
@@ -132,9 +132,10 @@ public class Map {
 
             Point2D sensorBeamStart = new Point2D.Double(x, y);
             Point2D sensorBeamEnd = new Point2D.Double(
-                    Math.cos(Math.toRadians(angle)) * maxLine,
-                    Math.sin(Math.toRadians(angle)) * maxLine
+                    Math.round(Math.cos(Math.toRadians(angle)) * maxLine) + sensorBeamStart.getX(),
+                    Math.round(Math.sin(Math.toRadians(angle)) * maxLine) + sensorBeamStart.getY()
             );
+
             Line2D sensorBeam = new Line2D.Double(sensorBeamStart, sensorBeamEnd);
 
             if (sensorBeam.intersectsLine(wall)) {
@@ -154,33 +155,24 @@ public class Map {
      * Finds the point of intersection between two given lines.
      * ATTENTION: This Method does not perform a pre-check whether the lines intersect at all!
      *
-     * @param wall          A line that, in the given context, represents a wall of the map.
-     * @param sensorBeam    A line that, in the given context, represents a sensor-beam from the robot.
-     * @return              The point of intersection between the two lines.
+     * @param wall      A line that, in the given context, represents a wall of the map.
+     * @param beam      A line that, in the given context, represents a sensor-beam from the robot.
+     * @return          The point of intersection between the two lines.
      */
-    private Point2D getIntersectionPoint(Line2D wall, Line2D sensorBeam) {
-        double mWall, mBeam;
-        double x, y;
-
-        if (Math.abs(wall.getX1() - wall.getX2()) < EPSILON) {
-            mWall = Double.MAX_VALUE;
-        } else {
-            mWall = (wall.getY1() - wall.getY2()) / (wall.getX1() - wall.getX2());
-        }
-        if (Math.abs(sensorBeam.getX1() - sensorBeam.getX2()) < EPSILON) {
-            mBeam = Double.MAX_VALUE;
-        } else {
-            mBeam = (sensorBeam.getY1() - sensorBeam.getY2()) / (sensorBeam.getX1() - sensorBeam.getX2());
-        }
+    private Point2D getIntersectionPoint(Line2D wall, Line2D beam) {
+        double mWall = calculateSlope(wall);
+        double mBeam = calculateSlope(beam);
 
         double bWall = wall.getY1() - mWall * wall.getX1();
-        double bBeam = sensorBeam.getY1() - mBeam * sensorBeam.getX1();
+        double bBeam = beam.getY1() - mBeam * beam.getX1();
 
-        if (Math.abs(Double.MAX_VALUE - mWall) < EPSILON) {
+        double x, y;
+
+        if (Math.abs(mWall- Double.MAX_VALUE) < EPSILON) {
             x = wall.getX1();
             y = mBeam * x + bBeam;
-        } else if (Math.abs((Double.MAX_VALUE - mBeam)) < EPSILON) {
-            x = sensorBeam.getX1();
+        } else if (Math.abs(mBeam - Double.MAX_VALUE) < EPSILON) {
+            x = beam.getX1();
             y = mWall * x + bWall;
         } else {
             x = -(bWall - bBeam) / (mWall - mBeam);
@@ -189,6 +181,23 @@ public class Map {
 
         return new Point2D.Double(x,y);
     }
+
+
+
+    /**
+     * Returns the slope of the given line or Double.MAX_VALUE if the line is parallel to the y-axis
+     * (which means slope approaching infinity).
+     *
+     * @return  The slope of the given line or Double.NaN
+     */
+    private double calculateSlope(Line2D line) {
+        if (Math.abs(line.getX1() - line.getX2()) < EPSILON) {
+            return Double.MAX_VALUE;
+        } else {
+            return (line.getY2() - line.getY1()) / (line.getX2() - line.getX1());
+        }
+    }
+
 
 
     /**
@@ -220,9 +229,7 @@ public class Map {
                 walls.add(new Wall(tmp));
 
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        }  catch (IOException e) {
             e.printStackTrace();
         }
         return walls;
