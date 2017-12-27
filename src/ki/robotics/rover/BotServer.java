@@ -50,7 +50,8 @@ public class BotServer {
 		stayOnline = true;
 		stayConnected = true;
 		while (stayOnline) {
-            try (ServerSocket server = new ServerSocket(port)) {
+            try {
+                ServerSocket server = new ServerSocket(port);
                 Socket client = server.accept();
                 client.setKeepAlive(true);
                 client.setSoTimeout(TIMEOUT);
@@ -60,16 +61,21 @@ public class BotServer {
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 controller.registerOutputStream(out);
 
-                while (stayConnected) {
-                    String request;
+                String request;
+                do {
                     try {
                         request = in.readLine();
-                        if (request == null) {  continue;  }
-                        controller.handleRequest(request);
-                    } catch (SocketTimeoutException e) {
+                        if (request == null) {
+                            continue;
+                        }
+                       stayConnected = controller.handleRequest(request);
+                    } catch (SocketTimeoutException e) { }
+                } while (stayConnected);
 
-                    }
-                }
+                out.close();
+                in.close();
+                client.close();
+                server.close();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

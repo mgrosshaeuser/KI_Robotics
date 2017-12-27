@@ -20,7 +20,7 @@ public class Map {
     private static final double EPSILON = 0.00001;
 
     private ArrayList<Wall> map;
-    private int requiredMinWidht;
+    private int requiredMinWidth;
     private int requiredMinHeight;
 
 
@@ -32,7 +32,7 @@ public class Map {
      */
     public Map(File file) {
         this.map = parseSVGFile(file);
-        requiredMinWidht = calculateRequiredMinWidth();
+        requiredMinWidth = calculateRequiredMinWidth();
         requiredMinHeight = calculateRequiredMinHeight();
     }
 
@@ -61,8 +61,8 @@ public class Map {
      *
      * @return  Minimum width for displaying the map.
      */
-    public int getRequiredMinWidht() {
-        return this.requiredMinWidht;
+    public int getRequiredMinWidth() {
+        return this.requiredMinWidth;
     }
 
 
@@ -124,7 +124,7 @@ public class Map {
      */
     public double getDistanceToObstacle(float x, float y, float angle) {
         // Maximum distance possible within the map-boundaries.
-        double maxLine = Math.sqrt(Math.pow(requiredMinHeight, 2) + Math.pow(requiredMinWidht,2));
+        double maxLine = Math.sqrt(Math.pow(requiredMinHeight, 2) + Math.pow(requiredMinWidth,2));
 
         double nearestObstacle = Double.MAX_VALUE;
         for (Wall w : map) {

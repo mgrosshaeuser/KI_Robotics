@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 
@@ -20,7 +21,8 @@ public class ControlClient {
 
     private String host;
     private int port;
-    private boolean stayConnected;
+    private MCL monty;
+
 
 
     /**
@@ -32,16 +34,14 @@ public class ControlClient {
     public ControlClient(String host, int port) {
         this.host = host;
         this.port = port;
+        monty = new MCL();
     }
 
 
 
-    /**
-     *  Initiates the connection to the specified server (e.g. a robot or a simulation)
-     *  At the moment, the only interaction is via an interactive shell.
-     */
-    public void powerUp() {
-        stayConnected = true;
+    public void start() {
+        ArrayList<String> botResponses = new ArrayList<>();
+
         try {
             Socket socket = new Socket(host, port);
             socket.setKeepAlive(true);
@@ -50,36 +50,31 @@ public class ControlClient {
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            Scanner scanner = new Scanner(System.in);
 
-            String request;
+            String request = monty.execute(null);
             String response = null;
 
-            while (stayConnected) {
-                if (response == null  ||  response.equals("SFIN")) {
-                    System.out.print("mission control ~$ ");
-                    request = scanner.nextLine();
-                    if (request.equals("exit")) {
-                        stayConnected = false;
-                        continue;
-                    }
-                    out.println(request);
-                }
+            do {
+                out.println(request);
+                do {
+                    try {
+                        response = in.readLine();
+                        if (response == null) {
+                            continue;
+                        }
+                        botResponses.add(response);
+                    } catch (SocketTimeoutException e) { }
+                } while(! response.contains("SFIN"));
+                request = monty.execute(botResponses);
+            } while (! request.equals("DCNT"));
 
-                try {
-                    response = in.readLine();
-                    if (response == null) {  continue;  }
-                    System.out.println(">>> " + response);
-                } catch (SocketTimeoutException e) {
-
-                }
-            }
+            out.println("DCNT");
+            out.close();
+            in.close();
             socket.close();
-        } catch (SocketTimeoutException e1) {
+        } catch (IOException e1) {
             e1.printStackTrace();
         }
-        catch (IOException e2) {
-            e2.printStackTrace();
-        }
     }
+
 }

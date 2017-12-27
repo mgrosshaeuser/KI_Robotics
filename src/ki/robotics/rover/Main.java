@@ -4,7 +4,7 @@ import lejos.robotics.navigation.Pose;
 
 
 /**
- * Main class of the Servert. Communication-Port is specified and an instance of the BotServer is acquired..
+ * Main class of the Server. Communication-Port is specified and an instance of the BotServer is acquired..
  *
  * @version 1.0, 12/26/17
  */
@@ -15,7 +15,7 @@ public class Main {
 
     /**
      * Program-Initialization and start of the server.
-     * @param args
+     * @param args  Command line argument; 'true' for simulation-mode.
      */
     public static void main(String[] args) {
         boolean isSimulation = Boolean.parseBoolean(args[0].toLowerCase());

@@ -7,8 +7,8 @@ package ki.robotics.mission_control;
  * @version 1.0, 12/26/17
  */
 public class Main {
-    public static final String HOST = "dev";
-    public static final int PORT = 9999;
+    private static final String HOST = "dev";
+    private static final int PORT = 9999;
 
 
 
@@ -19,6 +19,6 @@ public class Main {
      */
     public static void main(String[] args) {
         ControlClient client = new ControlClient(HOST, PORT);
-        client.powerUp();
+        client.start();
     }
 }

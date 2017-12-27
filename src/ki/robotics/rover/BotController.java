@@ -26,7 +26,7 @@ public class BotController {
      * Depending on the boolean isSimulation-value, either an instance of a simulated robot is used or the
      * singleton-instance for accessing the physical robot is acquired.
      *
-     * @param isSimulation
+     * @param isSimulation  Determines about simulation-mode or real-mode
      */
     public BotController(boolean isSimulation) {
         this.out = null;
@@ -137,11 +137,11 @@ public class BotController {
                 break;
             case "SHTD":
                 status = robot.shutdown();
-                out.println(instruction);
+                out.println("DCNT");
                 break;
             case "DCNT":
                 status = robot.disconnect();
-                out.println(instruction);
+                out.println("DCNT");
                 break;
             default:
                 status = robot.handleUnsupportedInstruction(instruction);

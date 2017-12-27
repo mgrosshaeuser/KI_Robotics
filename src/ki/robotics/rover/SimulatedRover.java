@@ -65,20 +65,20 @@ public class SimulatedRover extends JFrame implements Robot{
      * - the x- and y-offsets to center the simulation in the window.
      */
     private void updateVisualParameters() {
-        int maxX = map.getRequiredMinWidht();
+        int maxX = map.getRequiredMinWidth();
         int maxY = map.getRequiredMinHeight();
 
-        double widht = mapOverlay.getVisibleRect().getWidth();
+        double width = mapOverlay.getVisibleRect().getWidth();
         double height = mapOverlay.getVisibleRect().getHeight();
 
-        double scaleX = widht / maxX;
+        double scaleX = width / maxX;
         double scaleY = height / maxY;
 
         double limitingFactor = scaleX > scaleY ? scaleY : scaleX;
 
         scaleFactor = (int) Math.abs(Math.floor(limitingFactor));
 
-        xOffset = ((int) Math.abs(widht) - (maxX * scaleFactor)) / 2;
+        xOffset = ((int) Math.abs(width) - (maxX * scaleFactor)) / 2;
         yOffset = ((int) Math.abs(height) - (maxY * scaleFactor)) / 2;
     }
 
@@ -197,11 +197,13 @@ public class SimulatedRover extends JFrame implements Robot{
 
     @Override
     public boolean shutdown() {
+        Main.shutdown();
         return false;
     }
 
     @Override
     public boolean disconnect() {
+        Main.disconnect();
         return false;
     }
 
