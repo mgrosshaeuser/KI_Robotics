@@ -13,11 +13,11 @@ import java.util.Scanner;
 /**
  * Communication-Instance for the client-side.
  *
- * @version 1.0, 12/26/17
+ * @version 1.1, 12/28/17
  */
 public class ControlClient {
 
-    private static final int TRANSMISSION_TIMEOUT = 500;
+    private static final int TRANSMISSION_TIMEOUT = 0;
 
     private String host;
     private int port;
@@ -38,7 +38,12 @@ public class ControlClient {
     }
 
 
-
+    /**
+     * Starts a connection-attempt to the server.
+     * Once a connection is established an initial request is sent to the server. The connection is kept
+     * until either this client or the server (robots) sends a 'SFIN'- (instruction Sequence FINished) or
+     * 'DCNT'- (DisCoNnecT) signal.
+     */
     public void start() {
         ArrayList<String> botResponses = new ArrayList<>();
 
@@ -52,26 +57,29 @@ public class ControlClient {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             String request = monty.execute(null);
-            String response = null;
+            String response;
 
             do {
                 out.println(request);
                 do {
-                    try {
-                        response = in.readLine();
-                        if (response == null) {
-                            continue;
-                        }
-                        botResponses.add(response);
-                    } catch (SocketTimeoutException e) { }
-                } while(! response.contains("SFIN"));
+                    response = in.readLine();
+                    if (response == null) {
+                        continue;
+                    }
+                    botResponses.add(response);
+                    if (response.contains("SFIN")) {
+                        break;
+                    }
+                } while (true);
                 request = monty.execute(botResponses);
-            } while (! request.equals("DCNT"));
+            } while (!request.equals("DCNT"));
 
             out.println("DCNT");
             out.close();
             in.close();
             socket.close();
+        } catch (SocketTimeoutException e) {
+
         } catch (IOException e1) {
             e1.printStackTrace();
         }

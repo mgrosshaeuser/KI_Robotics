@@ -124,12 +124,9 @@ public class BotController {
             case "MDST":
                 status = true;
                 double distance = robot.measureDistance();
-                out.print(new Instruction(instruction.getMnemonic(), distance));
+                out.println(new Instruction(instruction.getMnemonic(), distance));
                 break;
             case "USTW":
-                //TODO Implementation
-                break;
-            case "FSSC":
                 //TODO Implementation
                 break;
             case "POSE":

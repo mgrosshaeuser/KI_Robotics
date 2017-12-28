@@ -14,11 +14,11 @@ import java.net.SocketTimeoutException;
 /**
  * Comunication-Instance for the Server-Side (e.g. the robot or a simulation).
  *
- * @version 1.0, 12/26/17
+ * @version 1.1, 12/28/17
  */
 public class BotServer {
 
-    private static final int TIMEOUT = 200;
+    private static final int TIMEOUT = 0;
 
     private int port;
     private boolean isSimulation;
@@ -62,20 +62,21 @@ public class BotServer {
                 controller.registerOutputStream(out);
 
                 String request;
+
                 do {
-                    try {
-                        request = in.readLine();
-                        if (request == null) {
-                            continue;
-                        }
-                       stayConnected = controller.handleRequest(request);
-                    } catch (SocketTimeoutException e) { }
+                    request = in.readLine();
+                    if (request == null) {
+                        continue;
+                    }
+                    stayConnected = controller.handleRequest(request);
                 } while (stayConnected);
 
                 out.close();
                 in.close();
                 client.close();
                 server.close();
+            } catch (SocketTimeoutException e) {
+
             } catch (IOException e1) {
                 e1.printStackTrace();
             }

@@ -14,7 +14,7 @@ import java.util.ArrayList;
 /**
  * Representation of a particle for monte-carlo-localization.
  *
- * @version 1.0, 12/27/17
+ * @version 1.1, 12/28/17
  */
 public class Particle extends JComponent{
 
@@ -37,7 +37,7 @@ public class Particle extends JComponent{
 
 
     /**
-     * Constructor
+     * Constructor.
      *
      * @param pose      Pose for the particle.
      * @param weight    Weight of the particle.
@@ -45,6 +45,17 @@ public class Particle extends JComponent{
     public Particle(Pose pose, double weight) {
         this.pose = pose;
         this.weight = weight;
+    }
+
+
+    /**
+     * Constructor.
+     *
+     * @param particle  A particle as template.
+     */
+    public Particle(Particle particle) {
+        this.pose = particle.pose;
+        this.weight = particle.weight;
     }
 
 
@@ -113,18 +124,4 @@ public class Particle extends JComponent{
         return new Point(Math.round(pose.getX()), Math.round(pose.getY()));
     }
 
-
-
-
-
-
-    public ArrayList<Particle> turnIntoRadialSwarm(int count) {
-        //TODO Implementation
-        return null;
-    }
-
-    public ArrayList<Particle> turnIntoLinearSwarm(int count, Line2D axis) {
-        //TODO Implementation
-        return null;
-    }
 }

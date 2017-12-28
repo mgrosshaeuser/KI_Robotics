@@ -6,7 +6,6 @@ package ki.robotics.datastructures;
  *
  * @version 1.0, 12/26/17
  */
-
 public class Instruction {
     private String mnemonic;
     private double parameter;
@@ -27,7 +26,7 @@ public class Instruction {
 
 
     /**
-     * Returns the Menomic of the Instruction.
+     * Returns the Mnemonic of the Instruction.
      *
      * @return  Returns the Mnemonic of the Instruction.
      */
@@ -55,6 +54,6 @@ public class Instruction {
      */
     @Override
     public String toString() {
-        return mnemonic + " " + parameter + "\n";
+        return mnemonic + " " + parameter;
     }
 }

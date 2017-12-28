@@ -36,7 +36,7 @@ public class InstructionSetTranscoder {
      */
     private Instruction decodeInstruction(String instruction) {
         String trimmedInstruction = instruction.trim();
-        String opcode = trimmedInstruction.substring(0,4);
+        String mnemonic = trimmedInstruction.substring(0,4);
         double argument = 0;
         if (trimmedInstruction.length() > 4) {
             try {
@@ -45,7 +45,6 @@ public class InstructionSetTranscoder {
                 argument = 0;
             }
         }
-        Instruction decoded = new Instruction(opcode, argument);
-        return decoded;
+        return new Instruction(mnemonic, argument);
     }
 }

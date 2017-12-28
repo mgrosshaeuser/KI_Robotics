@@ -1,6 +1,7 @@
 package ki.robotics.datastructures;
 
 import ki.robotics.rover.SimulatedRover;
+import ki.robotics.utility.svg_shapes.Shape_Line;
 
 import java.awt.*;
 
@@ -8,61 +9,62 @@ import java.awt.*;
 /**
  * Representation of a wall in a map.
  *
- * @version 1.0, 12/26/17
+ * @version 1.1, 12/28/17
  */
-public class Wall {
-        private Point start;
-        private Point end;
+public class Wall{
+    private Shape_Line line;
 
-        private int color;
 
     /**
      * Constructor.
-     * Creates a new Wall-instance from the string-representation of a line obeying the svg-xml-dialect.
      *
-     * @param str_rep   The string-representation of a line.
+     * @param x1        x-Coordinate of the starting-point of the wall.
+     * @param y1        y-Coordinate of the starting-point of the wall.
+     * @param x2        x-Coordinate of the end-point of the wall.
+     * @param y2        x-Coordinate of the end-point of the wall.
+     * @param stroke    Color of the stroke as integer-RGB-value.
+     * @param fill      Color of the fill as integer-RGB-value.
      */
-    public Wall(String[] str_rep) {
-            this.color = Integer.parseInt(str_rep[0].substring(1));
-            double x1 = Double.parseDouble(str_rep[1]);
-            double x2 = Double.parseDouble(str_rep[2]);
-            double y1 = Double.parseDouble(str_rep[3]);
-            double y2 = Double.parseDouble(str_rep[4]);
-            this.start = new Point((int) Math.round(x1), (int) Math.round(y1));
-            this.end = new Point((int) Math.round(x2), (int) Math.round(y2));
-        }
-
-
-
-    /**
-     * Returns the color of the wall as read from the map-file.
-     *
-     * @return  The color of the wall.
-     */
-    public int getColor() {
-        return color;
+    public Wall(double x1, double y1, double x2, double y2, int stroke, int fill) {
+        this.line = new Shape_Line(x1, y1, x2, y2, stroke, fill);
     }
 
 
 
     /**
-     * Returns the starting-point of this wall.
+     * Constructor.
+     *
+     * @param line      An instance of Shape_Line from the svg_shapes.
+     */
+    public Wall(Shape_Line line) {
+        this(line.getX1(), line.getY1(), line.getX2(), line.getY2(), line.getStroke(), line.getFill());
+    }
+
+
+
+    /**
+     * Returns the starting-point of this wall in integer-coordinates.
      *
      * @return  The starting-point of the wall.
      */
     public Point getStart() {
-        return this.start;
+        return new Point(
+                (int) Math.round(line.getP1().getX()),
+                (int) Math.round(line.getP1().getY())
+        );
     }
 
 
-
     /**
-     * Returns the end-point of this wall.
+     * Returns the end-point of this wall in integer-coordinates.
      *
      * @return  The end-point of the wall.
      */
     public Point getEnd() {
-        return this.end;
+        return new Point(
+                (int) Math.round(line.getP2().getX()),
+                (int) Math.round(line.getP2().getY())
+        );
     }
 
 
@@ -71,16 +73,19 @@ public class Wall {
      * Paints the wall in a given graphics-context using given scale-factor and offsets.
      *
      * @param g             The graphics-context to paint in.
-     * @param scaleFactor   The scale-factor for adjusting length an position.
+     * @param scaleFactor   The scale-factor for adjusting length and position.
      * @param xOffset       The vertical offset.
      * @param yOffset       The horizontal offset.
      */
     public void paint(Graphics g, int scaleFactor, int xOffset, int yOffset) {
         Graphics2D g2d = (Graphics2D) g;
+        g2d.setColor(new Color(line.getStroke()));
         g2d.drawLine(
-                start.x * scaleFactor + xOffset,
-                start.y * scaleFactor + yOffset,
-                end.x * scaleFactor + xOffset,
-                end.y * scaleFactor + yOffset);
-        }
+                line.getX1AsInt() * scaleFactor + xOffset,
+                line.getY1AsInt() * scaleFactor + yOffset,
+                line.getX2AsInt() * scaleFactor + xOffset,
+                line.getY2AsInt() * scaleFactor + yOffset
+        );
+    }
+
 }

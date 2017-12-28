@@ -13,11 +13,13 @@ import java.io.File;
  * A simulated robot using a JFrame rather than actual movement to display behaviiour and
  * calculates rather than measures sensor-data.
  *
- * @version 1.0 12/26/17
+ * @version 1.1 12/28/17
  */
 public class SimulatedRover extends JFrame implements Robot{
-    public static final int WINDOW_WIDTH = 1000;
-    public static final int WINDOW_HEIGHT = 1400;
+    public static final int WINDOW_WIDTH = 600;
+    public static final int WINDOW_HEIGHT = 800;
+
+    private static final int ANIMATION_FRAME_INTERVAL = 100;
 
     private int scaleFactor = 1;
     private int xOffset = 0;
@@ -34,7 +36,7 @@ public class SimulatedRover extends JFrame implements Robot{
      *Constructor.
      */
     public SimulatedRover() {
-        this.map = new Map(new File(getClass().getClassLoader().getResource("map.svg").getFile()));
+        this.map = new Map(new File(getClass().getClassLoader().getResource("map2.svg").getFile()));
         this.pose = new Pose();
         pose.setLocation(Rover.BOT_DIAMETER/2 , Rover.BOT_DIAMETER/2);
         this.setTitle("Simulated Rover");
@@ -101,13 +103,17 @@ public class SimulatedRover extends JFrame implements Robot{
         } else {
             sensorHeadTurnRight(180);
         }
-        double inFront = measureDistance();
-        if (inFront >= distance + 5) {
-            float d = pose.getHeading();
-            float dx = (float) (Math.cos(Math.toRadians(d)) * distance);
-            float dy = (float) (Math.sin(Math.toRadians(d)) * distance) * -1;
-            pose.translate(dx, dy);
+
+        distance = (measureDistance() >= distance + 5) ? distance : measureDistance() - 5;
+        float dx = (float) (Math.cos(Math.toRadians(pose.getHeading())) * distance);
+        float dy = (float) (Math.sin(Math.toRadians(pose.getHeading())) * distance) * -1;
+
+        float xStep = dx / (float)distance;
+        float yStep = dy / (float)distance;
+        for (int i = 0  ;  i < distance ; i++) {
+            timedPoseTranslation(xStep, yStep);
         }
+
         rover.setSensorHeadOrientation(temp);
         repaint();
         return true;
@@ -170,8 +176,7 @@ public class SimulatedRover extends JFrame implements Robot{
 
     @Override
     public int measureColor() {
-        //TODO get color from map
-        return Color.BLACK.getRGB();
+        return map.getColorAtPosition(Math.round(pose.getX()), Math.round(pose.getY()));
     }
 
     @Override
@@ -219,6 +224,21 @@ public class SimulatedRover extends JFrame implements Robot{
 
 
 
+    /**
+     * Animates the motion of the robot.
+     *
+     * @param dx    horizontal distance of motion.
+     * @param dy    vertical distance of motion.
+     */
+    private void timedPoseTranslation(float dx, float dy) {
+        pose.translate(dx, dy);
+        repaint();
+        try {
+            Thread.sleep(ANIMATION_FRAME_INTERVAL);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 
 
@@ -233,7 +253,7 @@ public class SimulatedRover extends JFrame implements Robot{
         @Override
         public void paint(Graphics g) {
             super.paint(g);
-            this.setBackground(Color.BLACK);
+            this.setBackground(Color.LIGHT_GRAY);
             if (map != null) map.paint(g, scaleFactor, xOffset, yOffset);
             if (rover != null) rover.paint(g);
         }
@@ -305,7 +325,7 @@ public class SimulatedRover extends JFrame implements Robot{
             Graphics2D g2d = (Graphics2D) g;
 
             paintSensorHead(g2d, Color.GREEN);
-            paintRobot(g2d, Color.YELLOW, Color.BLACK);
+            paintRobot(g2d, Color.YELLOW, Color.LIGHT_GRAY);
         }
 
         private void paintSensorHead(Graphics2D g2d, Color color) {

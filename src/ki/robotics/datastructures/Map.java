@@ -1,27 +1,31 @@
 package ki.robotics.datastructures;
 
+import ki.robotics.utility.SVGParser;
+import ki.robotics.utility.svg_shapes.Shape_Line;
+import ki.robotics.utility.svg_shapes.Shape_Rectangle;
+
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.*;
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 
 
 /**
  * Map-Representation including methods for parsing the map from an SVG-File, painting the map within a
  * graphical context and calculating distances within the map.
  *
- * @version 1.1, 12/27/17
+ * @version 1.2, 12/28/17
  */
 public class Map {
 
     private static final double EPSILON = 0.00001;
 
     private ArrayList<Wall> map;
-    private int requiredMinWidth;
-    private int requiredMinHeight;
+    private ArrayList<FloorTile> floor;
+    private SVGParser svgParser;
+
 
 
 
@@ -31,9 +35,27 @@ public class Map {
      * @param file  The SVG-File containing the information about walls.
      */
     public Map(File file) {
-        this.map = parseSVGFile(file);
-        requiredMinWidth = calculateRequiredMinWidth();
-        requiredMinHeight = calculateRequiredMinHeight();
+        this.svgParser = new SVGParser(file);
+        loadMapElements();
+    }
+
+
+
+    /**
+     * Transforms svg-elements (lines, rectangles) into map-elements (walls and floor-tiles).
+     */
+    private void loadMapElements() {
+        ArrayList<Shape_Line> lines = svgParser.getLines();
+        this.map = new ArrayList<>();
+        for (Shape_Line l : lines) {
+            map.add(new Wall(l));
+        }
+
+        ArrayList<Shape_Rectangle> rectangles = svgParser.getRectangles();
+        this.floor = new ArrayList<>();
+        for (Shape_Rectangle r : rectangles) {
+            floor.add(new FloorTile(r));
+        }
     }
 
 
@@ -48,7 +70,9 @@ public class Map {
      */
     public void paint(Graphics g, int scaleFactor, int xOffset, int yOffset) {
         Graphics2D g2d = (Graphics2D) g;
-        g2d.setColor(Color.LIGHT_GRAY);
+        for (FloorTile f : floor) {
+            f.paint(g2d, scaleFactor, xOffset, yOffset);
+        }
         for (Wall w : map) {
             w.paint(g2d, scaleFactor, xOffset, yOffset);
         }
@@ -57,60 +81,43 @@ public class Map {
 
 
     /**
-     * Returns the minimum required width necessary to display the map.
+     * Returns the minimum required width needed to display the map.
      *
      * @return  Minimum width for displaying the map.
      */
     public int getRequiredMinWidth() {
-        return this.requiredMinWidth;
+        return (int) Math.ceil(svgParser.graphicWidth);
     }
 
 
 
     /**
-     * Returns the minimum required height necessary to display the map.
+     * Returns the minimum required height needed to display the map.
      *
      * @return  Minimum height for displaying the map.
      */
     public int getRequiredMinHeight() {
-        return  this.requiredMinHeight;
+        return  (int) Math.ceil(svgParser.graphicHeight);
     }
 
 
 
     /**
-     * Calculates the minimum required width necessary to display the map, as the difference between the
-     * greatest and smallest value on the x-axis. The calculation is performed once when a map-file is
-     * loaded and the result is stored locally to speed up access.
+     * Returns the floor-color at a given point in the map.
      *
-     * @return  Minimum width for displaying the map.
+     * @param x     x-Coordinate of the point in question.
+     * @param y     y-Coordinate of the point in question.
+     * @return      The floor-color at point (x,y)
      */
-    private int calculateRequiredMinWidth() {
-        int maxX = 0;
-        for (Wall w : map) {
-            maxX = w.getStart().x > maxX ? w.getStart().x : maxX;
-            maxX = w.getEnd().x > maxX ? w.getEnd().x : maxX;
+    public int getColorAtPosition(int x, int y) {
+        for (FloorTile f : floor) {
+            if (f.containsPoint(x, y)) {
+                return f.getColor();
+            }
         }
-        return maxX;
+        return -1;
     }
 
-
-
-    /**
-     * Calculates the minimum required height necessary to display the map, as the difference between the
-     * greatest and smallest value on the y-axis. The calculation is performed once when a map-file is
-     * loaded and the result is stored locally to speed up access.
-     *
-     * @return  Minimum width for displaying the map.
-     */
-    private int calculateRequiredMinHeight() {
-        int maxY = 0;
-        for (Wall w : map) {
-            maxY = w.getStart().y > maxY ? w.getStart().y : maxY;
-            maxY = w.getEnd().y > maxY ? w.getEnd().y : maxY;
-        }
-        return maxY;
-    }
 
 
     /**
@@ -124,7 +131,7 @@ public class Map {
      */
     public double getDistanceToObstacle(float x, float y, float angle) {
         // Maximum distance possible within the map-boundaries.
-        double maxLine = Math.sqrt(Math.pow(requiredMinHeight, 2) + Math.pow(requiredMinWidth,2));
+        double maxLine = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
 
         double nearestObstacle = Double.MAX_VALUE;
         for (Wall w : map) {
@@ -198,40 +205,4 @@ public class Map {
         }
     }
 
-
-
-    /**
-     * Parses the information from a given SVG-File.
-     * At the moment, only line-elements of the svg-xml-dialect are processed.
-     *
-     * @param file  The SVG-File to be parsed.
-     * @return      The line-elements from the SVG-File as List of Wall-instances.
-     */
-    private ArrayList<Wall> parseSVGFile(File file) {
-        Pattern pattern = Pattern.compile("\"(.+?)\"");
-
-        ArrayList<Wall> walls = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (! line.startsWith("<line")) {
-                    continue;
-                }
-                Matcher matcher = pattern.matcher(line);
-
-                String[] tmp = new String[5];
-                int i = 0;
-                while (matcher.find()) {
-                    tmp[i] = matcher.group(1);
-                    i++;
-                }
-                walls.add(new Wall(tmp));
-
-            }
-        }  catch (IOException e) {
-            e.printStackTrace();
-        }
-        return walls;
-    }
 }
