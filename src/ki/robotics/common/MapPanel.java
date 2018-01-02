@@ -28,6 +28,11 @@ public abstract class MapPanel extends JPanel{
 
     }
 
+    public void setNewMap(Map map) {
+        this.map = map;
+        repaint();
+    }
+
     public int getScaleFactor() {   return scaleFactor; }
     public int getxOffset()     {   return xOffset;     }
     public int getyOffset()     {   return yOffset;     }

@@ -199,9 +199,9 @@ public class MCL_Display extends JFrame{
             maps.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    if (! parent.mapPanel.isModifiable()) {
+                    if (parent.mapPanel.isModifiable()) {
                         String mapkey = mapkeys[maps.getSelectedIndex()];
-                        map = MapProvider.getInstance().getMap(mapkey);
+                        parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapkey));
                         mclProvider = null;
                         parent.repaint();
                     }
