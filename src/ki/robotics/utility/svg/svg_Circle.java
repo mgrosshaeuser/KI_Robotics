@@ -1,4 +1,4 @@
-package ki.robotics.utility.svg_shapes;
+package ki.robotics.utility.svg;
 
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.Point2D;
@@ -11,7 +11,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @version 1.0, 12/28/17
  */
-public class Shape_Circle extends Ellipse2D.Double {
+public class svg_Circle extends Ellipse2D.Double {
     private Point2D.Double center;
     private double diameter;
     private int stroke;
@@ -26,7 +26,7 @@ public class Shape_Circle extends Ellipse2D.Double {
      * @param cy        y-Coordinate for the center of the circle.
      * @param diameter  Diameter of the circle.
      */
-    public Shape_Circle(double cx, double cy, double diameter) {
+    public svg_Circle(double cx, double cy, double diameter) {
         this.center = new Point2D.Double(cx, cy);
         this.diameter = diameter;
     }
@@ -42,7 +42,7 @@ public class Shape_Circle extends Ellipse2D.Double {
      * @param stroke    Stroke-color of the circle as integer-RGB-value.
      * @param fill      Fill-color of the circle as integer-RGB-value.
      */
-    public Shape_Circle(double cx, double cy, double diameter, int stroke, int fill) {
+    public svg_Circle(double cx, double cy, double diameter, int stroke, int fill) {
         this(cx, cy, diameter);
         this.stroke = stroke;
         this.fill = fill;

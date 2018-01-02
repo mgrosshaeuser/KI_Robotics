@@ -1,8 +1,8 @@
-package ki.robotics.utility;
+package ki.robotics.utility.svg;
 
-import ki.robotics.utility.svg_shapes.Shape_Circle;
-import ki.robotics.utility.svg_shapes.Shape_Line;
-import ki.robotics.utility.svg_shapes.Shape_Rectangle;
+import ki.robotics.utility.svg.svg_Circle;
+import ki.robotics.utility.svg.svg_Line;
+import ki.robotics.utility.svg.svg_Rectangle;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -30,9 +30,9 @@ public class SVGParser {
     public double graphicWidth;
     public double graphicHeight;
 
-    private ArrayList<Shape_Circle> circles;
-    private ArrayList<Shape_Line> lines;
-    private ArrayList<Shape_Rectangle> rectangles;
+    private ArrayList<svg_Circle> circles;
+    private ArrayList<svg_Line> lines;
+    private ArrayList<svg_Rectangle> rectangles;
 
 
 
@@ -61,7 +61,7 @@ public class SVGParser {
      *
      * @return  List of all circles in the file.
      */
-    public ArrayList<Shape_Circle> getCircles() {
+    public ArrayList<svg_Circle> getCircles() {
         return circles;
     }
 
@@ -72,7 +72,7 @@ public class SVGParser {
      *
      * @return  List of all lines in the file.
      */
-    public ArrayList<Shape_Line> getLines() {
+    public ArrayList<svg_Line> getLines() {
         return lines;
     }
 
@@ -83,7 +83,7 @@ public class SVGParser {
      *
      * @return  List of all rectangles in the file.
      */
-    public ArrayList<Shape_Rectangle> getRectangles() {
+    public ArrayList<svg_Rectangle> getRectangles() {
         return rectangles;
     }
 
@@ -151,16 +151,16 @@ public class SVGParser {
      * Parses a Node that was identified as a line-element.
      *
      * @param node  A Node which holds a line.
-     * @return      An instance of Shape_Line representing the line-element.
+     * @return      An instance of svg_Line representing the line-element.
      */
-    private Shape_Line parseLine(Node node) {
+    private svg_Line parseLine(Node node) {
         Element line = (Element) node;
         int[] colors = getStrokeAndFillColor(line);
         double x1 = Double.parseDouble(line.getAttribute("x1"));
         double y1 = Double.parseDouble(line.getAttribute("y1"));
         double x2 = Double.parseDouble(line.getAttribute("x2"));
         double y2 = Double.parseDouble(line.getAttribute("y2"));
-        return new Shape_Line(x1, y1, x2, y2, colors[0], colors[1]);
+        return new svg_Line(x1, y1, x2, y2, colors[0], colors[1]);
     }
 
 
@@ -169,15 +169,15 @@ public class SVGParser {
      * Parses a Node that was identified as a circle-element.
      *
      * @param node  A Node which holds a circle.
-     * @return      An instance of Shape_Circle representing the circle-element.
+     * @return      An instance of svg_Circle representing the circle-element.
      */
-    private Shape_Circle parseCircle(Node node) {
+    private svg_Circle parseCircle(Node node) {
         Element circle = (Element) node;
         int[] colors = getStrokeAndFillColor(circle);
         double cx = Double.parseDouble(circle.getAttribute("cx"));
         double cy = Double.parseDouble(circle.getAttribute("cy"));
         double r = Double.parseDouble(circle.getAttribute("r"));
-        return new Shape_Circle(cx, cy, r, colors[0], colors[1]);
+        return new svg_Circle(cx, cy, r, colors[0], colors[1]);
     }
 
 
@@ -186,16 +186,16 @@ public class SVGParser {
      * Parses a Node that was identified as a rect-element.
      *
      * @param node  A Node which holds a rectangle.
-     * @return      An instance of Shape_Rectangle representing the rect-element.
+     * @return      An instance of svg_Rectangle representing the rect-element.
      */
-    private Shape_Rectangle parseRectangle(Node node) {
+    private svg_Rectangle parseRectangle(Node node) {
         Element rectangle = (Element) node;
         int[] colors = getStrokeAndFillColor(rectangle);
         double x = Double.parseDouble(rectangle.getAttribute("x"));
         double y = Double.parseDouble(rectangle.getAttribute("y"));
         double w = Double.parseDouble(rectangle.getAttribute("width"));
         double h = Double.parseDouble(rectangle.getAttribute("height"));
-        return new Shape_Rectangle(x, y, w, h, colors[0], colors[1]);
+        return new svg_Rectangle(x, y, w, h, colors[0], colors[1]);
     }
 
 
@@ -210,8 +210,8 @@ public class SVGParser {
     private int[] getStrokeAndFillColor(Element element) {
         String strokeTmp = element.getAttribute("stroke");
         String fillTmp = element.getAttribute("fill");
-        int stroke =  (strokeTmp.equals("")) ? Integer.parseInt(strokeTmp.substring(1), 16) : Color.WHITE.getRGB();
-        int fill = (fillTmp.equals("")) ? Integer.parseInt(fillTmp.substring(1), 16) : Color.WHITE.getRGB();
+        int stroke =  (! strokeTmp.equals("")) ? Integer.parseInt(strokeTmp.substring(1), 16) : Color.WHITE.getRGB();
+        int fill = (! fillTmp.equals("")) ? Integer.parseInt(fillTmp.substring(1), 16) : Color.WHITE.getRGB();
         return new int[]{stroke, fill};
     }
 }

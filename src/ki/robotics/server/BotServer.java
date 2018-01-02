@@ -1,6 +1,4 @@
-package ki.robotics.rover;
-
-import ki.robotics.rover.BotController;
+package ki.robotics.server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +19,6 @@ public class BotServer {
     private static final int TIMEOUT = 0;
 
     private int port;
-    private boolean isSimulation;
     private BotController controller;
 
     private boolean stayOnline;
@@ -36,8 +33,7 @@ public class BotServer {
      */
     public BotServer(int port, boolean isSimulation) {
         this.port = port;
-        this.isSimulation = isSimulation;
-        this.controller = new BotController(isSimulation);
+        this.controller = new BotController(isSimulation, this);
     }
 
 
@@ -48,8 +44,8 @@ public class BotServer {
      */
     public void powerUp() {
 		stayOnline = true;
-		stayConnected = true;
 		while (stayOnline) {
+            stayConnected = true;
             try {
                 ServerSocket server = new ServerSocket(port);
                 Socket client = server.accept();

@@ -1,6 +1,7 @@
-package ki.robotics.rover;
+package ki.robotics.robot;
 
-import ki.robotics.datastructures.Instruction;
+import ki.robotics.utility.crisp.Instruction;
+import ki.robotics.server.Main;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -18,7 +19,7 @@ import lejos.robotics.navigation.Pose;
 /**
  * Singleton for accessing the hardware of a Lego-EV3-Robot.
  */
-public class Sojourner implements Robot{
+public class Sojourner implements Robot {
 
     private static final Sojourner INSTANCE = new Sojourner();
 
@@ -49,7 +50,7 @@ public class Sojourner implements Robot{
     /**
      *Configuration of a MovePilot to abstract from the movement-actions.
      *
-     * @return
+     * @return  A MovePilot for the robot.
      */
     private MovePilot configureMovePilot() {
         Wheel left = WheeledChassis.modelWheel(Motor.A, 55.5).offset(-55);
@@ -85,15 +86,15 @@ public class Sojourner implements Robot{
     //////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public boolean botTravelForward(double distance) {
+    public double botTravelForward(double distance) {
         pilot.travel(distance * 10);
-        return true;
+        return distance;
     }
 
     @Override
-    public boolean botTravelBackward(double distance) {
+    public double botTravelBackward(double distance) {
         pilot.travel(distance * -10);
-        return true;
+        return distance;
     }
 
     @Override
@@ -137,8 +138,7 @@ public class Sojourner implements Robot{
     @Override
     public int measureColor() {
         int ev3color = cls.getColorID();
-        int color = translateColor(ev3color);
-        return color;
+        return translateColor(ev3color);
     }
 
     @Override

@@ -1,7 +1,6 @@
-package ki.robotics.datastructures;
+package ki.robotics.utility.map;
 
-import ki.robotics.rover.SimulatedRover;
-import ki.robotics.utility.svg_shapes.Shape_Line;
+import ki.robotics.utility.svg.svg_Line;
 
 import java.awt.*;
 
@@ -12,7 +11,7 @@ import java.awt.*;
  * @version 1.1, 12/28/17
  */
 public class Wall{
-    private Shape_Line line;
+    private svg_Line line;
 
 
     /**
@@ -26,7 +25,7 @@ public class Wall{
      * @param fill      Color of the fill as integer-RGB-value.
      */
     public Wall(double x1, double y1, double x2, double y2, int stroke, int fill) {
-        this.line = new Shape_Line(x1, y1, x2, y2, stroke, fill);
+        this.line = new svg_Line(x1, y1, x2, y2, stroke, fill);
     }
 
 
@@ -34,9 +33,9 @@ public class Wall{
     /**
      * Constructor.
      *
-     * @param line      An instance of Shape_Line from the svg_shapes.
+     * @param line      An instance of svg_Line from the svg.
      */
-    public Wall(Shape_Line line) {
+    public Wall(svg_Line line) {
         this(line.getX1(), line.getY1(), line.getX2(), line.getY2(), line.getStroke(), line.getFill());
     }
 

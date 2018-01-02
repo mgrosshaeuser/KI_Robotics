@@ -1,6 +1,6 @@
-package ki.robotics.datastructures;
+package ki.robotics.utility.map;
 
-import ki.robotics.utility.svg_shapes.Shape_Rectangle;
+import ki.robotics.utility.svg.svg_Rectangle;
 
 import java.awt.*;
 
@@ -12,7 +12,7 @@ import java.awt.*;
  */
 public class FloorTile {
 
-   private Shape_Rectangle rectangle;
+   private svg_Rectangle rectangle;
 
 
     /**
@@ -26,7 +26,7 @@ public class FloorTile {
      * @param fill      RGB-Color of the fill as integer-value.
      */
     public FloorTile(double x1, double y1, double width, double height, int stroke, int fill) {
-        this.rectangle = new Shape_Rectangle(x1, y1, width, height, stroke, fill);
+        this.rectangle = new svg_Rectangle(x1, y1, width, height, stroke, fill);
     }
 
 
@@ -34,9 +34,9 @@ public class FloorTile {
     /**
      * Constructor.
      *
-     * @param r     An instance of Shape_Rectangle from the svg_shapes
+     * @param r     An instance of svg_Rectangle from the svg
      */
-    public FloorTile(Shape_Rectangle r) {
+    public FloorTile(svg_Rectangle r) {
         this(r.getXAsInt(), r.getYAsInt(), r.getWidthAsInt(), r.getHeightAsInt(), r.getStroke(), r.getFill());
     }
 

@@ -1,11 +1,15 @@
-package ki.robotics.rover;
+package ki.robotics.server;
 
-import ki.robotics.datastructures.Instruction;
-import ki.robotics.utility.InstructionSetTranscoder;
+import ki.robotics.utility.crisp.Instruction;
+import ki.robotics.robot.Robot;
+import ki.robotics.robot.RoverSimulation;
+import ki.robotics.robot.Sojourner;
+import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import static ki.robotics.utility.crisp.CRISP.*;
 
 /**
  * A Controller translating the Instruction-class mnemonics into method-calls on an implementation of
@@ -28,11 +32,11 @@ public class BotController {
      *
      * @param isSimulation  Determines about simulation-mode or real-mode
      */
-    public BotController(boolean isSimulation) {
+    public BotController(boolean isSimulation, BotServer botServer) {
         this.out = null;
         this.jobQueue = new ArrayList<>();
         this.transcoder = new InstructionSetTranscoder();
-        this.robot = isSimulation ? new SimulatedRover() : Sojourner.getInstance();
+        this.robot = isSimulation ? new RoverSimulation(botServer) : Sojourner.getInstance();
     }
 
 
@@ -68,7 +72,7 @@ public class BotController {
             stayConnected = processInstruction(instruction);
         }
 
-        out.println("SFIN");
+        out.println(INSTRUCTION_SEQUENCE_FINISHED);
 
         return stayConnected;
     }
@@ -88,61 +92,66 @@ public class BotController {
         double parameter = instruction.getParameter();
 
         switch(instruction.getMnemonic()) {
-            case "BTRF":
-                status = robot.botTravelForward(parameter);
-                out.println(instruction);
+            case BOT_TRAVEL_FORWARD:
+                status = true;
+                out.println(new Instruction(instruction.getMnemonic(), robot.botTravelForward(parameter)));
                 break;
-            case "BTRB":
-                status = robot.botTravelBackward(parameter);
-                out.print(instruction);
+            case BOT_TRAVEL_BACKWARD:
+                status = true;
+                out.println(new Instruction(instruction.getMnemonic(), robot.botTravelBackward(parameter)));
                 break;
-            case "BTNL":
+            case BOT_TURN_LEFT:
                 status = robot.botTurnLeft(parameter);
                 out.println(instruction);
                 break;
-            case "BTNR":
+            case BOT_TURN_RIGHT:
                 status = robot.botTurnRight(parameter);
                 out.println(instruction);
                 break;
-            case "STNL":
+            case SENSOR_TURN_LEFT:
                 status = robot.sensorHeadTurnLeft(parameter);
                 out.println(instruction);
                 break;
-            case "STNR":
+            case SENSOR_TURN_RIGHT:
                 status = robot.sensorHeadTurnRight(parameter);
                 out.println(instruction);
                 break;
-            case "SRST":
+            case SENSOR_RESET:
                 status = robot.sensorHeadReset();
                 out.println(instruction);
                 break;
-            case "MCLR":
+            case MEASURE_COLOR:
                 status = true;
                 int color = robot.measureColor();
-                out.println(new Instruction(instruction.getMnemonic(), color));
+                out.println(instruction.getMnemonic() + " " + color);
                 break;
-            case "MDST":
+            case MEASURE_DISTANCE:
                 status = true;
                 double distance = robot.measureDistance();
                 out.println(new Instruction(instruction.getMnemonic(), distance));
                 break;
-            case "USTW":
+            case THREE_WAY_SCAN:
+                status = true;
+                double[] tws = robot.ultrasonicThreeWayScan();
+                out.println(new Instruction(THREE_WAY_SCAN_LEFT, tws[0]));
+                out.println(new Instruction(THREE_WAY_SCAN_CENTER, tws[1]));
+                out.println(new Instruction(THREE_WAY_SCAN_RIGHT, tws[2]));
+                out.println(THREE_WAY_SCAN);
+                break;
+            case RETURN_POSE:
                 //TODO Implementation
                 break;
-            case "POSE":
-                //TODO Implementation
-                break;
-            case "SHTD":
+            case BOT_SHUTDOWN:
                 status = robot.shutdown();
-                out.println("DCNT");
+                out.println(BOT_DISCONNECT);
                 break;
-            case "DCNT":
+            case BOT_DISCONNECT:
                 status = robot.disconnect();
-                out.println("DCNT");
+                out.println(BOT_DISCONNECT);
                 break;
             default:
                 status = robot.handleUnsupportedInstruction(instruction);
-                out.println("IERR");
+                out.println(UNSUPPORTED_INSTRUCTION);
                 break;
         }
         return status;

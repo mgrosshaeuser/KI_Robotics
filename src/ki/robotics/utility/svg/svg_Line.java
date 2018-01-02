@@ -1,6 +1,5 @@
-package ki.robotics.utility.svg_shapes;
+package ki.robotics.utility.svg;
 
-import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -10,7 +9,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @version 1.0, 12/28/17
  */
-public class Shape_Line extends Line2D.Double{
+public class svg_Line extends Line2D.Double{
     private Point2D start;
     private Point2D end;
     private int stroke;
@@ -18,12 +17,12 @@ public class Shape_Line extends Line2D.Double{
 
 
 
-    public Shape_Line(double x1, double y1, double x2, double y2) {
+    public svg_Line(double x1, double y1, double x2, double y2) {
         this.start = new Point2D.Double(x1, y1);
         this.end = new Point2D.Double(x2, y2);
     }
 
-    public Shape_Line(double x1, double y1, double x2, double y2, int stroke, int fill) {
+    public svg_Line(double x1, double y1, double x2, double y2, int stroke, int fill) {
         this(x1, y1, x2, y2);
         this.stroke = stroke;
         this.fill = fill;

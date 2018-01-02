@@ -1,8 +1,8 @@
-package ki.robotics.datastructures;
+package ki.robotics.utility.crisp;
 
 
 /**
- * Representation of an Instruction from the Robot-Instruction-Set.
+ * Representation of an Instruction from the I_Robot-Instruction-Set.
  *
  * @version 1.0, 12/26/17
  */

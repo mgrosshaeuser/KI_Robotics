@@ -1,8 +1,8 @@
-package ki.robotics.datastructures;
+package ki.robotics.utility.map;
 
-import ki.robotics.utility.SVGParser;
-import ki.robotics.utility.svg_shapes.Shape_Line;
-import ki.robotics.utility.svg_shapes.Shape_Rectangle;
+import ki.robotics.utility.svg.SVGParser;
+import ki.robotics.utility.svg.svg_Line;
+import ki.robotics.utility.svg.svg_Rectangle;
 
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -26,7 +26,7 @@ public class Map {
     private ArrayList<FloorTile> floor;
     private SVGParser svgParser;
 
-
+    private Polygon boundaries;
 
 
     /**
@@ -34,10 +34,22 @@ public class Map {
      *
      * @param file  The SVG-File containing the information about walls.
      */
-    public Map(File file) {
+    public Map(File file, Polygon boundaries) {
+        this.boundaries = boundaries;
         this.svgParser = new SVGParser(file);
         loadMapElements();
     }
+
+
+
+
+
+    public Polygon getMapBoundaries() {
+        return boundaries;
+    }
+
+
+
 
 
 
@@ -45,15 +57,15 @@ public class Map {
      * Transforms svg-elements (lines, rectangles) into map-elements (walls and floor-tiles).
      */
     private void loadMapElements() {
-        ArrayList<Shape_Line> lines = svgParser.getLines();
+        ArrayList<svg_Line> lines = svgParser.getLines();
         this.map = new ArrayList<>();
-        for (Shape_Line l : lines) {
+        for (svg_Line l : lines) {
             map.add(new Wall(l));
         }
 
-        ArrayList<Shape_Rectangle> rectangles = svgParser.getRectangles();
+        ArrayList<svg_Rectangle> rectangles = svgParser.getRectangles();
         this.floor = new ArrayList<>();
-        for (Shape_Rectangle r : rectangles) {
+        for (svg_Rectangle r : rectangles) {
             floor.add(new FloorTile(r));
         }
     }

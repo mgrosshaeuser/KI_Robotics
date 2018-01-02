@@ -1,4 +1,4 @@
-package ki.robotics.mission_control;
+package ki.robotics.client;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,23 +6,25 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
-import java.util.ArrayList;
-import java.util.Scanner;
+
+import static ki.robotics.utility.crisp.CRISP.BOT_DISCONNECT;
+import static ki.robotics.utility.crisp.CRISP.INSTRUCTION_SEQUENCE_FINISHED;
 
 
 /**
  * Communication-Instance for the client-side.
  *
- * @version 1.1, 12/28/17
+ * @version 1.2, 01/02/18
  */
-public class ControlClient {
+public final class ControllerClient implements Runnable{
 
     private static final int TRANSMISSION_TIMEOUT = 0;
 
     private String host;
     private int port;
-    private MCL monty;
+    private Controller controller;
 
+    public static volatile boolean running = true;
 
 
     /**
@@ -31,10 +33,10 @@ public class ControlClient {
      * @param host  The host to which to connect.
      * @param port  The port to address.
      */
-    public ControlClient(String host, int port) {
+    public ControllerClient(String host, int port, Controller controller) {
         this.host = host;
         this.port = port;
-        monty = new MCL();
+        this.controller = controller;
     }
 
 
@@ -44,9 +46,8 @@ public class ControlClient {
      * until either this client or the server (robots) sends a 'SFIN'- (instruction Sequence FINished) or
      * 'DCNT'- (DisCoNnecT) signal.
      */
-    public void start() {
-        ArrayList<String> botResponses = new ArrayList<>();
-
+    @Override
+    public void run() {
         try {
             Socket socket = new Socket(host, port);
             socket.setKeepAlive(true);
@@ -56,7 +57,7 @@ public class ControlClient {
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            String request = monty.execute(null);
+            String request = controller.getInitialRequest();
             String response;
 
             do {
@@ -66,18 +67,19 @@ public class ControlClient {
                     if (response == null) {
                         continue;
                     }
-                    botResponses.add(response);
-                    if (response.contains("SFIN")) {
+                    controller.handleResponse(response);
+                    if (response.contains(INSTRUCTION_SEQUENCE_FINISHED)) {
                         break;
                     }
                 } while (true);
-                request = monty.execute(botResponses);
-            } while (!request.equals("DCNT"));
+                request = controller.getNextRequest();
+            } while ( running && !request.equals(BOT_DISCONNECT));
 
-            out.println("DCNT");
+            out.println(BOT_DISCONNECT);
             out.close();
             in.close();
             socket.close();
+            running = true;
         } catch (SocketTimeoutException e) {
 
         } catch (IOException e1) {

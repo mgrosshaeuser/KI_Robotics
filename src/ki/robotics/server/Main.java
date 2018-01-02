@@ -1,6 +1,4 @@
-package ki.robotics.rover;
-
-import lejos.robotics.navigation.Pose;
+package ki.robotics.server;
 
 
 /**
@@ -20,7 +18,9 @@ public class Main {
     public static void main(String[] args) {
         boolean isSimulation = Boolean.parseBoolean(args[0].toLowerCase());
         server = new BotServer(PORT, isSimulation);
-        server.powerUp();
+        if ( isSimulation) {
+            server.powerUp();
+        }
     }
 
 

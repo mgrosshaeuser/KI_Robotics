@@ -1,4 +1,4 @@
-package ki.robotics.utility.svg_shapes;
+package ki.robotics.utility.svg;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -10,7 +10,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @version 1.0, 12/28/17
  */
-public class Shape_Rectangle extends Rectangle2D.Double {
+public class svg_Rectangle extends Rectangle2D.Double {
     private Point2D.Double topLeft;
     private double width;
     private double height;
@@ -18,13 +18,13 @@ public class Shape_Rectangle extends Rectangle2D.Double {
     private int fill;
 
 
-    public Shape_Rectangle(double x1, double y1, double width, double height) {
+    public svg_Rectangle(double x1, double y1, double width, double height) {
         this.topLeft = new Point2D.Double(x1,y1);
         this.width = width;
         this.height = height;
     }
 
-    public Shape_Rectangle(double x1, double y1, double width, double height, int stroke, int fill) {
+    public svg_Rectangle(double x1, double y1, double width, double height, int stroke, int fill) {
         this(x1, y1, width, height);
         this.stroke = stroke;
         this.fill = fill;

@@ -1,6 +1,4 @@
-package ki.robotics.utility;
-
-import ki.robotics.datastructures.Instruction;
+package ki.robotics.utility.crisp;
 
 import java.util.ArrayList;
 
@@ -34,7 +32,7 @@ public class InstructionSetTranscoder {
      * @param instruction   a string containing one instruction and its parameter.
      * @return              the instruction and parameter as Instruction-object.
      */
-    private Instruction decodeInstruction(String instruction) {
+    public Instruction decodeInstruction(String instruction) {
         String trimmedInstruction = instruction.trim();
         String mnemonic = trimmedInstruction.substring(0,4);
         double argument = 0;
