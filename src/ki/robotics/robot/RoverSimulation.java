@@ -231,6 +231,7 @@ public class RoverSimulation extends VirtualRobotModel {
                     if (parent.mapOverlay.isModifiable()) {
                         String mapkey = mapkeys[maps.getSelectedIndex()];
                         parent.mapOverlay.setNewMap(mapProvider.getMap(mapkey));
+                        map = mapProvider.getMap(mapkey);
                         parent.repaint();
                     }
                 }

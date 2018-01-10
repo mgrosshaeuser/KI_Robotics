@@ -202,6 +202,7 @@ public class MCL_Display extends JFrame{
                     if (parent.mapPanel.isModifiable()) {
                         String mapkey = mapkeys[maps.getSelectedIndex()];
                         parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapkey));
+                        map = MapProvider.getInstance().getMap(mapkey);
                         mclProvider = null;
                         parent.repaint();
                     }
@@ -276,7 +277,7 @@ public class MCL_Display extends JFrame{
         private class StartButtonActionListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parent.mapPanel.setModifiable(true);
+                parent.mapPanel.setModifiable(false);
                 int step = Integer.parseInt(stepsize.getText());
                 int numOfParticles = Integer.parseInt(particles.getText());
                 Configuration config = new Configuration(
@@ -301,7 +302,7 @@ public class MCL_Display extends JFrame{
         private class StopButtonActionListener implements  ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parent.mapPanel.setModifiable(false);
+                parent.mapPanel.setModifiable(true);
                 stop();
                 start.setEnabled(true);
             }
