@@ -69,7 +69,7 @@ public class Controller {
      * @return  The initial request to the robot.
      */
     public String getInitialRequest() {
-        return THREE_WAY_SCAN + ", " + MEASURE_COLOR;
+        return SENSOR_RESET;
     }
 
 
@@ -99,10 +99,6 @@ public class Controller {
                         direction = BOT_TURN_LEFT + " 90, ";
                     }
                 }
-            }
-        } else {
-            if (! (roverModel.getDistanceToCenter() > minWallDistance)) {
-                direction = BOT_TURN_RIGHT + " 180, ";
             }
         }
 

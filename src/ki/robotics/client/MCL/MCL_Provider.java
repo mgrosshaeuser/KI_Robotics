@@ -177,7 +177,6 @@ public class MCL_Provider {
      * Resamples the particles.
      */
     public void resample() {
-        /*
         normalizeParticleWeight();
 
         Random r = new Random();
@@ -194,7 +193,6 @@ public class MCL_Provider {
             newSet.add(new MCLParticle(particles.get(index)));
         }
         particles = newSet;
-        */
     }
 
 
@@ -212,6 +210,10 @@ public class MCL_Provider {
         return weight;
     }
 
+
+    public float getMedianParticleWeight() {
+        return (float)( getSumOfParticleWeights() / particleCount);
+    }
 
     /**
      * Sums up the weights of all particles.

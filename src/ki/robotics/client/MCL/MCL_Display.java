@@ -120,18 +120,19 @@ public class MCL_Display extends JFrame{
             if (mclProvider == null) {
                 return;
             }
+
             ArrayList<MCLParticle> particles = mclProvider.getParticles();
             if (particles != null) {
-                float maxWeight = mclProvider.getHighestParticleWeight();
+                float medianWeight = mclProvider.getMedianParticleWeight();
                 for (MCLParticle p : particles) {
-                    p.paint(g, PARTICLE_DIAMTER, getScaleFactor(), getxOffset(), getyOffset(), maxWeight);
+                    p.paint(g, PARTICLE_DIAMTER, getScaleFactor(), getxOffset(), getyOffset(), medianWeight);
                 }
             }
             Pose p = mclProvider.getEstimatedBotPose();
 
             g.setColor(Color.RED);
             g.drawOval(
-                    (Math.round(p.getX())-10) + getScaleFactor() + getxOffset(),
+                    (Math.round(p.getX())-10) * getScaleFactor() + getxOffset(),
                     (Math.round(p.getY())-10) * getScaleFactor() + getyOffset(), 20* getScaleFactor(),20* getScaleFactor());
 
         }

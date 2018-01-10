@@ -109,12 +109,18 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
      * @param scaleFactor   The scale-factor for visualization.
      * @param xOffset       The offset on the x-axis for visualization.
      * @param yOffset       The offset on the y-axis for visualization.
-     * @param maxWeight     The highest particle weight (might be used to link weight to color).
+     * @param medianWeight     The median particle weight used to link weight to color.
      */
-    public void paint(Graphics g, int diameter, int scaleFactor, int xOffset, int yOffset, double maxWeight) {
+    public void paint(Graphics g, int diameter, int scaleFactor, int xOffset, int yOffset, double medianWeight) {
         Graphics2D g2d = (Graphics2D) g;
 
-        g2d.setColor(Color.CYAN);
+        if (weight < (0.75 * medianWeight)) {
+            g2d.setColor(new Color(150,0,100));
+        } else if (weight >= (0.75 * medianWeight)  &&  weight < (1.25 * medianWeight)) {
+            g2d.setColor(new Color(150,150,100));
+        } else {
+            g2d.setColor(new Color(0,150,100));
+        }
         g2d.fillOval(
                 Math.round(this.pose.getX() - (diameter / 2)) * scaleFactor + xOffset,
                 Math.round(this.pose.getY() - (diameter / 2)) * scaleFactor + yOffset,
