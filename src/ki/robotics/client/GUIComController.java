@@ -89,19 +89,17 @@ public class GUIComController implements ComController {
         if (configuration.isTwoDimensional()) {
             Random r = new Random();
             int d = (r.nextInt() % 3);
-            if (d < -1) {
-                direction = BOT_TURN_RIGHT + "90, ";
-            } else if (d > 1) {
-                direction = BOT_TURN_LEFT + "90, ";
+            if (d < -1 && roverModel.getDistanceToRight() > minWallDistance) {
+                direction = BOT_TURN_RIGHT + " 90, ";
+            } else if (d > 1 && roverModel.getDistanceToLeft() > minWallDistance) {
+                direction = BOT_TURN_LEFT + " 90, ";
             } else {
                 if (! (roverModel.getDistanceToCenter() > minWallDistance) ){
-                    if (roverModel.getDistanceToRight() > minWallDistance) {
-                        direction = BOT_TURN_RIGHT + " 90, ";
-                    } else {
-                        direction = BOT_TURN_LEFT + " 90, ";
-                    }
+                    direction = BOT_TURN_LEFT + " 180, ";
                 }
             }
+
+
         }
 
         StringBuilder scans = new StringBuilder();
