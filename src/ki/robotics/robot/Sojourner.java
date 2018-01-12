@@ -104,13 +104,13 @@ public class Sojourner implements Robot {
 
     @Override
     public boolean botTurnLeft(double degree) {
-        pilot.rotate(degree);
+        pilot.rotate(degree * - 1);
         return true;
     }
 
     @Override
     public boolean botTurnRight(double degree) {
-        pilot.rotate(degree * -1);
+        pilot.rotate(degree);
         return true;
     }
 
