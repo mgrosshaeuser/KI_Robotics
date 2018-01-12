@@ -120,18 +120,18 @@ public class MCL_Provider {
 
         if (botDistances[0] > 0  &&  particleDistances[0] > 0) {
             xDeviation = Math.abs(botDistances[0] - particleDistances[0]);
-            xWeight = deviationToWeight(xDeviation, particleDistances[0]);
+            xWeight = deviationToWeight(xDeviation, botDistances[0]);
             cnt++;
         }
 
         if (botDistances[1] > 0  &&  particleDistances[1] > 0) {
             yDeviation = Math.abs(botDistances[1] - particleDistances[1]);
-            yWeight = deviationToWeight(yDeviation, particleDistances[1]);
+            yWeight = deviationToWeight(yDeviation, botDistances[1]);
             cnt++;
         }
         if (botDistances[2] > 0  &&  particleDistances[2] > 0) {
             hDeviation = Math.abs(botDistances[2] - particleDistances[2]);
-            hWeight = deviationToWeight(hDeviation, particleDistances[2]);
+            hWeight = deviationToWeight(hDeviation, botDistances[2]);
             cnt ++;
         }
 
@@ -144,17 +144,17 @@ public class MCL_Provider {
 
 
     private int deviationToWeight(double deviation, double referenceValue) {
-        int weight = 0;
         if (deviation > 0.9 * referenceValue) {
-            weight  += 4;
+            return 8;
         } else if (deviation > 0.75 * referenceValue) {
-            weight += 3;
+            return 4;
         } else if (deviation > 0.5 * referenceValue) {
-            weight += 2;
+            return 2;
         } else if (deviation > 0.25 * referenceValue) {
-            weight += 1;
+            return 1;
+        } else {
+            return 0;
         }
-        return weight;
     }
 
 

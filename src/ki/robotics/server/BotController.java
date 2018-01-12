@@ -141,6 +141,16 @@ public class BotController {
             case RETURN_POSE:
                 //TODO Implementation
                 break;
+            case CAMERA_GENERAL_QUERY:
+                status = true;
+                out.println(CAMERA_GENERAL_QUERY + " " + robot.cameraGeneralQuery());
+                break;
+            case CAMERA_SIGNATURE_QUERY:
+                status = true;
+                for (byte[] b : robot.cameraSignatureQuery()) {
+                    out.println(CAMERA_SIGNATURE_QUERY + " " + b);
+                }
+                break;
             case BOT_SHUTDOWN:
                 status = robot.shutdown();
                 out.println(BOT_DISCONNECT);

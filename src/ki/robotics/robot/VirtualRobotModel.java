@@ -103,6 +103,29 @@ public abstract class VirtualRobotModel implements Robot {
         return pose;
     }
 
+    @Override
+    public byte[] cameraGeneralQuery() {
+        return new byte[]{0};
+    }
+
+    @Override
+    public byte[][] cameraSignatureQuery() {
+        return new byte[][]{{0}};
+    }
+
+    @Override
+    public byte[] cameraColorCodeQuery(int color) {
+        return new byte[]{0};
+    }
+
+    @Override
+    public byte[] cameraAngleQuery() {
+        return new byte[]{0};
+    }
+
+    public byte[] queryCamera() {
+        return new byte[]{0};
+    }
 
     public int getSensorHeadPosition() {
         return sensorHeadPosition;

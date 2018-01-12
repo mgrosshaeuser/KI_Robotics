@@ -8,8 +8,6 @@ import lejos.robotics.navigation.Pose;
  * Interface prescribing the basic operations of a robot.
  */
 public interface Robot {
-    //TODO Comments, comments, commments ... oh dear!
-
     double botTravelForward(double distance);
     double botTravelBackward(double distance);
     boolean botTurnLeft(double degree);
@@ -21,6 +19,10 @@ public interface Robot {
     double measureDistance();
     double[] ultrasonicThreeWayScan();
     Pose getPose();
+    byte[] cameraGeneralQuery();
+    byte[][] cameraSignatureQuery();
+    byte[] cameraColorCodeQuery(int color);
+    byte[] cameraAngleQuery();
     boolean shutdown();
     boolean disconnect();
     boolean handleUnsupportedInstruction(Instruction instruction);

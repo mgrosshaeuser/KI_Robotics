@@ -7,7 +7,7 @@ package ki.robotics.client;
  * @version 1.0, 12/26/17
  */
 public class Main {
-    public static final String HOST = null;
+    public static final String HOST = "192.168.43.171";
     public static final int PORT = 9999;
 
 
