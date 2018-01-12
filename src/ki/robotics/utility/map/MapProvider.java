@@ -25,6 +25,10 @@ public class MapProvider {
         this.files.put("Room", new File(getClass().getClassLoader().getResource("room.svg").getFile()));
         this.boundaries.put ("Room", new Polygon(new int[]{0, 150, 150, 100, 100, 0}, new int[]{0, 0, 150, 150, 200, 200},6));
         this.limitations.put("Room", new int[]{NO_LIMITATION, NO_LIMITATION, NO_LIMITATION});
+
+        this.files.put("Houses", new File(getClass().getClassLoader().getResource("Houses.svg").getFile()));
+        this.boundaries.put("Houses", new Polygon (new int[]{1,399, 399,1}, new int[]{69,69,71,71}, 4));
+        this.limitations.put("Houses", new int[]{NO_LIMITATION, 70,0});
     }
 
     public static MapProvider getInstance() { return INSTANCE; }
