@@ -16,7 +16,7 @@ import static ki.robotics.utility.crisp.CRISP.INSTRUCTION_SEQUENCE_FINISHED;
  *
  * @version 1.2, 01/02/18
  */
-public final class ControllerClient implements Runnable{
+public final class Communicator implements Runnable{
 
     private static final int TRANSMISSION_TIMEOUT = 0;
 
@@ -33,7 +33,7 @@ public final class ControllerClient implements Runnable{
      * @param host  The host to which to connect.
      * @param port  The port to address.
      */
-    public ControllerClient(String host, int port, ComController ComController) {
+    public Communicator(String host, int port, ComController ComController) {
         this.host = host;
         this.port = port;
         this.ComController = ComController;

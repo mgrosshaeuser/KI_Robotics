@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * @version 1.0 01/02/18
  */
 public class MCL_Display extends JFrame{
-    private static final int WINDOW_WIDTH = 600;
+    private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
     private static final String DEFAULT_SELECTED_MAP = "Room";
 

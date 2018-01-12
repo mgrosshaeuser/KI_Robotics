@@ -7,9 +7,7 @@ import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.locks.Lock;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -48,7 +46,7 @@ public class GUIComController implements ComController {
     public void start(Configuration configuration) {
         this.mclProvider = window.getMclProvider();
         this.configuration = configuration;
-        t = new Thread(new ControllerClient(Main.HOST, Main.PORT, this));
+        t = new Thread(new Communicator(Main.HOST, Main.PORT, this));
         t.setDaemon(true);
         t.start();
     }
@@ -60,7 +58,7 @@ public class GUIComController implements ComController {
     @Override
     public void stop() {
         if (t != null) {
-            ControllerClient.running = false;
+            Communicator.running = false;
         }
     }
 

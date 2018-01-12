@@ -9,16 +9,16 @@ public class TerminalComController implements ComController{
     private Thread t;
     @Override
     public void start(Configuration configuration) {
-        System.out.println("Connecting ...");
-        t = new Thread(new ControllerClient(Main.HOST, Main.PORT, this));
-        t.setDaemon(true);
+        System.out.println("I.R.I.S - Interactive Robot Instruction Shell");
+        System.out.print("---------------------------------------------\n\n");
+        t = new Thread(new Communicator(Main.HOST, Main.PORT, this));
         t.start();
     }
 
     @Override
     public void stop() {
         if (t != null) {
-            ControllerClient.running = false;
+            Communicator.running = false;
         }
     }
 
@@ -31,7 +31,11 @@ public class TerminalComController implements ComController{
     public String getNextRequest() {
         Scanner in = new Scanner(System.in);
         System.out.print("\n\n>>> ");
-        return in.nextLine();
+        String cmd = in.nextLine();
+        if (cmd.equals(BOT_DISCONNECT)) {
+            stop();
+        }
+        return cmd;
     }
 
     @Override
