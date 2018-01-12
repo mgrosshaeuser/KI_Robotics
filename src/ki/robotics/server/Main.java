@@ -16,11 +16,12 @@ public class Main {
      * @param args  Command line argument; 'true' for simulation-mode.
      */
     public static void main(String[] args) {
-        boolean isSimulation = Boolean.parseBoolean(args[0].toLowerCase());
-        server = new BotServer(PORT, isSimulation);
-        if ( isSimulation) {
-            server.powerUp();
+        boolean isSimulation = false;
+        if (args.length >=1) {
+            isSimulation = Boolean.parseBoolean(args[0].toLowerCase());
         }
+        server = new BotServer(PORT, isSimulation);
+        server.powerUp();
     }
 
 

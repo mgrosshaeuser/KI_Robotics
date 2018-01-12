@@ -166,6 +166,37 @@ public class Sojourner implements Robot {
     }
 
     @Override
+    public byte[] cameraGeneralQuery() {
+        byte[] generalQuery = new byte[6];
+        cam.getData(0x50, generalQuery, 6);
+        return generalQuery;
+    }
+
+    @Override
+    public byte[][] cameraSignatureQuery() {
+        byte[][] signatures = new byte[7][5];
+        for (int i = 0  ;  i < 7  ;  i++) {
+            byte[] signature = new byte[5];
+            cam.getData(0x51+i, signature, 5);
+            signatures[i] = signature;
+        }
+        return signatures;
+    }
+
+    @Override
+    public byte[] cameraColorCodeQuery(int color) {
+        //TODO Camera-Code
+        return null;
+    }
+
+    public byte[] cameraAngleQuery() {
+        byte[] angleQuery = new byte[1];
+        cam.getData(0x60, angleQuery, 1);
+        return angleQuery;
+    }
+
+
+    @Override
     public boolean shutdown() {
         Main.shutdown();
         return false;
@@ -182,6 +213,9 @@ public class Sojourner implements Robot {
 
         return true;
     }
+
+
+
 
 
 
