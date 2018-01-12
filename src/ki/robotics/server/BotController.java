@@ -143,7 +143,8 @@ public class BotController {
                 break;
             case CAMERA_GENERAL_QUERY:
                 status = true;
-                out.println(CAMERA_GENERAL_QUERY + " " + robot.cameraGeneralQuery());
+                byte[] q = robot.cameraGeneralQuery();
+                out.println(CAMERA_GENERAL_QUERY + " " + q[0] + " " + q[1] + " " + q[2] + " " + q[3] + " " + q[4] + " " + q[5]);
                 break;
             case CAMERA_SIGNATURE_QUERY:
                 status = true;
