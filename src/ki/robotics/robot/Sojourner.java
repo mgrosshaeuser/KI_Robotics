@@ -58,8 +58,10 @@ public class Sojourner implements Robot {
      * @return  A MovePilot for the robot.
      */
     private MovePilot configureMovePilot() {
-        Wheel left = WheeledChassis.modelWheel(Motor.A, 55.5).offset(-55);
-        Wheel right = WheeledChassis.modelWheel(Motor.D, 55.5).offset(55);
+        double diameter = 55.5;
+        double offset = 57;
+        Wheel left = WheeledChassis.modelWheel(Motor.A, diameter).offset(-offset);
+        Wheel right = WheeledChassis.modelWheel(Motor.D, diameter).offset(offset);
         Chassis chassis = new WheeledChassis(new Wheel[] {left, right}, WheeledChassis.TYPE_DIFFERENTIAL);
         MovePilot pilot = new MovePilot(chassis);
         pilot.setAngularAcceleration(100);
