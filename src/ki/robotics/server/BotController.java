@@ -143,7 +143,13 @@ public class BotController {
                 break;
             case CAMERA_GENERAL_QUERY:
                 status = true;
-                out.println(robot.cameraGeneralQuery());
+                out.println(CAMERA_GENERAL_QUERY + " " + robot.cameraGeneralQuery());
+                break;
+            case CAMERA_SIGNATURE_QUERY:
+                status = true;
+                for (byte[] b : robot.cameraSignatureQuery()) {
+                    out.println(CAMERA_SIGNATURE_QUERY + " " + b);
+                }
                 break;
             case BOT_SHUTDOWN:
                 status = robot.shutdown();
