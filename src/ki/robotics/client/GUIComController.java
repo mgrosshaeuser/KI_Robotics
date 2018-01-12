@@ -120,6 +120,10 @@ public class GUIComController implements ComController {
      */
     @Override
     public void handleResponse(String response) {
+        System.out.println(response);
+        if(response.equals(INSTRUCTION_SEQUENCE_FINISHED)){
+            System.out.println();
+        }
         Instruction statusCode = transcoder.decodeInstruction(response);
         switch (statusCode.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
@@ -157,7 +161,15 @@ public class GUIComController implements ComController {
             case MEASURE_DISTANCE:
                 float angle = roverModel.getSensorHeadPosition();
                 if (angle > 45) {
-                    roverModel.setDistanceToLeft((float)statusCode.getParameter());
+                    if(configuration.isOneDimensional() && (float) statusCode.getParameter()>25){
+                        roverModel.setDistanceToLeft(70);
+                    }else if(configuration.isOneDimensional() && statusCode.getParameter()<19){
+                        roverModel.setDistanceToLeft(20);
+                    }
+
+                    else{
+                        roverModel.setDistanceToLeft((float)statusCode.getParameter());
+                    }
                 } else if (angle < 45) {
                     roverModel.setDistanceToRight((float)statusCode.getParameter());
                 } else {
