@@ -156,9 +156,25 @@ public class Sojourner implements Robot {
         return distance[0] * 100;
     }
 
+    /**
+     *
+     * @return distance left, front, right
+     */
     @Override
     public double[] ultrasonicThreeWayScan() {
-        return new double[3];
+        double[] sonicValues = new double[3];
+        int degreeStep = 90;
+        //front measurement
+        sonicValues[1] = measureDistance();
+        sensorHeadTurnLeft(degreeStep);
+        //left measurement
+        sonicValues[0] = measureDistance();
+        sensorHeadTurnRight(2 * degreeStep);
+        //right measurement
+        sonicValues[2] = measureDistance();
+        //turn head straight to front
+        sensorHeadReset();
+        return sonicValues;
     }
 
     @Override
