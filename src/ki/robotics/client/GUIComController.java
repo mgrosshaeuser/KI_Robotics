@@ -7,9 +7,7 @@ import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
-import java.util.ArrayList;
 import java.util.Random;
-import java.util.concurrent.locks.Lock;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -18,7 +16,7 @@ import static ki.robotics.utility.crisp.CRISP.*;
  *
  * @version 1.2, 01/02/18
  */
-public class Controller {
+public class GUIComController implements ComController {
     private MCL_Display window;
     private MCL_Provider mclProvider;
     private InstructionSetTranscoder transcoder;
@@ -32,7 +30,7 @@ public class Controller {
     /**
      * Constructor.
      */
-    public Controller() {
+    public GUIComController() {
         this.window = new MCL_Display(this);
         this.transcoder = new InstructionSetTranscoder();
         this.roverModel = new SensorModel();
@@ -44,10 +42,11 @@ public class Controller {
      *
      * @param configuration
      */
+    @Override
     public void start(Configuration configuration) {
         this.mclProvider = window.getMclProvider();
         this.configuration = configuration;
-        t = new Thread(new ControllerClient(Main.HOST, Main.PORT, this));
+        t = new Thread(new Communicator(Main.HOST, Main.PORT, this));
         t.setDaemon(true);
         t.start();
     }
@@ -56,9 +55,10 @@ public class Controller {
     /**
      * Stops the communications-thread.
      */
+    @Override
     public void stop() {
         if (t != null) {
-            ControllerClient.running = false;
+            Communicator.running = false;
         }
     }
 
@@ -68,8 +68,9 @@ public class Controller {
      *
      * @return  The initial request to the robot.
      */
+    @Override
     public String getInitialRequest() {
-        return THREE_WAY_SCAN + ", " + MEASURE_COLOR;
+        return SENSOR_RESET;
     }
 
 
@@ -79,6 +80,7 @@ public class Controller {
      *
      * @return  Ongoing instructions-requests.
      */
+    @Override
     public String getNextRequest() {
         int minWallDistance = 15;
 
@@ -100,10 +102,6 @@ public class Controller {
                     }
                 }
             }
-        } else {
-            if (! (roverModel.getDistanceToCenter() > minWallDistance)) {
-                direction = BOT_TURN_RIGHT + " 180, ";
-            }
         }
 
         StringBuilder scans = new StringBuilder();
@@ -122,6 +120,7 @@ public class Controller {
      *
      * @param response  A single response from the robot.
      */
+    @Override
     public void handleResponse(String response) {
         Instruction statusCode = transcoder.decodeInstruction(response);
         switch (statusCode.getMnemonic()) {

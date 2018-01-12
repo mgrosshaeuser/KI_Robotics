@@ -16,13 +16,13 @@ import static ki.robotics.utility.crisp.CRISP.INSTRUCTION_SEQUENCE_FINISHED;
  *
  * @version 1.2, 01/02/18
  */
-public final class ControllerClient implements Runnable{
+public final class Communicator implements Runnable{
 
     private static final int TRANSMISSION_TIMEOUT = 0;
 
     private String host;
     private int port;
-    private Controller controller;
+    private ComController ComController;
 
     public static volatile boolean running = true;
 
@@ -33,10 +33,10 @@ public final class ControllerClient implements Runnable{
      * @param host  The host to which to connect.
      * @param port  The port to address.
      */
-    public ControllerClient(String host, int port, Controller controller) {
+    public Communicator(String host, int port, ComController ComController) {
         this.host = host;
         this.port = port;
-        this.controller = controller;
+        this.ComController = ComController;
     }
 
 
@@ -57,7 +57,7 @@ public final class ControllerClient implements Runnable{
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
-            String request = controller.getInitialRequest();
+            String request = ComController.getInitialRequest();
             String response;
 
             do {
@@ -67,12 +67,12 @@ public final class ControllerClient implements Runnable{
                     if (response == null) {
                         continue;
                     }
-                    controller.handleResponse(response);
+                    ComController.handleResponse(response);
                     if (response.contains(INSTRUCTION_SEQUENCE_FINISHED)) {
                         break;
                     }
                 } while (true);
-                request = controller.getNextRequest();
+                request = ComController.getNextRequest();
             } while ( running && !request.equals(BOT_DISCONNECT));
 
             out.println(BOT_DISCONNECT);

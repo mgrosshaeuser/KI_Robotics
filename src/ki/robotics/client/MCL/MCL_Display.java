@@ -1,6 +1,6 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.client.Controller;
+import ki.robotics.client.ComController;
 import ki.robotics.common.ExtButtonGroup;
 import ki.robotics.common.ExtJPanel;
 import ki.robotics.common.MapPanel;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
  * @version 1.0 01/02/18
  */
 public class MCL_Display extends JFrame{
-    private static final int WINDOW_WIDTH = 600;
+    private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
     private static final String DEFAULT_SELECTED_MAP = "Room";
 
@@ -29,7 +29,7 @@ public class MCL_Display extends JFrame{
     private ClientMapPanel mapPanel;
     private MCL_Provider mclProvider;
 
-    private Controller controller;
+    private ComController ComController;
 
 
 
@@ -37,10 +37,10 @@ public class MCL_Display extends JFrame{
     /**
      * Constructor.
      *
-     * @param controller    A controller, handling communication and response-decoding.
+     * @param ComController    A GUIComController, handling communication and response-decoding.
      */
-    public MCL_Display(Controller controller) {
-        this.controller = controller;
+    public MCL_Display(ComController ComController) {
+        this.ComController = ComController;
         this.map = MapProvider.getInstance().getMap(DEFAULT_SELECTED_MAP);
         this.mapPanel = new ClientMapPanel(this, this.map);
 
@@ -67,7 +67,7 @@ public class MCL_Display extends JFrame{
 
 
     /**
-     * Incorporates user-selections into the monte-carlo-localization and signals the controller to
+     * Incorporates user-selections into the monte-carlo-localization and signals the GUIComController to
      * try to connect to the server.
      *
      * @param configuration     User-Selections concerning the MCL
@@ -75,17 +75,17 @@ public class MCL_Display extends JFrame{
     private void start(Configuration configuration) {
         int[] limitations = MapProvider.getInstance().getMapLimitations(configuration.getMapKey());
         this.mclProvider = new MCL_Provider(map, configuration.getNumberOfParticles(), limitations);
-        controller.start(configuration);
+        ComController.start(configuration);
         repaint();
     }
 
 
 
     /**
-     * Signals the controller to disconnect from the server.
+     * Signals the GUIComController to disconnect from the server.
      */
     private void stop() {
-        controller.stop();
+        ComController.stop();
         repaint();
     }
 
@@ -120,18 +120,19 @@ public class MCL_Display extends JFrame{
             if (mclProvider == null) {
                 return;
             }
+
             ArrayList<MCLParticle> particles = mclProvider.getParticles();
             if (particles != null) {
-                float maxWeight = mclProvider.getHighestParticleWeight();
+                float medianWeight = mclProvider.getMedianParticleWeight();
                 for (MCLParticle p : particles) {
-                    p.paint(g, PARTICLE_DIAMTER, getScaleFactor(), getxOffset(), getyOffset(), maxWeight);
+                    p.paint(g, PARTICLE_DIAMTER, getScaleFactor(), getxOffset(), getyOffset(), medianWeight);
                 }
             }
             Pose p = mclProvider.getEstimatedBotPose();
 
             g.setColor(Color.RED);
             g.drawOval(
-                    (Math.round(p.getX())-10) + getScaleFactor() + getxOffset(),
+                    (Math.round(p.getX())-10) * getScaleFactor() + getxOffset(),
                     (Math.round(p.getY())-10) * getScaleFactor() + getyOffset(), 20* getScaleFactor(),20* getScaleFactor());
 
         }
@@ -202,6 +203,7 @@ public class MCL_Display extends JFrame{
                     if (parent.mapPanel.isModifiable()) {
                         String mapkey = mapkeys[maps.getSelectedIndex()];
                         parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapkey));
+                        map = MapProvider.getInstance().getMap(mapkey);
                         mclProvider = null;
                         parent.repaint();
                     }
@@ -276,7 +278,7 @@ public class MCL_Display extends JFrame{
         private class StartButtonActionListener implements ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parent.mapPanel.setModifiable(true);
+                parent.mapPanel.setModifiable(false);
                 int step = Integer.parseInt(stepsize.getText());
                 int numOfParticles = Integer.parseInt(particles.getText());
                 Configuration config = new Configuration(
@@ -301,7 +303,7 @@ public class MCL_Display extends JFrame{
         private class StopButtonActionListener implements  ActionListener {
             @Override
             public void actionPerformed(ActionEvent e) {
-                parent.mapPanel.setModifiable(false);
+                parent.mapPanel.setModifiable(true);
                 stop();
                 start.setEnabled(true);
             }

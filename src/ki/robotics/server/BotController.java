@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import static ki.robotics.utility.crisp.CRISP.*;
 
 /**
- * A Controller translating the Instruction-class mnemonics into method-calls on an implementation of
+ * A GUIComController translating the Instruction-class mnemonics into method-calls on an implementation of
  * the Robot-interface.
  *
  * @version 1.0, 12/26/17

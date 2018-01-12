@@ -116,27 +116,46 @@ public class MCL_Provider {
 
         int cnt = 0;
         double xDeviation = 0, yDeviation = 0, hDeviation = 0;
+        int xWeight = 0, yWeight = 0, hWeight = 0;
 
         if (botDistances[0] > 0  &&  particleDistances[0] > 0) {
             xDeviation = Math.abs(botDistances[0] - particleDistances[0]);
+            xWeight = deviationToWeight(xDeviation, particleDistances[0]);
             cnt++;
         }
+
         if (botDistances[1] > 0  &&  particleDistances[1] > 0) {
             yDeviation = Math.abs(botDistances[1] - particleDistances[1]);
+            yWeight = deviationToWeight(yDeviation, particleDistances[1]);
             cnt++;
         }
         if (botDistances[2] > 0  &&  particleDistances[2] > 0) {
             hDeviation = Math.abs(botDistances[2] - particleDistances[2]);
+            hWeight = deviationToWeight(hDeviation, particleDistances[2]);
             cnt ++;
         }
 
-        double deviation = (xDeviation + yDeviation + hDeviation) / cnt;
+        int deviation = xWeight + yWeight + hWeight;
         if (deviation > 0) {
             return 1/deviation;
         }
         return 1;
     }
 
+
+    private int deviationToWeight(double deviation, double referenceValue) {
+        int weight = 0;
+        if (deviation > 0.9 * referenceValue) {
+            weight  += 4;
+        } else if (deviation > 0.75 * referenceValue) {
+            weight += 3;
+        } else if (deviation > 0.5 * referenceValue) {
+            weight += 2;
+        } else if (deviation > 0.25 * referenceValue) {
+            weight += 1;
+        }
+        return weight;
+    }
 
 
     private double calculateProbability(SensorModel bot, MCLParticle particle) {
@@ -177,7 +196,6 @@ public class MCL_Provider {
      * Resamples the particles.
      */
     public void resample() {
-        /*
         normalizeParticleWeight();
 
         Random r = new Random();
@@ -194,7 +212,6 @@ public class MCL_Provider {
             newSet.add(new MCLParticle(particles.get(index)));
         }
         particles = newSet;
-        */
     }
 
 
@@ -212,6 +229,10 @@ public class MCL_Provider {
         return weight;
     }
 
+
+    public float getMedianParticleWeight() {
+        return (float)( getSumOfParticleWeights() / particleCount);
+    }
 
     /**
      * Sums up the weights of all particles.

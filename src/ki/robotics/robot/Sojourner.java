@@ -6,6 +6,7 @@ import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
+import lejos.hardware.sensor.I2CSensor;
 import lejos.robotics.SampleProvider;
 import lejos.robotics.chassis.Chassis;
 import lejos.robotics.chassis.Wheel;
@@ -26,6 +27,7 @@ public class Sojourner implements Robot {
     private MovePilot pilot;
     private EV3UltrasonicSensor uss;
     private EV3ColorSensor cls;
+    private I2CSensor cam;
     private PoseProvider poseProvider;
     private Pose pose;
 
@@ -38,8 +40,11 @@ public class Sojourner implements Robot {
      */
     private Sojourner() {
         pilot = configureMovePilot();
+
         uss = new EV3UltrasonicSensor(SensorPort.S4);
         cls = new EV3ColorSensor(SensorPort.S1);
+        cam = new I2CSensor(SensorPort.S2);
+
         poseProvider = new OdometryPoseProvider(pilot);
         pose = poseProvider.getPose();
         sensorCurrentPosition = 0;

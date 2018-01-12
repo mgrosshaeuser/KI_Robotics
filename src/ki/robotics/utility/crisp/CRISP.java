@@ -18,6 +18,7 @@ public class CRISP {
     public static final String RETURN_POSE = "POSE";
     public static final String BOT_SHUTDOWN = "SHTD";
     public static final String BOT_DISCONNECT = "DCNT";
+    public static final String CAMERA_QUERY = "CAMQ";
 
     //Supplementary status codes.
     public static final String THREE_WAY_SCAN_LEFT = "TWSL";
@@ -28,4 +29,5 @@ public class CRISP {
     public static final String POSE_HEADING = "POSH";
     public static final String UNSUPPORTED_INSTRUCTION = "IERR";
     public static final String INSTRUCTION_SEQUENCE_FINISHED ="SFIN";
+    public static final String CAMERA_RESPONSE = "CAMR";
 }
