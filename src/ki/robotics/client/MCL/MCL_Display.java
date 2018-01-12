@@ -1,6 +1,6 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.client.Controller;
+import ki.robotics.client.ComController;
 import ki.robotics.common.ExtButtonGroup;
 import ki.robotics.common.ExtJPanel;
 import ki.robotics.common.MapPanel;
@@ -29,7 +29,7 @@ public class MCL_Display extends JFrame{
     private ClientMapPanel mapPanel;
     private MCL_Provider mclProvider;
 
-    private Controller controller;
+    private ComController ComController;
 
 
 
@@ -37,10 +37,10 @@ public class MCL_Display extends JFrame{
     /**
      * Constructor.
      *
-     * @param controller    A controller, handling communication and response-decoding.
+     * @param ComController    A GUIComController, handling communication and response-decoding.
      */
-    public MCL_Display(Controller controller) {
-        this.controller = controller;
+    public MCL_Display(ComController ComController) {
+        this.ComController = ComController;
         this.map = MapProvider.getInstance().getMap(DEFAULT_SELECTED_MAP);
         this.mapPanel = new ClientMapPanel(this, this.map);
 
@@ -67,7 +67,7 @@ public class MCL_Display extends JFrame{
 
 
     /**
-     * Incorporates user-selections into the monte-carlo-localization and signals the controller to
+     * Incorporates user-selections into the monte-carlo-localization and signals the GUIComController to
      * try to connect to the server.
      *
      * @param configuration     User-Selections concerning the MCL
@@ -75,17 +75,17 @@ public class MCL_Display extends JFrame{
     private void start(Configuration configuration) {
         int[] limitations = MapProvider.getInstance().getMapLimitations(configuration.getMapKey());
         this.mclProvider = new MCL_Provider(map, configuration.getNumberOfParticles(), limitations);
-        controller.start(configuration);
+        ComController.start(configuration);
         repaint();
     }
 
 
 
     /**
-     * Signals the controller to disconnect from the server.
+     * Signals the GUIComController to disconnect from the server.
      */
     private void stop() {
-        controller.stop();
+        ComController.stop();
         repaint();
     }
 

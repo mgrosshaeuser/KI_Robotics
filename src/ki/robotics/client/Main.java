@@ -18,6 +18,11 @@ public class Main {
      * @param args
      */
     public static void main(String[] args) {
-        Controller controller = new Controller();
+        if (args.length >=1 && args[0].equals("terminal")) {
+            ComController comController = new TerminalComController();
+            comController.start(null);
+        } else {
+            ComController comController = new GUIComController();
+        }
     }
 }
