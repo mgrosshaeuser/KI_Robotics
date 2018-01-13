@@ -143,14 +143,26 @@ public class BotController {
                 break;
             case CAMERA_GENERAL_QUERY:
                 status = true;
-                byte[] q = robot.cameraGeneralQuery();
-                out.println(CAMERA_GENERAL_QUERY + " " + q[0] + " " + q[1] + " " + q[2] + " " + q[3] + " " + q[4] + " " + q[5]);
+                out.println(CAMERA_GENERAL_QUERY + " " + robot.cameraGeneralQuery());
                 break;
-            case CAMERA_SIGNATURE_QUERY:
+            case CAMERA_SINGLE_SIGNATURE_QUERY:
                 status = true;
-                for (byte[] b : robot.cameraSignatureQuery()) {
-                    out.println(CAMERA_SIGNATURE_QUERY + " " + b);
+                out.println(CAMERA_SINGLE_SIGNATURE_QUERY + " " + robot.cameraSignatureQuery((int) Math.round(parameter)));
+                break;
+            case CAMERA_ALL_SIGNATURES_QUERY:
+                status =true;
+                String[] signatures = robot.cameraAllSignaturesQuery();
+                for (int i = 0  ;  i < signatures.length  ;  i++) {
+                    out.println("CSG" + (i+1) + " " + signatures[i]);
                 }
+                break;
+            case CAMERA_COLOR_CODE_QUERY:
+                status = true;
+                out.println(CAMERA_COLOR_CODE_QUERY + " " + robot.cameraColorCodeQuery((int) Math.round(parameter)));
+                break;
+            case CAMERA_ANGLE_QUERY:
+                status = true;
+                out.println(CAMERA_ANGLE_QUERY + " " + robot.cameraAngleQuery());
                 break;
             case BOT_SHUTDOWN:
                 status = robot.shutdown();

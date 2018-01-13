@@ -2,6 +2,8 @@ package ki.robotics.robot;
 
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.server.Main;
+import ki.robotics.utility.pixyCam.DTOSignatureQuery;
+import ki.robotics.utility.pixyCam.PixyCam;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -27,7 +29,7 @@ public class Sojourner implements Robot {
     private MovePilot pilot;
     private EV3UltrasonicSensor uss;
     private EV3ColorSensor cls;
-    private I2CSensor cam;
+    private PixyCam cam;
     private PoseProvider poseProvider;
     private Pose pose;
 
@@ -43,7 +45,8 @@ public class Sojourner implements Robot {
 
         uss = new EV3UltrasonicSensor(SensorPort.S4);
         cls = new EV3ColorSensor(SensorPort.S1);
-        cam = new I2CSensor(SensorPort.S2);
+        cam = new PixyCam(SensorPort.S2);
+        //cam = new I2CSensor(SensorPort.S2);
 
         poseProvider = new OdometryPoseProvider(pilot);
         pose = poseProvider.getPose();
@@ -184,33 +187,32 @@ public class Sojourner implements Robot {
     }
 
     @Override
-    public byte[] cameraGeneralQuery() {
-        byte[] generalQuery = new byte[6];
-        cam.getData(0x50, generalQuery, 6);
-        return generalQuery;
+    public String cameraGeneralQuery() {
+        return cam.generalQuery().toString();
     }
 
     @Override
-    public byte[][] cameraSignatureQuery() {
-        byte[][] signatures = new byte[7][5];
-        for (int i = 0  ;  i < 7  ;  i++) {
-            byte[] signature = new byte[5];
-            cam.getData(0x51+i, signature, 5);
-            signatures[i] = signature;
+    public String cameraSignatureQuery(int signature) {
+        return cam.signatureQuery(signature).toString();
+    }
+
+    @Override
+    public String[] cameraAllSignaturesQuery() {
+        DTOSignatureQuery[] signatures = cam.allSignaturesQuery();
+        String[] response = new String[signatures.length];
+        for (int i = 0  ;  i < signatures.length  ;  i++) {
+            response[i] = signatures[i].toString();
         }
-        return signatures;
+        return response;
     }
 
     @Override
-    public byte[] cameraColorCodeQuery(int color) {
-        //TODO Camera-Code
-        return null;
+    public String cameraColorCodeQuery(int color) {
+        return cam.colorCodeQuery(color).toString();
     }
 
-    public byte[] cameraAngleQuery() {
-        byte[] angleQuery = new byte[1];
-        cam.getData(0x60, angleQuery, 1);
-        return angleQuery;
+    public String cameraAngleQuery() {
+        return cam.angleQuery().toString();
     }
 
 
