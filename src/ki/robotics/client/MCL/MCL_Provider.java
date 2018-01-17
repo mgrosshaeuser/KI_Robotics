@@ -204,7 +204,7 @@ public class MCL_Provider {
         double beta = 0.0;
         double maxWeight = getHighestParticleWeight();
         for (int i = 0  ;  i < particleCount  ;  i++) {
-            beta += r.nextDouble() * 2.0 + maxWeight;
+            beta += r.nextDouble() * 2.0 * maxWeight;
             while (beta > particles.get(index).getWeight()) {
                 beta -= particles.get(index).getWeight();
                 index = (index + 1) % particleCount;
