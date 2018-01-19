@@ -8,6 +8,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Utility-class for performing the monte-carlo-localization.
  *
@@ -83,7 +85,7 @@ public class MCL_Provider {
             int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
             int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 360)));
             if (boundaries.contains(x, y)) {
-                return new MCLParticle(new Pose(x, y, h), map, 0);
+                return new MCLParticle(new Pose(x, y, h), map, 1);
             }
         }
     }
@@ -95,6 +97,7 @@ public class MCL_Provider {
      * @param bot   The sensor-model of the robot.
      */
     public void recalculateParticleWeight(SensorModel bot) {
+        printParticles("recalculateParticleWeight");
         for (MCLParticle p : particles) {
             double deviation = calculateBotParticleDeviation(bot, p);
             p.setWeight((float)(deviation));
@@ -144,21 +147,23 @@ public class MCL_Provider {
 
 
     private int deviationToWeight(double deviation, double referenceValue) {
+        printParticles("deviationToWeight");
         if (deviation > 0.9 * referenceValue) {
-            return 8;
+            return 16;
         } else if (deviation > 0.75 * referenceValue) {
-            return 4;
+            return 8;
         } else if (deviation > 0.5 * referenceValue) {
-            return 2;
+            return 4;
         } else if (deviation > 0.25 * referenceValue) {
-            return 1;
+            return 2;
         } else {
-            return 0;
+            return 1;
         }
     }
 
 
     private double calculateProbability(SensorModel bot, MCLParticle particle) {
+        printParticles("deviationToWeight");
         float[] botDistances = bot.getAllDistances();
         double[] particleDistances = particle.ultrasonicThreeWayScan();
 
@@ -185,6 +190,7 @@ public class MCL_Provider {
      * Normalizes the weight of all particles.
      */
     public void normalizeParticleWeight() {
+        printParticles("normalizeParticleWeight");
         double sum = getSumOfParticleWeights();
         for (MCLParticle p : particles) {
             p.setWeight((float)(p.getWeight() / sum));
@@ -196,8 +202,8 @@ public class MCL_Provider {
      * Resamples the particles.
      */
     public void resample() {
+        printParticles("resample");
         normalizeParticleWeight();
-
         Random r = new Random();
         ArrayList<MCLParticle> newSet = new ArrayList<>();
         int index = Math.abs(r.nextInt()) % particleCount;
@@ -214,6 +220,17 @@ public class MCL_Provider {
         particles = newSet;
     }
 
+    private void printParticles(String indicator) {
+        System.out.println("\n" + indicator);
+        if (particles.get(0).getWeight() != particles.get(0).getWeight()) {
+            try {
+                sleep(2000);
+                System.exit(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      * Finds the highest weight among all particles.
@@ -221,6 +238,7 @@ public class MCL_Provider {
      * @return  The highest weight in the particle-set.
      */
     public float getHighestParticleWeight() {
+        printParticles("getHighestParticleWeight");
         float weight = 0f;
         for (MCLParticle p : particles) {
             float pWeight = p.getWeight();
@@ -231,6 +249,7 @@ public class MCL_Provider {
 
 
     public float getMedianParticleWeight() {
+        printParticles("getMedianParticleWeight");
         return (float)( getSumOfParticleWeights() / particleCount);
     }
 
@@ -240,6 +259,7 @@ public class MCL_Provider {
      * @return  The sum of the weight of all particles.
      */
     private double getSumOfParticleWeights() {
+        printParticles("getSumOfParticleWeights");
         double sum = 0;
         for (MCLParticle p : particles) {
                 sum += p.getWeight();
@@ -255,6 +275,7 @@ public class MCL_Provider {
      * @return  The estimated Pose of the robot.
      */
     public Pose getEstimatedBotPose() {
+        printParticles("getEstimatedBotPose");
         double xSum = 0;
         double ySum = 0;
         double hSum = 0;
@@ -277,6 +298,7 @@ public class MCL_Provider {
      * @param distance  The distance to translate each particle.
      */
     public void translateParticle(float distance) {
+        printParticles("translateParticle");
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
@@ -292,6 +314,7 @@ public class MCL_Provider {
      * @param degrees   The degrees to turn.
      */
     public void turnFull(int degrees){
+        printParticles("turnFull");
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
