@@ -83,7 +83,7 @@ public class MCL_Provider {
             int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
             int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 360)));
             if (boundaries.contains(x, y)) {
-                return new MCLParticle(new Pose(x, y, h), map, 0);
+                return new MCLParticle(new Pose(x, y, h), map, 1);
             }
         }
     }
@@ -97,7 +97,7 @@ public class MCL_Provider {
     public void recalculateParticleWeight(SensorModel bot) {
         for (MCLParticle p : particles) {
             double deviation = calculateBotParticleDeviation(bot, p);
-            p.setWeight((float)(deviation));
+            p.setWeight((float)deviation);
             //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
           }
     }
@@ -136,24 +136,27 @@ public class MCL_Provider {
         }
 
         int deviation = xWeight + yWeight + hWeight;
+        System.out.println(deviation + "  " + xWeight + "  " + yWeight + "  " + hWeight);
         if (deviation > 0) {
-            return 1/deviation;
+            System.out.println("Return Value:" + (1.0 / (double)deviation));
+            return 1.0 / (double)deviation;
         }
+        System.out.println("Returns 1");
         return 1;
     }
 
 
     private int deviationToWeight(double deviation, double referenceValue) {
         if (deviation > 0.9 * referenceValue) {
-            return 8;
+            return 16;
         } else if (deviation > 0.75 * referenceValue) {
-            return 4;
+            return 8;
         } else if (deviation > 0.5 * referenceValue) {
-            return 2;
+            return 4;
         } else if (deviation > 0.25 * referenceValue) {
-            return 1;
+            return 2;
         } else {
-            return 0;
+            return 1;
         }
     }
 
@@ -204,7 +207,7 @@ public class MCL_Provider {
         double beta = 0.0;
         double maxWeight = getHighestParticleWeight();
         for (int i = 0  ;  i < particleCount  ;  i++) {
-            beta += r.nextDouble() * 2.0 * maxWeight;
+            beta += r.nextDouble() * 7.50 * maxWeight;
             while (beta > particles.get(index).getWeight()) {
                 beta -= particles.get(index).getWeight();
                 index = (index + 1) % particleCount;
