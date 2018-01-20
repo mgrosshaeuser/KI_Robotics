@@ -307,7 +307,6 @@ public class MCL_Provider {
      * @param degrees   The degrees to turn.
      */
     public void turnFull(int degrees){
-        resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
             double d = r.nextGaussian();
