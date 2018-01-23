@@ -8,6 +8,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Utility-class for performing the monte-carlo-localization.
  *
@@ -136,12 +138,9 @@ public class MCL_Provider {
         }
 
         int deviation = xWeight + yWeight + hWeight;
-        System.out.println(deviation + "  " + xWeight + "  " + yWeight + "  " + hWeight);
         if (deviation > 0) {
-            System.out.println("Return Value:" + (1.0 / (double)deviation));
             return 1.0 / (double)deviation;
         }
-        System.out.println("Returns 1");
         return 1;
     }
 
@@ -200,14 +199,13 @@ public class MCL_Provider {
      */
     public void resample() {
         normalizeParticleWeight();
-
         Random r = new Random();
         ArrayList<MCLParticle> newSet = new ArrayList<>();
         int index = Math.abs(r.nextInt()) % particleCount;
         double beta = 0.0;
         double maxWeight = getHighestParticleWeight();
         for (int i = 0  ;  i < particleCount  ;  i++) {
-            beta += r.nextDouble() * 7.50 * maxWeight;
+            beta += r.nextDouble() * 2 * maxWeight;
             while (beta > particles.get(index).getWeight()) {
                 beta -= particles.get(index).getWeight();
                 index = (index + 1) % particleCount;
@@ -217,6 +215,20 @@ public class MCL_Provider {
         particles = newSet;
     }
 
+    private void printParticles(String indicator) {
+        System.out.println("\n" + indicator);
+        for (MCLParticle p : particles) {
+            System.out.print(p.getWeight() + " ");
+        }
+        if (particles.get(0).getWeight() != particles.get(0).getWeight()) {
+            try {
+                sleep(2000);
+                System.exit(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     /**
      * Finds the highest weight among all particles.
