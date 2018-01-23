@@ -83,7 +83,7 @@ public class MCL_Provider {
         while (true) {
             int x = (fixedX >= 0) ? fixedX : (int)Math.round(Math.random() * widthLimit + xOffset);
             int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
-            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 360)));
+            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 4) *90));
             if (boundaries.contains(x, y)) {
                 return new MCLParticle(new Pose(x, y, h), map, 1);
             }
@@ -309,8 +309,8 @@ public class MCL_Provider {
     public void turnFull(int degrees){
         Random r = new Random();
         for (MCLParticle p : particles) {
-            double d = r.nextGaussian();
-            degrees = (int) Math.round(degrees * (1+(d/10)));
+            //double d = r.nextGaussian();            //????????????????????
+            //degrees = (int) Math.round(degrees * (1+(d/10)));
             p.turnFull(degrees);
         }
     }
