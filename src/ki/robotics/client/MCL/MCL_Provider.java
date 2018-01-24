@@ -215,21 +215,6 @@ public class MCL_Provider {
         particles = newSet;
     }
 
-    private void printParticles(String indicator) {
-        System.out.println("\n" + indicator);
-        for (MCLParticle p : particles) {
-            System.out.print(p.getWeight() + " ");
-        }
-        if (particles.get(0).getWeight() != particles.get(0).getWeight()) {
-            try {
-                sleep(2000);
-                System.exit(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     /**
      * Finds the highest weight among all particles.
      *
