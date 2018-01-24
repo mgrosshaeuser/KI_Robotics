@@ -295,8 +295,9 @@ public class MCL_Provider {
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            float d = (float)Math.abs(r.nextGaussian());
-            p.botTravelForward(distance * (1 +(d/10)));
+            //float d = (float)Math.abs(r.nextGaussian());
+            //p.botTravelForward(distance * (1 +(d/10)));
+            p.botTravelForward(distance);
         }
     }
 
@@ -309,7 +310,7 @@ public class MCL_Provider {
     public void turnFull(int degrees){
         Random r = new Random();
         for (MCLParticle p : particles) {
-            //double d = r.nextGaussian();            //????????????????????
+            //double d = r.nextGaussian();
             //degrees = (int) Math.round(degrees * (1+(d/10)));
             p.turnFull(degrees);
         }
