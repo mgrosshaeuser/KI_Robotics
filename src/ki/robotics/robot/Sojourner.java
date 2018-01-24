@@ -118,26 +118,23 @@ public class Sojourner implements Robot {
 
     @Override
     public boolean sensorHeadTurnLeft(double position) {
-        int degree = (int) Math.round(position % 180);
-        int rotate = degree - sensorCurrentPosition;
-        Motor.C.rotate(rotate);
-        sensorCurrentPosition = degree;
+        int degrees = (int) (position + sensorCurrentPosition) % 360;
+        Motor.C.rotateTo(degrees);
+        sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadTurnRight(double position) {
-        int degree = (int) Math.round(position % 180) * -1;
-        int rotate = degree - sensorCurrentPosition;
-        Motor.C.rotate(rotate);
-        sensorCurrentPosition = degree;
+        int degrees = (int) (sensorCurrentPosition - position) % 360;
+        Motor.C.rotateTo(degrees);
+        sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadReset() {
-        int rotate = sensorCurrentPosition * -1;
-        Motor.C.rotate(rotate);
+        Motor.C.rotateTo(0);
         sensorCurrentPosition = 0;
         return true;
     }
