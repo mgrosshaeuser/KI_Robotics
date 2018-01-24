@@ -2,6 +2,7 @@ package ki.robotics.robot;
 
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.server.Main;
+import lejos.hardware.Sound;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -59,7 +60,7 @@ public class Sojourner implements Robot {
      */
     private MovePilot configureMovePilot() {
         double diameter = 55.5;
-        double offset = 57;
+        double offset = 56.35;
         Wheel left = WheeledChassis.modelWheel(Motor.A, diameter).offset(-offset);
         Wheel right = WheeledChassis.modelWheel(Motor.D, diameter).offset(offset);
         Chassis chassis = new WheeledChassis(new Wheel[] {left, right}, WheeledChassis.TYPE_DIFFERENTIAL);
@@ -68,6 +69,7 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
+        Sound.twoBeeps();
         return pilot;
     }
 

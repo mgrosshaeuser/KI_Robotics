@@ -106,7 +106,9 @@ public class GUIComController implements ComController {
         for (String s : configuration.getSensingInstructions()) {
             scans.append(s).append(", ");
         }
-
+        if(roverModel.getDistanceToLeft()==0 && roverModel.getDistanceToRight() == 0 && roverModel.getDistanceToCenter() == 0){
+            return scans + MEASURE_COLOR;
+        }
         return direction + BOT_TRAVEL_FORWARD + configuration.getStepsize() +", " + scans + MEASURE_COLOR;
     }
 
