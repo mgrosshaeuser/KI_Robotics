@@ -69,6 +69,7 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
+        Sound.setVolume(100);
         Sound.twoBeeps();
         return pilot;
     }
