@@ -161,7 +161,7 @@ public class GUIComController implements ComController {
             case SENSOR_RESET:
                 roverModel.setSensorHeadPosition(0);
             case MEASURE_DISTANCE:
-                measureDistance(statusCode);
+                measureDistance1D(statusCode);
                 mclProvider.recalculateParticleWeight(roverModel);
                 break;
             default:
@@ -170,41 +170,17 @@ public class GUIComController implements ComController {
         window.repaint();
     }
 
-    private void measureDistance(Instruction statusCode) {
-        int distanceInGapArea = 70;
-        int distanceInWallArea = 20;
-        int thresholdForDetectingWall = 19;
-        int thresholdForDetectingGap = 25;
+    private void measureDistance1D(Instruction statusCode) {
         float angle = roverModel.getSensorHeadPosition();
         boolean measurementLeft = angle > 45;
         boolean measurementRight = angle < -45;
 
         if (measurementLeft) {
-            if(configuration.isOneDimensional() && (float) statusCode.getParameter() > thresholdForDetectingGap){
-                roverModel.setDistanceToLeft(distanceInGapArea);
-                System.out.println("Messung links. 1D. Lücke gefunden. Rohwert: " + statusCode.getParameter());
-            } else if(configuration.isOneDimensional() && statusCode.getParameter() < thresholdForDetectingWall){
-                roverModel.setDistanceToLeft(distanceInWallArea);
-                System.out.println("Messung links. 1D. Wand gefunden.  Rohwert: " + statusCode.getParameter());
-            }
-            else{
-                roverModel.setDistanceToLeft((float)statusCode.getParameter());
-                System.out.println("Messung links. 2D.                 Rohwert: " + statusCode.getParameter());
-            }
+            roverModel.setDistanceToLeft((float)statusCode.getParameter());
         } else if (measurementRight) {
-            if(configuration.isOneDimensional() && (float) statusCode.getParameter() > thresholdForDetectingGap){
-                roverModel.setDistanceToRight(distanceInGapArea);
-                System.out.println("Messung rechts. 1D. Lücke gefunden. Rohwert: " + statusCode.getParameter());
-            } else if(configuration.isOneDimensional() && statusCode.getParameter() < thresholdForDetectingWall){
-                roverModel.setDistanceToRight(distanceInWallArea);
-                System.out.println("Messung rechts. 1D. Wand gefunden.  Rohwert: " + statusCode.getParameter());
-            } else {
-                roverModel.setDistanceToRight((float)statusCode.getParameter());
-                System.out.println("Messung rechts. 2D.                 Rohwert: " + statusCode.getParameter());
-            }
+            roverModel.setDistanceToRight((float)statusCode.getParameter());
         } else {
             roverModel.setDistanceToCenter((float)statusCode.getParameter());
-            System.out.println("Messung Mitte.                      Rohwert: " + statusCode.getParameter());
         }
     }
 }
