@@ -160,7 +160,7 @@ public class GUIComController implements ComController {
                 break;
             case SENSOR_RESET:
                 roverModel.setSensorHeadPosition(0);
-            case MEASURE_DISTANCE:
+            case N_WAY_SCAN:
                 measureDistance1D(statusCode);
                 mclProvider.recalculateParticleWeight(roverModel);
                 break;
