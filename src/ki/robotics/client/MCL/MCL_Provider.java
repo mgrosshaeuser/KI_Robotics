@@ -98,9 +98,15 @@ public class MCL_Provider {
      */
     public void recalculateParticleWeight(SensorModel bot) {
         for (MCLParticle p : particles) {
-            double deviation = calculateBotParticleDeviation(bot, p);
-            p.setWeight((float)deviation);
-            //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
+            if(p.isOutOfBounds()){
+                p.setWeight(0);
+            }else{
+
+                double deviation = calculateBotParticleDeviation(bot, p);
+                p.setWeight((float)deviation);
+                //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
+
+            }
           }
     }
 

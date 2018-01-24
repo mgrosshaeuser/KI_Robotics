@@ -158,17 +158,11 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
         }
     }
 
-    public boolean isOutOfBounds(float scaleFactor, float xOffset, float yOffset) {
-        float xPos = this.pose.getX() - xOffset;
-        float yPos = this.pose.getY() - yOffset;
+    public boolean isOutOfBounds() {
+        float xPos = this.pose.getX();
+        float yPos = this.pose.getY();
         Polygon boundaries = this.map.getMapBoundaries();
 
-        AffineTransform saveTransform = new AffineTransform();
-        saveTransform.scale(scaleFactor, scaleFactor);
-        Shape bounadriesShape = saveTransform.createTransformedShape(boundaries);
-
-        if (bounadriesShape.contains(xPos, yPos)) { System.out.println("false"); }
-
-        return bounadriesShape.contains(xPos, yPos);
+        return !boundaries.contains(xPos, yPos);
     }
 }
