@@ -5,6 +5,7 @@ import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 /**
  * Implementation of the Robot-Interface through the VirtualRobotModel abstract-class.
@@ -155,5 +156,19 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
         } else {
             return 0;
         }
+    }
+
+    public boolean isOutOfBounds(float scaleFactor, float xOffset, float yOffset) {
+        float xPos = this.pose.getX() - xOffset;
+        float yPos = this.pose.getY() - yOffset;
+        Polygon boundaries = this.map.getMapBoundaries();
+
+        AffineTransform saveTransform = new AffineTransform();
+        saveTransform.scale(scaleFactor, scaleFactor);
+        Shape bounadriesShape = saveTransform.createTransformedShape(boundaries);
+
+        if (bounadriesShape.contains(xPos, yPos)) { System.out.println("false"); }
+
+        return bounadriesShape.contains(xPos, yPos);
     }
 }
