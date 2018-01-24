@@ -178,18 +178,31 @@ public class GUIComController implements ComController {
         boolean measurementRight = angle < -45;
 
         if (measurementLeft) {
-            if(configuration.isOneDimensional() && (float) statusCode.getParameter()> thresholdForDetectingGap){
+            if(configuration.isOneDimensional() && (float) statusCode.getParameter() > thresholdForDetectingGap){
                 roverModel.setDistanceToLeft(distanceInGapArea);
-            }else if(configuration.isOneDimensional() && statusCode.getParameter()< thresholdForDetectingWall){
+                System.out.println("Messung links. 1D. Lücke gefunden. Rohwert: " + statusCode.getParameter());
+            } else if(configuration.isOneDimensional() && statusCode.getParameter() < thresholdForDetectingWall){
                 roverModel.setDistanceToLeft(distanceInWallArea);
+                System.out.println("Messung links. 1D. Wand gefunden.  Rohwert: " + statusCode.getParameter());
             }
             else{
                 roverModel.setDistanceToLeft((float)statusCode.getParameter());
+                System.out.println("Messung links. 2D.                 Rohwert: " + statusCode.getParameter());
             }
         } else if (measurementRight) {
-            roverModel.setDistanceToRight((float)statusCode.getParameter());
+            if(configuration.isOneDimensional() && (float) statusCode.getParameter() > thresholdForDetectingGap){
+                roverModel.setDistanceToRight(distanceInGapArea);
+                System.out.println("Messung rechts. 1D. Lücke gefunden. Rohwert: " + statusCode.getParameter());
+            } else if(configuration.isOneDimensional() && statusCode.getParameter() < thresholdForDetectingWall){
+                roverModel.setDistanceToRight(distanceInWallArea);
+                System.out.println("Messung rechts. 1D. Wand gefunden.  Rohwert: " + statusCode.getParameter());
+            } else {
+                roverModel.setDistanceToRight((float)statusCode.getParameter());
+                System.out.println("Messung rechts. 2D.                 Rohwert: " + statusCode.getParameter());
+            }
         } else {
             roverModel.setDistanceToCenter((float)statusCode.getParameter());
+            System.out.println("Messung Mitte.                      Rohwert: " + statusCode.getParameter());
         }
     }
 }
