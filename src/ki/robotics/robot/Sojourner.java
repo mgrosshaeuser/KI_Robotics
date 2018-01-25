@@ -4,6 +4,7 @@ import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.server.Main;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.Motor;
+import lejos.hardware.motor.NXTRegulatedMotor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
@@ -27,6 +28,7 @@ public class Sojourner implements Robot {
 
     private MovePilot pilot;
     private EV3UltrasonicSensor uss;
+    private NXTRegulatedMotor sensorHead = Motor.C;
     private EV3ColorSensor cls;
     private I2CSensor cam;
     private PoseProvider poseProvider;
@@ -97,7 +99,19 @@ public class Sojourner implements Robot {
 
     @Override
     public double botTravelForward(double distance) {
+        float tempSensorHeadPosition = sensorHead.getPosition();
+        sensorHeadReset();
+        double distanceToFront = measureDistance();
+        double bumper = 5;
+
+        distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
+
+        if (tempSensorHeadPosition > 0) {
+            sensorHeadTurnLeft(tempSensorHeadPosition);
+        } else {
+            sensorHeadTurnRight(tempSensorHeadPosition);
+        }
         return distance;
     }
 
@@ -122,7 +136,7 @@ public class Sojourner implements Robot {
     @Override
     public boolean sensorHeadTurnLeft(double position) {
         int degrees = (int) (position + sensorCurrentPosition) % 360;
-        Motor.C.rotateTo(degrees);
+        sensorHead.rotateTo(degrees);
         sensorCurrentPosition = degrees;
         return true;
     }
@@ -130,14 +144,14 @@ public class Sojourner implements Robot {
     @Override
     public boolean sensorHeadTurnRight(double position) {
         int degrees = (int) (sensorCurrentPosition - position) % 360;
-        Motor.C.rotateTo(degrees);
+        sensorHead.rotateTo(degrees);
         sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadReset() {
-        Motor.C.rotateTo(0);
+        sensorHead.rotateTo(0);
         sensorCurrentPosition = 0;
         return true;
     }
