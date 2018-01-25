@@ -8,6 +8,8 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static java.lang.Thread.sleep;
+
 /**
  * Utility-class for performing the monte-carlo-localization.
  *
@@ -81,9 +83,9 @@ public class MCL_Provider {
         while (true) {
             int x = (fixedX >= 0) ? fixedX : (int)Math.round(Math.random() * widthLimit + xOffset);
             int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
-            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 360)));
+            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 4) *90));
             if (boundaries.contains(x, y)) {
-                return new MCLParticle(new Pose(x, y, h), map, 0);
+                return new MCLParticle(new Pose(x, y, h), map, 1);
             }
         }
     }
@@ -96,9 +98,15 @@ public class MCL_Provider {
      */
     public void recalculateParticleWeight(SensorModel bot) {
         for (MCLParticle p : particles) {
-            double deviation = calculateBotParticleDeviation(bot, p);
-            p.setWeight((float)(deviation));
-            //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
+            if(p.isOutOfBounds()){
+                p.setWeight(0);
+            }else{
+
+                double deviation = calculateBotParticleDeviation(bot, p);
+                p.setWeight((float)deviation);
+                //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
+
+            }
           }
     }
 
@@ -137,7 +145,7 @@ public class MCL_Provider {
 
         int deviation = xWeight + yWeight + hWeight;
         if (deviation > 0) {
-            return 1/deviation;
+            return 1.0 / (double)deviation;
         }
         return 1;
     }
@@ -145,15 +153,15 @@ public class MCL_Provider {
 
     private int deviationToWeight(double deviation, double referenceValue) {
         if (deviation > 0.9 * referenceValue) {
-            return 8;
+            return 16;
         } else if (deviation > 0.75 * referenceValue) {
-            return 4;
+            return 8;
         } else if (deviation > 0.5 * referenceValue) {
-            return 2;
+            return 4;
         } else if (deviation > 0.25 * referenceValue) {
-            return 1;
+            return 2;
         } else {
-            return 0;
+            return 1;
         }
     }
 
@@ -197,14 +205,13 @@ public class MCL_Provider {
      */
     public void resample() {
         normalizeParticleWeight();
-
         Random r = new Random();
         ArrayList<MCLParticle> newSet = new ArrayList<>();
         int index = Math.abs(r.nextInt()) % particleCount;
         double beta = 0.0;
         double maxWeight = getHighestParticleWeight();
         for (int i = 0  ;  i < particleCount  ;  i++) {
-            beta += r.nextDouble() * 2.0 + maxWeight;
+            beta += r.nextDouble() * 2 * maxWeight;
             while (beta > particles.get(index).getWeight()) {
                 beta -= particles.get(index).getWeight();
                 index = (index + 1) % particleCount;
@@ -213,7 +220,6 @@ public class MCL_Provider {
         }
         particles = newSet;
     }
-
 
     /**
      * Finds the highest weight among all particles.
@@ -280,8 +286,9 @@ public class MCL_Provider {
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            float d = (float)Math.abs(r.nextGaussian());
-            p.botTravelForward(distance * (1 +(d/10)));
+            //float d = (float)Math.abs(r.nextGaussian());
+            //p.botTravelForward(distance * (1 +(d/10)));
+            p.botTravelForward(distance);
         }
     }
 
@@ -292,11 +299,10 @@ public class MCL_Provider {
      * @param degrees   The degrees to turn.
      */
     public void turnFull(int degrees){
-        resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            double d = r.nextGaussian();
-            degrees = (int) Math.round(degrees * (1+(d/10)));
+            //double d = r.nextGaussian();
+            //degrees = (int) Math.round(degrees * (1+(d/10)));
             p.turnFull(degrees);
         }
     }

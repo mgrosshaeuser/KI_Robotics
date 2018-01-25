@@ -13,7 +13,7 @@ public class CRISP {
     public static final String SENSOR_TURN_RIGHT = "STNR";
     public static final String SENSOR_RESET = "SRST";
     public static final String MEASURE_COLOR = "MCLR";
-    public static final String MEASURE_DISTANCE = "MDST";
+    public static final String N_WAY_SCAN = "MDST";
     public static final String THREE_WAY_SCAN = "USTW";
     public static final String RETURN_POSE = "POSE";
     public static final String BOT_SHUTDOWN = "SHTD";

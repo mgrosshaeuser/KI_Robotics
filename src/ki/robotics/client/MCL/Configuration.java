@@ -1,9 +1,7 @@
 package ki.robotics.client.MCL;
 
 import ki.robotics.utility.crisp.CRISP;
-import ki.robotics.utility.crisp.Instruction;
 
-import java.awt.image.CropImageFilter;
 import java.util.ArrayList;
 
 /**
@@ -67,13 +65,13 @@ public class Configuration {
             instr.add(CRISP.THREE_WAY_SCAN);
         } else {
             if (useLeftSensor) {
-                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.MEASURE_DISTANCE);
+                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.N_WAY_SCAN);
             }
             if (useFrontSensor) {
-                instr.add(CRISP.SENSOR_RESET + ", " + CRISP.MEASURE_DISTANCE);
+                instr.add(CRISP.SENSOR_RESET + ", " + CRISP.N_WAY_SCAN);
             }
             if (useRightSensor) {
-                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.MEASURE_DISTANCE);
+                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.N_WAY_SCAN);
             }
         }
         return instr;

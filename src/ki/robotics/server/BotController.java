@@ -125,7 +125,7 @@ public class BotController {
                 int color = robot.measureColor();
                 out.println(instruction.getMnemonic() + " " + color);
                 break;
-            case MEASURE_DISTANCE:
+            case N_WAY_SCAN:
                 status = true;
                 double distance = robot.measureDistance();
                 out.println(new Instruction(instruction.getMnemonic(), distance));

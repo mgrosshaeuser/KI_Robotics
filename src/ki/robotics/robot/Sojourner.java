@@ -4,6 +4,7 @@ import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.server.Main;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import ki.robotics.utility.pixyCam.PixyCam;
+import lejos.hardware.Sound;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -46,7 +47,6 @@ public class Sojourner implements Robot {
         uss = new EV3UltrasonicSensor(SensorPort.S4);
         cls = new EV3ColorSensor(SensorPort.S1);
         cam = new PixyCam(SensorPort.S2);
-        //cam = new I2CSensor(SensorPort.S2);
 
         poseProvider = new OdometryPoseProvider(pilot);
         pose = poseProvider.getPose();
@@ -62,7 +62,7 @@ public class Sojourner implements Robot {
      */
     private MovePilot configureMovePilot() {
         double diameter = 55.5;
-        double offset = 57;
+        double offset = 56.35;
         Wheel left = WheeledChassis.modelWheel(Motor.A, diameter).offset(-offset);
         Wheel right = WheeledChassis.modelWheel(Motor.D, diameter).offset(offset);
         Chassis chassis = new WheeledChassis(new Wheel[] {left, right}, WheeledChassis.TYPE_DIFFERENTIAL);
@@ -71,6 +71,8 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
+        Sound.setVolume(100);
+        Sound.twoBeeps();
         return pilot;
     }
 
@@ -121,26 +123,23 @@ public class Sojourner implements Robot {
 
     @Override
     public boolean sensorHeadTurnLeft(double position) {
-        int degree = (int) Math.round(position % 180);
-        int rotate = degree - sensorCurrentPosition;
-        Motor.C.rotate(rotate);
-        sensorCurrentPosition = degree;
+        int degrees = (int) (position + sensorCurrentPosition) % 360;
+        Motor.C.rotateTo(degrees);
+        sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadTurnRight(double position) {
-        int degree = (int) Math.round(position % 180) * -1;
-        int rotate = degree - sensorCurrentPosition;
-        Motor.C.rotate(rotate);
-        sensorCurrentPosition = degree;
+        int degrees = (int) (sensorCurrentPosition - position) % 360;
+        Motor.C.rotateTo(degrees);
+        sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadReset() {
-        int rotate = sensorCurrentPosition * -1;
-        Motor.C.rotate(rotate);
+        Motor.C.rotateTo(0);
         sensorCurrentPosition = 0;
         return true;
     }
