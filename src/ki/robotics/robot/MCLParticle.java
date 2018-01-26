@@ -5,6 +5,7 @@ import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
+import java.awt.geom.AffineTransform;
 
 /**
  * Implementation of the Robot-Interface through the VirtualRobotModel abstract-class.
@@ -155,5 +156,13 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
         } else {
             return 0;
         }
+    }
+
+    public boolean isOutOfBounds() {
+        float xPos = this.pose.getX();
+        float yPos = this.pose.getY();
+        Polygon boundaries = this.map.getMapBoundaries();
+
+        return !boundaries.contains(xPos, yPos);
     }
 }

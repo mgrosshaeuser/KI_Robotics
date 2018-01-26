@@ -19,10 +19,11 @@ public interface Robot {
     double measureDistance();
     double[] ultrasonicThreeWayScan();
     Pose getPose();
-    byte[] cameraGeneralQuery();
-    byte[][] cameraSignatureQuery();
-    byte[] cameraColorCodeQuery(int color);
-    byte[] cameraAngleQuery();
+    String cameraGeneralQuery();
+    String cameraSignatureQuery(int signature);
+    String[] cameraAllSignaturesQuery();
+    String cameraColorCodeQuery(int color);
+    String cameraAngleQuery();
     boolean shutdown();
     boolean disconnect();
     boolean handleUnsupportedInstruction(Instruction instruction);

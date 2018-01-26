@@ -83,7 +83,7 @@ public class MCL_Provider {
         while (true) {
             int x = (fixedX >= 0) ? fixedX : (int)Math.round(Math.random() * widthLimit + xOffset);
             int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
-            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 360)));
+            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 4) *90));
             if (boundaries.contains(x, y)) {
                 return new MCLParticle(new Pose(x, y, h), map, 1);
             }
@@ -98,9 +98,15 @@ public class MCL_Provider {
      */
     public void recalculateParticleWeight(SensorModel bot) {
         for (MCLParticle p : particles) {
-            double deviation = calculateBotParticleDeviation(bot, p);
-            p.setWeight((float)deviation);
-            //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
+            if(p.isOutOfBounds()){
+                p.setWeight(0);
+            }else{
+
+                double deviation = calculateBotParticleDeviation(bot, p);
+                p.setWeight((float)deviation);
+                //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
+
+            }
           }
     }
 
@@ -215,21 +221,6 @@ public class MCL_Provider {
         particles = newSet;
     }
 
-    private void printParticles(String indicator) {
-        System.out.println("\n" + indicator);
-        for (MCLParticle p : particles) {
-            System.out.print(p.getWeight() + " ");
-        }
-        if (particles.get(0).getWeight() != particles.get(0).getWeight()) {
-            try {
-                sleep(2000);
-                System.exit(1);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
     /**
      * Finds the highest weight among all particles.
      *
@@ -295,8 +286,9 @@ public class MCL_Provider {
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            float d = (float)Math.abs(r.nextGaussian());
-            p.botTravelForward(distance * (1 +(d/10)));
+            //float d = (float)Math.abs(r.nextGaussian());
+            //p.botTravelForward(distance * (1 +(d/10)));
+            p.botTravelForward(distance);
         }
     }
 
@@ -307,11 +299,10 @@ public class MCL_Provider {
      * @param degrees   The degrees to turn.
      */
     public void turnFull(int degrees){
-        resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            double d = r.nextGaussian();
-            degrees = (int) Math.round(degrees * (1+(d/10)));
+            //double d = r.nextGaussian();
+            //degrees = (int) Math.round(degrees * (1+(d/10)));
             p.turnFull(degrees);
         }
     }

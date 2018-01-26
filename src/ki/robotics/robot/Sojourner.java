@@ -2,6 +2,9 @@ package ki.robotics.robot;
 
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.server.Main;
+import ki.robotics.utility.pixyCam.DTOSignatureQuery;
+import ki.robotics.utility.pixyCam.PixyCam;
+import lejos.hardware.Sound;
 import lejos.hardware.motor.Motor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
@@ -27,7 +30,7 @@ public class Sojourner implements Robot {
     private MovePilot pilot;
     private EV3UltrasonicSensor uss;
     private EV3ColorSensor cls;
-    private I2CSensor cam;
+    private PixyCam cam;
     private PoseProvider poseProvider;
     private Pose pose;
 
@@ -43,7 +46,7 @@ public class Sojourner implements Robot {
 
         uss = new EV3UltrasonicSensor(SensorPort.S4);
         cls = new EV3ColorSensor(SensorPort.S1);
-        cam = new I2CSensor(SensorPort.S2);
+        cam = new PixyCam(SensorPort.S2);
 
         poseProvider = new OdometryPoseProvider(pilot);
         pose = poseProvider.getPose();
@@ -59,7 +62,7 @@ public class Sojourner implements Robot {
      */
     private MovePilot configureMovePilot() {
         double diameter = 55.5;
-        double offset = 57;
+        double offset = 56.35;
         Wheel left = WheeledChassis.modelWheel(Motor.A, diameter).offset(-offset);
         Wheel right = WheeledChassis.modelWheel(Motor.D, diameter).offset(offset);
         Chassis chassis = new WheeledChassis(new Wheel[] {left, right}, WheeledChassis.TYPE_DIFFERENTIAL);
@@ -68,6 +71,8 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
+        Sound.setVolume(100);
+        Sound.twoBeeps();
         return pilot;
     }
 
@@ -118,26 +123,23 @@ public class Sojourner implements Robot {
 
     @Override
     public boolean sensorHeadTurnLeft(double position) {
-        int degree = (int) Math.round(position % 180);
-        int rotate = degree - sensorCurrentPosition;
-        Motor.C.rotate(rotate);
-        sensorCurrentPosition = degree;
+        int degrees = (int) (position + sensorCurrentPosition) % 360;
+        Motor.C.rotateTo(degrees);
+        sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadTurnRight(double position) {
-        int degree = (int) Math.round(position % 180) * -1;
-        int rotate = degree - sensorCurrentPosition;
-        Motor.C.rotate(rotate);
-        sensorCurrentPosition = degree;
+        int degrees = (int) (sensorCurrentPosition - position) % 360;
+        Motor.C.rotateTo(degrees);
+        sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadReset() {
-        int rotate = sensorCurrentPosition * -1;
-        Motor.C.rotate(rotate);
+        Motor.C.rotateTo(0);
         sensorCurrentPosition = 0;
         return true;
     }
@@ -184,33 +186,32 @@ public class Sojourner implements Robot {
     }
 
     @Override
-    public byte[] cameraGeneralQuery() {
-        byte[] generalQuery = new byte[6];
-        cam.getData(0x50, generalQuery, 6);
-        return generalQuery;
+    public String cameraGeneralQuery() {
+        return cam.generalQuery().toString();
     }
 
     @Override
-    public byte[][] cameraSignatureQuery() {
-        byte[][] signatures = new byte[7][5];
-        for (int i = 0  ;  i < 7  ;  i++) {
-            byte[] signature = new byte[5];
-            cam.getData(0x51+i, signature, 5);
-            signatures[i] = signature;
+    public String cameraSignatureQuery(int signature) {
+        return cam.signatureQuery(signature).toString();
+    }
+
+    @Override
+    public String[] cameraAllSignaturesQuery() {
+        DTOSignatureQuery[] signatures = cam.allSignaturesQuery();
+        String[] response = new String[signatures.length];
+        for (int i = 0  ;  i < signatures.length  ;  i++) {
+            response[i] = signatures[i].toString();
         }
-        return signatures;
+        return response;
     }
 
     @Override
-    public byte[] cameraColorCodeQuery(int color) {
-        //TODO Camera-Code
-        return null;
+    public String cameraColorCodeQuery(int color) {
+        return cam.colorCodeQuery(color).toString();
     }
 
-    public byte[] cameraAngleQuery() {
-        byte[] angleQuery = new byte[1];
-        cam.getData(0x60, angleQuery, 1);
-        return angleQuery;
+    public String cameraAngleQuery() {
+        return cam.angleQuery().toString();
     }
 
 
