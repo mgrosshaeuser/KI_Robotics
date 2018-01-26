@@ -22,7 +22,7 @@ public class GUIComController implements ComController {
     private InstructionSetTranscoder transcoder;
     private SensorModel roverModel;
     private Configuration configuration;
-
+    private boolean trackingObstacle = false;
     private Thread t;
 
 
@@ -83,33 +83,54 @@ public class GUIComController implements ComController {
     @Override
     public String getNextRequest() {
         int minWallDistance = 15;
-
+        int bumper = 8;
         String direction = "";
-
-        if (configuration.isTwoDimensional()) {
-            Random r = new Random();
-            int d = (r.nextInt() % 3);
-            if (d < -1 && roverModel.getDistanceToRight() > minWallDistance) {
-                direction = BOT_TURN_RIGHT + " 90, ";
-            } else if (d > 1 && roverModel.getDistanceToLeft() > minWallDistance) {
-                direction = BOT_TURN_LEFT + " 90, ";
-            } else {
-                if (! (roverModel.getDistanceToCenter() > minWallDistance) ){
-                    direction = BOT_TURN_LEFT + " 180, ";
-                }
-            }
-
-
-        }
 
         StringBuilder scans = new StringBuilder();
         for (String s : configuration.getSensingInstructions()) {
             scans.append(s).append(", ");
         }
-        if(roverModel.getDistanceToLeft()==0 && roverModel.getDistanceToRight() == 0 && roverModel.getDistanceToCenter() == 0){
+        if (roverModel.getDistanceToLeft() == 0 && roverModel.getDistanceToRight() == 0 && roverModel.getDistanceToCenter() == 0) {
             return scans + MEASURE_COLOR;
         }
-        return direction + BOT_TRAVEL_FORWARD + configuration.getStepsize() +", " + scans + MEASURE_COLOR;
+
+        if (configuration.isOneDimensional()) {
+            //TODO: LineFolloweer + umdrehen wenn Linie zu ende
+            return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans +  MEASURE_COLOR;
+        } else {
+            double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
+            if (!trackingObstacle) {
+                //Find wall
+                if (center != Double.POSITIVE_INFINITY && center != 0) {
+                    trackingObstacle = true;
+                    return BOT_TRAVEL_FORWARD + " " + center + ", " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
+                } else if (left != Double.POSITIVE_INFINITY && left != 0) {
+                    trackingObstacle = true;
+                    return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + " " + center + ", " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
+                } else if (right != Double.POSITIVE_INFINITY && right != 0) {
+                    trackingObstacle = true;
+                    return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + center + ", " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
+                }else{
+                    return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+                }
+            } else {
+                if(center>bumper && left < bumper)
+                    //wenn vorne platz, max stepsize nach vorne
+                    return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+                else if(left > bumper && center > bumper){
+                    //wenn links frei und vorne frei, Vor, rechts, nochmal vor
+                    return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + BOT_TURN_RIGHT + " 90, " +
+                            BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + " , " + scans + MEASURE_COLOR;
+                }
+
+                else{
+                    //sonst, Zur wand, dann links
+                    return BOT_TRAVEL_FORWARD + " 100, " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
+                }
+            }
+
+        }
+
     }
 
 
