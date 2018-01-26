@@ -7,8 +7,8 @@ package ki.robotics.utility.crisp;
  * @version 1.0, 12/26/17
  */
 public class Instruction {
-    private String mnemonic;
-    private double parameter;
+    private final String mnemonic;
+    private final double parameter;
 
 
 

@@ -11,7 +11,7 @@ import java.awt.geom.Rectangle2D;
  *
  * @version 1.0, 12/28/17
  */
-public class svg_Circle extends Ellipse2D.Double {
+class svg_Circle extends Ellipse2D.Double {
     private Point2D.Double center;
     private double diameter;
     private int stroke;
@@ -26,7 +26,7 @@ public class svg_Circle extends Ellipse2D.Double {
      * @param cy        y-Coordinate for the center of the circle.
      * @param diameter  Diameter of the circle.
      */
-    public svg_Circle(double cx, double cy, double diameter) {
+    private svg_Circle(double cx, double cy, double diameter) {
         this.center = new Point2D.Double(cx, cy);
         this.diameter = diameter;
     }

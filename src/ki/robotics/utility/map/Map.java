@@ -24,9 +24,9 @@ public class Map {
 
     private ArrayList<Wall> map;
     private ArrayList<FloorTile> floor;
-    private SVGParser svgParser;
+    private final SVGParser svgParser;
 
-    private Polygon boundaries;
+    private final Polygon boundaries;
 
 
     /**

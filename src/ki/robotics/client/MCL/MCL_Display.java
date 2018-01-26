@@ -26,10 +26,10 @@ public class MCL_Display extends JFrame{
     private static final String DEFAULT_SELECTED_MAP = "Room";
 
     private Map map;
-    private ClientMapPanel mapPanel;
+    private final ClientMapPanel mapPanel;
     private MCL_Provider mclProvider;
 
-    private ComController ComController;
+    private final ComController ComController;
 
 
 
@@ -101,7 +101,7 @@ public class MCL_Display extends JFrame{
          *
          * @param parent    The parent-JFrame.
          */
-        public ClientMapPanel(JFrame parent, Map map) {
+        ClientMapPanel(JFrame parent, Map map) {
             super(parent, map);
         }
 
@@ -146,21 +146,21 @@ public class MCL_Display extends JFrame{
      * Control-Panel to modify the terms of the monte-carlo-localization.
      */
     private class ControlPanel extends JPanel {
-        private String[] mapkeys;
-        private MCL_Display parent;
+        private final String[] mapkeys;
+        private final MCL_Display parent;
 
         private JComboBox maps = new JComboBox();
-        private JRadioButton oneDimensional = new JRadioButton("1-D");
-        private JRadioButton twoDimensional = new JRadioButton("2-D");
-        private JRadioButton turnRightAngle = new JRadioButton("90° Angles");
-        private JRadioButton turnFree = new JRadioButton("Free Angles");
-        private JCheckBox leftSensor = new JCheckBox("Left sensor");
-        private JCheckBox frontSensor = new JCheckBox("Front sensor");
-        private JCheckBox rightSensor = new JCheckBox("Right sensor");
-        private JTextField stepsize = new JTextField("10", 5);
-        private JTextField particles = new JTextField("1000",5);
-        private JButton start = new JButton("Start");
-        private JButton stop = new JButton("Stop");
+        private final JRadioButton oneDimensional = new JRadioButton("1-D");
+        private final JRadioButton twoDimensional = new JRadioButton("2-D");
+        private final JRadioButton turnRightAngle = new JRadioButton("90° Angles");
+        private final JRadioButton turnFree = new JRadioButton("Free Angles");
+        private final JCheckBox leftSensor = new JCheckBox("Left sensor");
+        private final JCheckBox frontSensor = new JCheckBox("Front sensor");
+        private final JCheckBox rightSensor = new JCheckBox("Right sensor");
+        private final JTextField stepsize = new JTextField("10", 5);
+        private final JTextField particles = new JTextField("1000",5);
+        private final JButton start = new JButton("Start");
+        private final JButton stop = new JButton("Stop");
 
 
         /**
@@ -168,7 +168,7 @@ public class MCL_Display extends JFrame{
          *
          * @param parent    The parent-MCL-Display.
          */
-        public ControlPanel(MCL_Display parent) {
+        ControlPanel(MCL_Display parent) {
             this.parent = parent;
             this.mapkeys = MapProvider.getInstance().getMapKeys();
             this.setLayout(new FlowLayout());

@@ -1,7 +1,7 @@
 package ki.robotics.utility.pixyCam;
 
 public class DTOAngleQuery {
-    private int angleOfLargestColorCodedBlock;
+    private final int angleOfLargestColorCodedBlock;
 
     public DTOAngleQuery(byte[] camResponse) {
         angleOfLargestColorCodedBlock = camResponse[0];

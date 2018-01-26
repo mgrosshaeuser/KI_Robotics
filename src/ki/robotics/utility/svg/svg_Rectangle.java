@@ -12,13 +12,13 @@ import java.awt.geom.Rectangle2D;
  */
 public class svg_Rectangle extends Rectangle2D.Double {
     private Point2D.Double topLeft;
-    private double width;
-    private double height;
+    private final double width;
+    private final double height;
     private int stroke;
     private int fill;
 
 
-    public svg_Rectangle(double x1, double y1, double width, double height) {
+    private svg_Rectangle(double x1, double y1, double width, double height) {
         this.topLeft = new Point2D.Double(x1,y1);
         this.width = width;
         this.height = height;

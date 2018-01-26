@@ -6,10 +6,10 @@ import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import ki.robotics.utility.pixyCam.PixyCam;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.Motor;
+import lejos.hardware.motor.NXTRegulatedMotor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
-import lejos.hardware.sensor.I2CSensor;
 import lejos.robotics.SampleProvider;
 import lejos.robotics.chassis.Chassis;
 import lejos.robotics.chassis.Wheel;
@@ -27,11 +27,12 @@ public class Sojourner implements Robot {
 
     private static final Sojourner INSTANCE = new Sojourner();
 
-    private MovePilot pilot;
-    private EV3UltrasonicSensor uss;
-    private EV3ColorSensor cls;
-    private PixyCam cam;
-    private PoseProvider poseProvider;
+    private final MovePilot pilot;
+    private final EV3UltrasonicSensor uss;
+    private final NXTRegulatedMotor sensorHead = Motor.C;
+    private final EV3ColorSensor cls;
+    private final PixyCam cam;
+    private final PoseProvider poseProvider;
     private Pose pose;
 
     private int sensorCurrentPosition;
@@ -71,7 +72,7 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
-        Sound.setVolume(100);
+        Sound.setVolume(20);
         Sound.twoBeeps();
         return pilot;
     }
@@ -99,7 +100,13 @@ public class Sojourner implements Robot {
 
     @Override
     public double botTravelForward(double distance) {
+        sensorHeadReset();
+        double distanceToFront = measureDistance();
+        double bumper = 8;
+
+        distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
+
         return distance;
     }
 
@@ -124,7 +131,7 @@ public class Sojourner implements Robot {
     @Override
     public boolean sensorHeadTurnLeft(double position) {
         int degrees = (int) (position + sensorCurrentPosition) % 360;
-        Motor.C.rotateTo(degrees);
+        sensorHead.rotateTo(degrees);
         sensorCurrentPosition = degrees;
         return true;
     }
@@ -132,14 +139,14 @@ public class Sojourner implements Robot {
     @Override
     public boolean sensorHeadTurnRight(double position) {
         int degrees = (int) (sensorCurrentPosition - position) % 360;
-        Motor.C.rotateTo(degrees);
+        sensorHead.rotateTo(degrees);
         sensorCurrentPosition = degrees;
         return true;
     }
 
     @Override
     public boolean sensorHeadReset() {
-        Motor.C.rotateTo(0);
+        sensorHead.rotateTo(0);
         sensorCurrentPosition = 0;
         return true;
     }

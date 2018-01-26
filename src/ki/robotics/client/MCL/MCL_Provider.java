@@ -8,19 +8,17 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Random;
 
-import static java.lang.Thread.sleep;
-
 /**
  * Utility-class for performing the monte-carlo-localization.
  *
  * @version 1.0 01/02/18
  */
 public class MCL_Provider {
-    private Map map;
-    private int particleCount;
-    private int fixedX;
-    private int fixedY;
-    private int fixedHeading;
+    private final Map map;
+    private final int particleCount;
+    private final int fixedX;
+    private final int fixedY;
+    private final int fixedHeading;
 
     private ArrayList<MCLParticle> particles;
 
@@ -192,7 +190,7 @@ public class MCL_Provider {
     /**
      * Normalizes the weight of all particles.
      */
-    public void normalizeParticleWeight() {
+    private void normalizeParticleWeight() {
         double sum = getSumOfParticleWeights();
         for (MCLParticle p : particles) {
             p.setWeight((float)(p.getWeight() / sum));
@@ -203,7 +201,7 @@ public class MCL_Provider {
     /**
      * Resamples the particles.
      */
-    public void resample() {
+    private void resample() {
         normalizeParticleWeight();
         Random r = new Random();
         ArrayList<MCLParticle> newSet = new ArrayList<>();
@@ -226,7 +224,7 @@ public class MCL_Provider {
      *
      * @return  The highest weight in the particle-set.
      */
-    public float getHighestParticleWeight() {
+    private float getHighestParticleWeight() {
         float weight = 0f;
         for (MCLParticle p : particles) {
             float pWeight = p.getWeight();

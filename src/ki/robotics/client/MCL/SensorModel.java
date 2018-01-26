@@ -1,7 +1,5 @@
 package ki.robotics.client.MCL;
 
-import lejos.robotics.navigation.Pose;
-
 /**
  * A simple 'book-keeping'-class for the sensor-feedback from the robot.
  *

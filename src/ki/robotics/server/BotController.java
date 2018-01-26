@@ -17,11 +17,11 @@ import static ki.robotics.utility.crisp.CRISP.*;
  *
  * @version 1.0, 12/26/17
  */
-public class BotController {
+class BotController {
     private PrintWriter out;
     private ArrayList<Instruction> jobQueue;
     private InstructionSetTranscoder transcoder;
-    private Robot robot;
+    private final Robot robot;
 
 
 

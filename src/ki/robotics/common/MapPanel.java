@@ -15,13 +15,13 @@ public abstract class MapPanel extends JPanel{
     private int xOffset = 0;
     private int yOffset = 0;
     private boolean isModifiable;
-    private JFrame parent;
+    private final JFrame parent;
     private Map map;
 
     /**
      * Constructor.
      */
-    public MapPanel (JFrame parent, Map map) {
+    protected MapPanel(JFrame parent, Map map) {
         this.parent = parent;
         this.map = map;
         this.isModifiable = true;

@@ -16,13 +16,13 @@ import static ki.robotics.utility.crisp.CRISP.INSTRUCTION_SEQUENCE_FINISHED;
  *
  * @version 1.2, 01/02/18
  */
-public final class Communicator implements Runnable{
+final class Communicator implements Runnable{
 
     private static final int TRANSMISSION_TIMEOUT = 0;
 
-    private String host;
-    private int port;
-    private ComController ComController;
+    private final String host;
+    private final int port;
+    private final ComController ComController;
 
     public static volatile boolean running = true;
 
@@ -80,7 +80,7 @@ public final class Communicator implements Runnable{
             in.close();
             socket.close();
             running = true;
-        } catch (SocketTimeoutException e) {
+        } catch (SocketTimeoutException ignored) {
 
         } catch (IOException e1) {
             e1.printStackTrace();

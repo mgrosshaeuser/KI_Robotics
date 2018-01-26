@@ -5,7 +5,6 @@ import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 
 /**
  * Implementation of the Robot-Interface through the VirtualRobotModel abstract-class.

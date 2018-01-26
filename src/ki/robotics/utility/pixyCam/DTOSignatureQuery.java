@@ -1,11 +1,11 @@
 package ki.robotics.utility.pixyCam;
 
 public class DTOSignatureQuery {
-    private int numberOfMatchingBlocks;
-    private int xCenterOfLargestBlock;
-    private int yCenterOfLargestBlock;
-    private int widthOfLargestBlock;
-    private int heightOfLargestBlock;
+    private final int numberOfMatchingBlocks;
+    private final int xCenterOfLargestBlock;
+    private final int yCenterOfLargestBlock;
+    private final int widthOfLargestBlock;
+    private final int heightOfLargestBlock;
 
 
     public DTOSignatureQuery(byte[] camResponse) {

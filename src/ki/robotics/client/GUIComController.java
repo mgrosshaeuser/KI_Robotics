@@ -17,10 +17,10 @@ import static ki.robotics.utility.crisp.CRISP.*;
  * @version 1.2, 01/02/18
  */
 public class GUIComController implements ComController {
-    private MCL_Display window;
+    private final MCL_Display window;
     private MCL_Provider mclProvider;
-    private InstructionSetTranscoder transcoder;
-    private SensorModel roverModel;
+    private final InstructionSetTranscoder transcoder;
+    private final SensorModel roverModel;
     private Configuration configuration;
 
     private Thread t;
