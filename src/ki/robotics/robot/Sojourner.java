@@ -71,7 +71,7 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
-        Sound.setVolume(100);
+        Sound.setVolume(20);
         Sound.twoBeeps();
         return pilot;
     }
@@ -99,19 +99,13 @@ public class Sojourner implements Robot {
 
     @Override
     public double botTravelForward(double distance) {
-        float tempSensorHeadPosition = sensorHead.getPosition();
         sensorHeadReset();
         double distanceToFront = measureDistance();
-        double bumper = 5;
+        double bumper = 8;
 
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
 
-        if (tempSensorHeadPosition > 0) {
-            sensorHeadTurnLeft(tempSensorHeadPosition);
-        } else {
-            sensorHeadTurnRight(tempSensorHeadPosition);
-        }
         return distance;
     }
 
