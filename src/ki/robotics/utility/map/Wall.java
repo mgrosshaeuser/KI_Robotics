@@ -10,8 +10,8 @@ import java.awt.*;
  *
  * @version 1.1, 12/28/17
  */
-public class Wall{
-    private svg_Line line;
+class Wall{
+    private final svg_Line line;
 
 
     /**
@@ -24,7 +24,7 @@ public class Wall{
      * @param stroke    Color of the stroke as integer-RGB-value.
      * @param fill      Color of the fill as integer-RGB-value.
      */
-    public Wall(double x1, double y1, double x2, double y2, int stroke, int fill) {
+    private Wall(double x1, double y1, double x2, double y2, int stroke, int fill) {
         this.line = new svg_Line(x1, y1, x2, y2, stroke, fill);
     }
 

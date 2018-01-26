@@ -7,7 +7,7 @@ public abstract class VirtualRobotModel implements Robot {
 
     Pose pose;
     int sensorHeadPosition = 0;
-    float bumper = 5f;
+    private final float bumper = 5f;
     Map map;
 
 

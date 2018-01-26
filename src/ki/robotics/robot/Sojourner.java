@@ -10,7 +10,6 @@ import lejos.hardware.motor.NXTRegulatedMotor;
 import lejos.hardware.port.SensorPort;
 import lejos.hardware.sensor.EV3ColorSensor;
 import lejos.hardware.sensor.EV3UltrasonicSensor;
-import lejos.hardware.sensor.I2CSensor;
 import lejos.robotics.SampleProvider;
 import lejos.robotics.chassis.Chassis;
 import lejos.robotics.chassis.Wheel;
@@ -28,12 +27,12 @@ public class Sojourner implements Robot {
 
     private static final Sojourner INSTANCE = new Sojourner();
 
-    private MovePilot pilot;
-    private EV3UltrasonicSensor uss;
-    private NXTRegulatedMotor sensorHead = Motor.C;
-    private EV3ColorSensor cls;
-    private PixyCam cam;
-    private PoseProvider poseProvider;
+    private final MovePilot pilot;
+    private final EV3UltrasonicSensor uss;
+    private final NXTRegulatedMotor sensorHead = Motor.C;
+    private final EV3ColorSensor cls;
+    private final PixyCam cam;
+    private final PoseProvider poseProvider;
     private Pose pose;
 
     private int sensorCurrentPosition;

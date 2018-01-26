@@ -30,9 +30,9 @@ public class SVGParser {
     public double graphicWidth;
     public double graphicHeight;
 
-    private ArrayList<svg_Circle> circles;
-    private ArrayList<svg_Line> lines;
-    private ArrayList<svg_Rectangle> rectangles;
+    private final ArrayList<svg_Circle> circles;
+    private final ArrayList<svg_Line> lines;
+    private final ArrayList<svg_Rectangle> rectangles;
 
 
 

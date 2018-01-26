@@ -17,7 +17,7 @@ public class svg_Line extends Line2D.Double{
 
 
 
-    public svg_Line(double x1, double y1, double x2, double y2) {
+    private svg_Line(double x1, double y1, double x2, double y2) {
         this.start = new Point2D.Double(x1, y1);
         this.end = new Point2D.Double(x2, y2);
     }

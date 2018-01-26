@@ -10,9 +10,9 @@ import java.awt.*;
  *
  * @version 1.0 12/28/17
  */
-public class FloorTile {
+class FloorTile {
 
-   private svg_Rectangle rectangle;
+   private final svg_Rectangle rectangle;
 
 
     /**
@@ -25,7 +25,7 @@ public class FloorTile {
      * @param stroke    RGB-Color of the stroke as integer-value.
      * @param fill      RGB-Color of the fill as integer-value.
      */
-    public FloorTile(double x1, double y1, double width, double height, int stroke, int fill) {
+    private FloorTile(double x1, double y1, double width, double height, int stroke, int fill) {
         this.rectangle = new svg_Rectangle(x1, y1, width, height, stroke, fill);
     }
 

@@ -1,12 +1,12 @@
 package ki.robotics.utility.pixyCam;
 
 public class DTOColorCodeQuery {
-    private int numberOfMatchingBlocks;
-    private int xCenterOfLargestBlock;
-    private int yCenterOfLargestBlock;
-    private int widthOfLargestBlock;
-    private int heightOfLargestBlock;
-    private int angleOfLargestBlock;
+    private final int numberOfMatchingBlocks;
+    private final int xCenterOfLargestBlock;
+    private final int yCenterOfLargestBlock;
+    private final int widthOfLargestBlock;
+    private final int heightOfLargestBlock;
+    private final int angleOfLargestBlock;
 
     public DTOColorCodeQuery(byte[] camResponse) {
         numberOfMatchingBlocks = camResponse[0];

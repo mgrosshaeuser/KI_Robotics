@@ -10,16 +10,16 @@ import java.util.ArrayList;
  * @version 1.0 01/02/18
  */
 public class Configuration {
-    private String mapKey;
-    private boolean isOneDimensional;
-    private boolean isTwoDimensional;
-    private boolean useRightAngles;
-    private boolean useFreeAngles;
-    private boolean useLeftSensor;
-    private boolean useFrontSensor;
-    private boolean useRightSensor;
-    private int stepsize;
-    private int numberOfParticles;
+    private final String mapKey;
+    private final boolean isOneDimensional;
+    private final boolean isTwoDimensional;
+    private final boolean useRightAngles;
+    private final boolean useFreeAngles;
+    private final boolean useLeftSensor;
+    private final boolean useFrontSensor;
+    private final boolean useRightSensor;
+    private final int stepsize;
+    private final int numberOfParticles;
 
 
     /**

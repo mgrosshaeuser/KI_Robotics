@@ -18,8 +18,8 @@ public class BotServer {
 
     private static final int TIMEOUT = 0;
 
-    private int port;
-    private BotController controller;
+    private final int port;
+    private final BotController controller;
 
     private boolean stayOnline;
     private boolean stayConnected;
@@ -71,7 +71,7 @@ public class BotServer {
                 in.close();
                 client.close();
                 server.close();
-            } catch (SocketTimeoutException e) {
+            } catch (SocketTimeoutException ignored) {
 
             } catch (IOException e1) {
                 e1.printStackTrace();

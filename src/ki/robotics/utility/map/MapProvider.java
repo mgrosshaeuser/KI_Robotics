@@ -3,15 +3,14 @@ package ki.robotics.utility.map;
 import java.awt.*;
 import java.io.File;
 import java.util.HashMap;
-import java.util.Set;
 
 public class MapProvider {
     private static final MapProvider INSTANCE = new MapProvider();
     private static final int NO_LIMITATION = -1;
 
-    private HashMap<String, File> files;
-    private HashMap<String, Polygon> boundaries;
-    private HashMap<String, int[]> limitations;     // int[0] fixated x-value, int[1] fixated y-value, int[2] fixated heading
+    private final HashMap<String, File> files;
+    private final HashMap<String, Polygon> boundaries;
+    private final HashMap<String, int[]> limitations;     // int[0] fixated x-value, int[1] fixated y-value, int[2] fixated heading
 
     private MapProvider() {
         files = new HashMap<>();

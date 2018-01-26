@@ -22,8 +22,8 @@ public class RoverSimulation extends VirtualRobotModel {
     private static final String DEFAULT_SELECTED_MAP = "Room";
     private static final int ANIMATION_INTER_FRAME_TIME = 50;
 
-    private BotServer botServer;
-    private SimulationDisplay window;
+    private final BotServer botServer;
+    private final SimulationDisplay window;
 
     /**
      * Constructor.
@@ -158,8 +158,8 @@ public class RoverSimulation extends VirtualRobotModel {
         private static final int WINDOW_WIDTH = 600;
         private static final int WINDOW_HEIGHT = 800;
 
-        private ControlPanel controlPanel;
-        private MapOverlay mapOverlay;
+        private final ControlPanel controlPanel;
+        private final MapOverlay mapOverlay;
 
 
         /**
@@ -167,7 +167,7 @@ public class RoverSimulation extends VirtualRobotModel {
          *
          * @param map   The map in use.
          */
-        public SimulationDisplay(Map map) {
+        SimulationDisplay(Map map) {
             this.setTitle("Simulated Rover");
             this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
             this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -188,15 +188,15 @@ public class RoverSimulation extends VirtualRobotModel {
      * The control-panel for the simulation.
      */
     private class ControlPanel extends JPanel {
-        private SimulationDisplay parent;
-        private MapProvider mapProvider;
+        private final SimulationDisplay parent;
+        private final MapProvider mapProvider;
 
         private JComboBox maps;
         private JTextField heading;
         private JButton lock;
         private boolean isLocked = false;
 
-        private String[] mapkeys;
+        private final String[] mapkeys;
 
 
         /**
@@ -204,7 +204,7 @@ public class RoverSimulation extends VirtualRobotModel {
          *
          * @param parent The parent (SimulationDisplay).
          */
-        public ControlPanel(SimulationDisplay parent) {
+        ControlPanel(SimulationDisplay parent) {
             this.parent = parent;
             this.mapProvider = MapProvider.getInstance();
             this.setLayout(new FlowLayout());
@@ -365,7 +365,7 @@ public class RoverSimulation extends VirtualRobotModel {
     private class MapOverlay extends MapPanel {
         private SimulationDisplay parent;
 
-        private Rover rover;
+        private final Rover rover;
 
         /**
          * Constructor.
@@ -373,7 +373,7 @@ public class RoverSimulation extends VirtualRobotModel {
          * @param parent    The parent (SimulationDisplay).
          * @param map       The map in use.
          */
-        public MapOverlay(SimulationDisplay parent, Map map) {
+        MapOverlay(SimulationDisplay parent, Map map) {
             super(parent, map);
 
             this.rover = new Rover(this);
@@ -422,14 +422,14 @@ public class RoverSimulation extends VirtualRobotModel {
          * Allows precise specification of the robot-coordinates.
          */
         private class CoordinateInput extends JFrame {
-            private JTextField xInput = new JTextField(10);
-            private JTextField yInput = new JTextField(10);
-            private JButton okButton = new JButton("OK");
+            private final JTextField xInput = new JTextField(10);
+            private final JTextField yInput = new JTextField(10);
+            private final JButton okButton = new JButton("OK");
 
             /**
              * Constructor.
              */
-            public CoordinateInput() {
+            CoordinateInput() {
                 this.setTitle("Insert Robot-Coordinates");
                 this.setLocationRelativeTo(parent);
                 this.setSize(250,100);
@@ -469,7 +469,7 @@ public class RoverSimulation extends VirtualRobotModel {
                             int xVal = Integer.parseInt(xInput.getText());
                             int yVal = Integer.parseInt(yInput.getText());
                             pose.setLocation(xVal, yVal);
-                        } catch (NumberFormatException e1) {
+                        } catch (NumberFormatException ignored) {
 
                         }
                         dispose();
@@ -488,19 +488,19 @@ public class RoverSimulation extends VirtualRobotModel {
      * Visual representation of the simulated robot.
      */
     private class Rover extends JComponent {
-        public static final int BOT_DIAMETER = 10;
+        static final int BOT_DIAMETER = 10;
         private static final int BOT_HEAD_OPENING_ANGLE = 20;
         private static final float SENSOR_HEAD_SCALE_FACTOR = 1.2f;
         private static final int SENSOR_HEAD_ANGLE = 30;
 
-        private MapOverlay window;
+        private final MapOverlay window;
 
         /**
          * Constructor.
          *
          * @param window    The visual environment for the robot.
          */
-        public Rover(MapOverlay window) {
+        Rover(MapOverlay window) {
             this.window = window;
         }
 
@@ -574,7 +574,7 @@ public class RoverSimulation extends VirtualRobotModel {
          * @param yOffset           The visual y-offset.
          * @return  A Rectangle enclosing the robot.
          */
-        public Rectangle getBounds(int scaleFactor, int xOffset, int yOffset) {
+        Rectangle getBounds(int scaleFactor, int xOffset, int yOffset) {
             int botX = (Math.round((pose.getX() - BOT_DIAMETER / 2)) * scaleFactor) + xOffset;
             int botY = (Math.round((pose.getY() - BOT_DIAMETER / 2)) * scaleFactor) + yOffset;
             int sideLength = BOT_DIAMETER * scaleFactor;
