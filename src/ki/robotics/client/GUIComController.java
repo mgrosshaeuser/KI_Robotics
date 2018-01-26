@@ -97,39 +97,19 @@ public class GUIComController implements ComController {
         if (configuration.isOneDimensional()) {
             //TODO: LineFolloweer + umdrehen wenn Linie zu ende
             return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans +  MEASURE_COLOR;
-        } else {
+
+        } else{
             double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
-            if (!trackingObstacle) {
-                //Find wall
-                if (center != Double.POSITIVE_INFINITY && center != 0) {
-                    trackingObstacle = true;
-                    return BOT_TRAVEL_FORWARD + " " + center + ", " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
-                } else if (left != Double.POSITIVE_INFINITY && left != 0) {
-                    trackingObstacle = true;
-                    return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + " " + center + ", " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
-                } else if (right != Double.POSITIVE_INFINITY && right != 0) {
-                    trackingObstacle = true;
-                    return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + center + ", " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
-                }else{
-                    return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
-                }
-            } else {
-                if(center>bumper && left < bumper)
-                    //wenn vorne platz, max stepsize nach vorne
-                    return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
-                else if(left > bumper && center > bumper){
-                    //wenn links frei und vorne frei, Vor, rechts, nochmal vor
-                    return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + BOT_TURN_RIGHT + " 90, " +
-                            BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + " , " + scans + MEASURE_COLOR;
-                }
-
-                else{
-                    //sonst, Zur wand, dann links
-                    return BOT_TRAVEL_FORWARD + " 100, " + BOT_TURN_LEFT + " 90, " + scans + MEASURE_COLOR;
-                }
+            if(center > bumper){
+                return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+            }else if(left < right){
+                return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+            }else{
+                return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
             }
-
         }
+
+
 
     }
 
