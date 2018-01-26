@@ -22,7 +22,6 @@ public class GUIComController implements ComController {
     private final InstructionSetTranscoder transcoder;
     private final SensorModel roverModel;
     private Configuration configuration;
-    private boolean trackingObstacle = false;
     private Thread t;
 
 
@@ -82,9 +81,7 @@ public class GUIComController implements ComController {
      */
     @Override
     public String getNextRequest() {
-        int minWallDistance = 15;
         int bumper = 8;
-        String direction = "";
 
         StringBuilder scans = new StringBuilder();
         for (String s : configuration.getSensingInstructions()) {
