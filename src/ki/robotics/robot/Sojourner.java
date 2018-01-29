@@ -251,12 +251,13 @@ public class Sojourner implements Robot {
     }
 
     @Override
-    public void setStayOnWhiteLine(boolean stayOnWhiteLine) {
+    public boolean setStayOnWhiteLine(boolean stayOnWhiteLine) {
         this.stayOnWhiteLine = stayOnWhiteLine;
+        return stayOnWhiteLine;
     }
 
     private void getBackToWhiteLine(char direction) {
-        int color = java.awt.Color.RED.getRGB();
+        int color = measureColor();
         if (color == java.awt.Color.WHITE.getRGB()) {
             System.out.println("getBackToWhiteLine: fertig");
         } else if (direction == 'L' && iteratorWiggle.hasNext()) {
