@@ -6,6 +6,10 @@ import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.utility.crisp.InstructionSetTranscoder;
+import ki.robotics.utility.pixyCam.DTOAngleQuery;
+import ki.robotics.utility.pixyCam.DTOColorCodeQuery;
+import ki.robotics.utility.pixyCam.DTOGeneralQuery;
+import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -213,7 +217,52 @@ public class GUIComController implements ComController {
      * @param response  The instruction-response.
      */
     private  void handleCameraResponse(Instruction response) {
-        //TODO Implementation
+        switch (response.getMnemonic()) {
+            case CAMERA_GENERAL_QUERY:
+                int[] generalQuery = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setGeneralQuery(new DTOGeneralQuery(generalQuery));
+                break;
+            case CAMERA_ANGLE_QUERY:
+                int angleQuery = ((Instruction.SingleIntInstruction)response).getParameter();
+                roverModel.setAngleQuery(new DTOAngleQuery(angleQuery));
+                break;
+            case CAMERA_COLOR_CODE_QUERY:
+                int[] colorCodeQuery = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setColorCodeQuery(new DTOColorCodeQuery(colorCodeQuery));
+                break;
+            case CAMERA_SINGLE_SIGNATURE_QUERY:
+                int [] signatureQuery = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setUnspecifiedSignatureQuery(new DTOSignatureQuery(signatureQuery));
+                break;
+            case CAMERA_SIGNATURE_1:
+                int [] signatureQuery1 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery1(new DTOSignatureQuery(signatureQuery1));
+                break;
+            case CAMERA_SIGNATURE_2:
+                int [] signatureQuery2 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery2(new DTOSignatureQuery(signatureQuery2));
+                break;
+            case CAMERA_SIGNATURE_3:
+                int [] signatureQuery3 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery3(new DTOSignatureQuery(signatureQuery3));
+                break;
+            case CAMERA_SIGNATURE_4:
+                int [] signatureQuery4 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery4(new DTOSignatureQuery(signatureQuery4));
+                break;
+            case CAMERA_SIGNATURE_5:
+                int [] signatureQuery5 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery5(new DTOSignatureQuery(signatureQuery5));
+                break;
+            case CAMERA_SIGNATURE_6:
+                int [] signatureQuery6 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery6(new DTOSignatureQuery(signatureQuery6));
+                break;
+            case CAMERA_SIGNATURE_7:
+                int [] signatureQuery7 = ((Instruction.MultiIntInstruction)response).getParameters();
+                roverModel.setSignatureQuery7(new DTOSignatureQuery(signatureQuery7));
+                break;
+        }
     }
 
 

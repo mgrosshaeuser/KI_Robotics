@@ -17,13 +17,21 @@ public class DTOGeneralQuery {
         heightOfLargestBlock = camResponse[5];
     }
 
-    public DTOGeneralQuery(String botTransmission) {
-        String[] values = botTransmission.trim().split(" ");
+    public DTOGeneralQuery(String botRawTransmission) {
+        String[] values = botRawTransmission.trim().split(" ");
         signatureOfLargestBlock = Integer.parseInt(values[0]);
         xCenterOfLargestBlock = Integer.parseInt(values[1]);
         yCenterOfLargestBlock = Integer.parseInt(values[2]);
         widthOfLargestBlock = Integer.parseInt(values[3]);
         heightOfLargestBlock = Integer.parseInt(values[4]);
+    }
+
+    public DTOGeneralQuery(int[] botTransmission) {
+        signatureOfLargestBlock = botTransmission[0];
+        xCenterOfLargestBlock = botTransmission[1];
+        yCenterOfLargestBlock = botTransmission[2];
+        widthOfLargestBlock = botTransmission[3];
+        heightOfLargestBlock = botTransmission[4];
     }
 
 

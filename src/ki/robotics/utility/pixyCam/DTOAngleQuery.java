@@ -7,8 +7,12 @@ public class DTOAngleQuery {
         angleOfLargestColorCodedBlock = camResponse[0];
     }
 
-    public DTOAngleQuery(String botTransmission) {
-        angleOfLargestColorCodedBlock = Integer.parseInt(botTransmission.trim());
+    public DTOAngleQuery(String botRawTransmission) {
+        angleOfLargestColorCodedBlock = Integer.parseInt(botRawTransmission.trim());
+    }
+
+    public DTOAngleQuery(int botTransmission) {
+        this.angleOfLargestColorCodedBlock = botTransmission;
     }
 
     public int getAngleOfLargestColorCodedBlock() {

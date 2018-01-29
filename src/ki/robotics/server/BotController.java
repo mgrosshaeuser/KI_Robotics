@@ -8,6 +8,7 @@ import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -98,6 +99,7 @@ class BotController {
                 break;
             case CAMERA_INSTRUCTION:
                 status = processCameraInstruction(instruction);
+                break;
             default:
                 status = processOtherInstruction(instruction);
         }
@@ -131,10 +133,10 @@ class BotController {
                 out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION,instruction.getMnemonic(), travelledBackward));
                 return true;
             case BOT_TURN_LEFT:
-                out.println((Instruction.SingleFloatInstruction)instruction);
+                out.println(instruction);
                 return robot.botTurnLeft(parameter);
             case BOT_TURN_RIGHT:
-                out.println((Instruction.SingleFloatInstruction)instruction);
+                out.println(instruction);
                 return robot.botTurnRight(parameter);
             default:
                 out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
@@ -153,10 +155,10 @@ class BotController {
     private boolean processSensorInstruction(Instruction instruction) {
         switch (instruction.getMnemonic()) {
             case SENSOR_TURN_LEFT:
-                out.println((Instruction.SingleIntInstruction)instruction);
+                out.println(instruction);
                 return robot.sensorHeadTurnLeft(((Instruction.SingleIntInstruction)instruction).getParameter());
             case SENSOR_TURN_RIGHT:
-                out.println((Instruction.SingleIntInstruction)instruction);
+                out.println(instruction);
                 return robot.sensorHeadTurnRight(((Instruction.SingleIntInstruction)instruction).getParameter());
             case SENSOR_RESET:
                 out.println(instruction);
@@ -172,8 +174,8 @@ class BotController {
             case SENSOR_THREE_WAY_SCAN:
                 double[] tws = robot.ultrasonicThreeWayScan();
                 out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_LEFT, tws[0]));
-                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, instruction.getMnemonic(), tws[1]));
-                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, instruction.getMnemonic(), tws[2]));
+                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_CENTER, tws[1]));
+                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_RIGHT, tws[2]));
                 out.println(SENSOR_THREE_WAY_SCAN);
                 return true;
             default:
@@ -208,7 +210,10 @@ class BotController {
                 return true;
             case CAMERA_COLOR_CODE_QUERY:
                 int colorCode = ((Instruction.MultiIntInstruction)instruction).getParameters()[0];
-                int[] colorCodeResult = robot.cameraColorCodeQuery(colorCode);
+                int[] colorCodeResponse = robot.cameraColorCodeQuery(colorCode);
+                int[] colorCodeResult = new int[colorCodeResponse.length + 1];
+                colorCodeResult[0] = colorCode;
+                System.arraycopy(colorCodeResponse, 0, colorCodeResult, 1, colorCodeResponse.length);
                 out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_COLOR_CODE_QUERY, colorCodeResult));
                 return true;
             case CAMERA_ANGLE_QUERY:
