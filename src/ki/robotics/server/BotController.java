@@ -178,6 +178,8 @@ class BotController {
                 out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_RIGHT, tws[2]));
                 out.println(SENSOR_THREE_WAY_SCAN);
                 return true;
+            case STAY_ON_WHITE_LINE:
+                robot.setStayOnWhiteLine(true);
             default:
                 out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
                 return true;

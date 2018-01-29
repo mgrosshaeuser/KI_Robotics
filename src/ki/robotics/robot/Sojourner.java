@@ -19,6 +19,10 @@ import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
  * Singleton for accessing the hardware of a Lego-EV3-Robot.
@@ -37,6 +41,9 @@ public class Sojourner implements Robot {
 
     private int sensorCurrentPosition;
 
+    private final List<Integer> wiggleSteps = Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45);
+    private final Iterator<Integer> iteratorWiggle = wiggleSteps.iterator();
+    private boolean stayOnWhiteLine = false;
 
 
     /**
@@ -104,6 +111,10 @@ public class Sojourner implements Robot {
         double distanceToFront = measureDistance();
         double bumper = 8;
 
+        if (stayOnWhiteLine) {
+            getBackToWhiteLine('R');
+        }
+
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
 
@@ -113,6 +124,7 @@ public class Sojourner implements Robot {
     @Override
     public double botTravelBackward(double distance) {
         pilot.travel(distance * -10);
+
         return distance;
     }
 
@@ -238,8 +250,25 @@ public class Sojourner implements Robot {
         return true;
     }
 
+    @Override
+    public void setStayOnWhiteLine(boolean stayOnWhiteLine) {
+        this.stayOnWhiteLine = stayOnWhiteLine;
+    }
 
-
+    private void getBackToWhiteLine(char direction) {
+        int color = java.awt.Color.RED.getRGB();
+        if (color == java.awt.Color.WHITE.getRGB()) {
+            System.out.println("getBackToWhiteLine: fertig");
+        } else if (direction == 'L' && iteratorWiggle.hasNext()) {
+            botTurnLeft(iteratorWiggle.next());
+            System.out.println("getBackToWhiteLine: links");
+            getBackToWhiteLine('R');
+        } else if (direction == 'R' && iteratorWiggle.hasNext()) {
+            botTurnRight(iteratorWiggle.next());
+            System.out.println("getBackToWhiteLine: rechts");
+            getBackToWhiteLine('L');
+        }
+    }
 
 
 

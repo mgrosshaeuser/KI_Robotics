@@ -146,9 +146,10 @@ public class RoverSimulation extends VirtualRobotModel {
         return true;
     }
 
-
-
-
+    @Override
+    public void setStayOnWhiteLine(boolean stayOnWhiteLine) {
+        //no color sensor in simulation
+    }
 
 
     /**

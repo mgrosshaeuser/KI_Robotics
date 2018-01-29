@@ -94,7 +94,6 @@ public class GUIComController implements ComController {
         }
 
         if (configuration.isOneDimensional()) {
-            //TODO: LineFolloweer + umdrehen wenn Linie zu ende
             return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
 
         } else{

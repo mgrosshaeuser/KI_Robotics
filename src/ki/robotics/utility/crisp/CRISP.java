@@ -32,10 +32,10 @@ public class CRISP {
     public static final String CAMERA_COLOR_CODE_QUERY =        "CCOL";
     public static final String CAMERA_ANGLE_QUERY =             "CANG";
 
+    public static final String STAY_ON_WHITE_LINE =             "SOWL";
+
     public static final String SHUTDOWN =                       "DOWN";
     public static final String DISCONNECT =                     "DCNT";
-
-
 
     //Supplementary status codes.
     public static final String BOT_POSE_X =                     "BPSX";

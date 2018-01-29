@@ -27,4 +27,5 @@ public interface Robot {
     boolean shutdown();
     boolean disconnect();
     boolean handleUnsupportedInstruction(Instruction instruction);
+    void setStayOnWhiteLine(boolean stayOnWhiteLine);
 }
