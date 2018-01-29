@@ -7,8 +7,6 @@ import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
-import java.util.Random;
-
 import static ki.robotics.utility.crisp.CRISP.*;
 
 /**
@@ -88,21 +86,21 @@ public class GUIComController implements ComController {
             scans.append(s).append(", ");
         }
         if (roverModel.getDistanceToLeft() == 0 && roverModel.getDistanceToRight() == 0 && roverModel.getDistanceToCenter() == 0) {
-            return scans + MEASURE_COLOR;
+            return scans + SENSOR_MEASURE_COLOR;
         }
 
         if (configuration.isOneDimensional()) {
             //TODO: LineFolloweer + umdrehen wenn Linie zu ende
-            return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans +  MEASURE_COLOR;
+            return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
 
         } else{
             double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
             if(center > bumper){
-                return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+                return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }else if(left < right){
-                return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+                return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }else{
-                return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + MEASURE_COLOR;
+                return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }
         }
 
@@ -121,7 +119,7 @@ public class GUIComController implements ComController {
     @Override
     public void handleResponse(String response) {
         System.out.println(response);
-        if(response.equals(INSTRUCTION_SEQUENCE_FINISHED)){
+        if(response.equals(END_OF_INSTRUCTION_SEQUENCE)){
             System.out.println();
         }
         Instruction statusCode = transcoder.decodeInstruction(response);
@@ -141,7 +139,7 @@ public class GUIComController implements ComController {
             case SENSOR_TURN_RIGHT:
                 roverModel.setSensorHeadPosition((float)statusCode.getParameter() * -1);
                 break;
-            case MEASURE_COLOR:
+            case SENSOR_MEASURE_COLOR:
                 roverModel.setColor(Integer.parseInt(response.substring(4).trim()));
                 break;
             case THREE_WAY_SCAN_LEFT:
@@ -153,12 +151,12 @@ public class GUIComController implements ComController {
             case THREE_WAY_SCAN_RIGHT:
                 roverModel.setDistanceToRight((float)statusCode.getParameter());
                 break;
-            case THREE_WAY_SCAN:
+            case SENSOR_THREE_WAY_SCAN:
                 mclProvider.recalculateParticleWeight(roverModel);
                 break;
             case SENSOR_RESET:
                 roverModel.setSensorHeadPosition(0);
-            case N_WAY_SCAN:
+            case SENSOR_SINGLE_DISTANCE_SCAN:
                 measureDistance1D(statusCode);
                 mclProvider.recalculateParticleWeight(roverModel);
                 break;

@@ -57,7 +57,7 @@ class BotController {
      * Manages the interpretation and execution of a client-request by using an InstructionSetDecode-instance
      * to split and interpret the Instructions from an instruction-sequence, appending them to a job-queue and
      * reporting to the clients once all jobs in the job-queue are processed.
-     * 'SFIN' signals the client the completion of an instruction-sequence.
+     * 'EOSQ' signals the client the completion of an instruction-sequence.
      *
      * @param instructionSequence   The instruction-sequence to process.
      * @return                      boolean value, used to tell the server to close or keep the connection.
@@ -72,7 +72,7 @@ class BotController {
             stayConnected = processInstruction(instruction);
         }
 
-        out.println(INSTRUCTION_SEQUENCE_FINISHED);
+        out.println(END_OF_INSTRUCTION_SEQUENCE);
 
         return stayConnected;
     }
@@ -120,25 +120,25 @@ class BotController {
                 status = robot.sensorHeadReset();
                 out.println(instruction);
                 break;
-            case MEASURE_COLOR:
+            case SENSOR_MEASURE_COLOR:
                 status = true;
                 int color = robot.measureColor();
                 out.println(instruction.getMnemonic() + " " + color);
                 break;
-            case N_WAY_SCAN:
+            case SENSOR_SINGLE_DISTANCE_SCAN:
                 status = true;
                 double distance = robot.measureDistance();
                 out.println(new Instruction(instruction.getMnemonic(), distance));
                 break;
-            case THREE_WAY_SCAN:
+            case SENSOR_THREE_WAY_SCAN:
                 status = true;
                 double[] tws = robot.ultrasonicThreeWayScan();
                 out.println(new Instruction(THREE_WAY_SCAN_LEFT, tws[0]));
                 out.println(new Instruction(THREE_WAY_SCAN_CENTER, tws[1]));
                 out.println(new Instruction(THREE_WAY_SCAN_RIGHT, tws[2]));
-                out.println(THREE_WAY_SCAN);
+                out.println(SENSOR_THREE_WAY_SCAN);
                 break;
-            case RETURN_POSE:
+            case BOT_RETURN_POSE:
                 //TODO Implementation
                 break;
             case CAMERA_GENERAL_QUERY:
@@ -164,13 +164,13 @@ class BotController {
                 status = true;
                 out.println(CAMERA_ANGLE_QUERY + " " + robot.cameraAngleQuery());
                 break;
-            case BOT_SHUTDOWN:
+            case SHUTDOWN:
                 status = robot.shutdown();
-                out.println(BOT_DISCONNECT);
+                out.println(DISCONNECT);
                 break;
-            case BOT_DISCONNECT:
+            case DISCONNECT:
                 status = robot.disconnect();
-                out.println(BOT_DISCONNECT);
+                out.println(DISCONNECT);
                 break;
             default:
                 status = robot.handleUnsupportedInstruction(instruction);

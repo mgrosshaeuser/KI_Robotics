@@ -62,16 +62,16 @@ public class Configuration {
     public ArrayList<String> getSensingInstructions() {
         ArrayList<String> instr = new ArrayList<>();
         if (useRightSensor && useFrontSensor && useLeftSensor) {
-            instr.add(CRISP.THREE_WAY_SCAN);
+            instr.add(CRISP.SENSOR_THREE_WAY_SCAN);
         } else {
             if (useLeftSensor) {
-                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.N_WAY_SCAN);
+                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
             }
             if (useFrontSensor) {
-                instr.add(CRISP.SENSOR_RESET + ", " + CRISP.N_WAY_SCAN);
+                instr.add(CRISP.SENSOR_RESET + ", " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
             }
             if (useRightSensor) {
-                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.N_WAY_SCAN);
+                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
             }
         }
         return instr;
