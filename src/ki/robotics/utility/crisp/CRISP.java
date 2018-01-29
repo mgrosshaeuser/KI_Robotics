@@ -8,6 +8,7 @@ public class CRISP {
     public static final char BOT_INSTRUCTION =      'B';
     public static final char SENSOR_INSTRUCTION =   'S';
     public static final char CAMERA_INSTRUCTION =   'C';
+    public static final char OTHER_INSTRUCTION =    'O';
 
 
 
@@ -45,6 +46,7 @@ public class CRISP {
     public static final String THREE_WAY_SCAN_CENTER =          "STWC";
     public static final String THREE_WAY_SCAN_RIGHT =           "STWR";
 
+    public static final String CAMERA_SIGNATURE_BASE =          "CSG";
     public static final String CAMERA_SIGNATURE_1 =             "CSG1";
     public static final String CAMERA_SIGNATURE_2 =             "CSG2";
     public static final String CAMERA_SIGNATURE_3 =             "CSG3";

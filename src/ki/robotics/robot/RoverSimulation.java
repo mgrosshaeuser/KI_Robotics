@@ -142,7 +142,7 @@ public class RoverSimulation extends VirtualRobotModel {
 
     @Override
     public boolean handleUnsupportedInstruction(Instruction instruction) {
-        System.out.println("Unknows Instruction: >>" + instruction.getMnemonic() + "<< with parameter: >>" + instruction.getParameter() + "<<.");
+        System.out.println("Unknows Instruction: >>" + instruction.getMnemonic());
         return true;
     }
 

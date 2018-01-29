@@ -52,6 +52,17 @@ public class DTOColorCodeQuery {
         return angleOfLargestBlock;
     }
 
+    public int[] getAllParameters() {
+        return new int[] {
+                numberOfMatchingBlocks,
+                xCenterOfLargestBlock,
+                yCenterOfLargestBlock,
+                widthOfLargestBlock,
+                heightOfLargestBlock,
+                angleOfLargestBlock
+        };
+    }
+
     @Override
     public String toString() {
         String query = "";

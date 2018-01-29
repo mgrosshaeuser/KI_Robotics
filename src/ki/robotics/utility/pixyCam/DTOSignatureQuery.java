@@ -47,6 +47,16 @@ public class DTOSignatureQuery {
     }
 
 
+    public int[] getAllParameters() {
+        return new int[] {
+                numberOfMatchingBlocks,
+                xCenterOfLargestBlock,
+                yCenterOfLargestBlock,
+                widthOfLargestBlock,
+                heightOfLargestBlock
+        };
+    }
+
     @Override
     public String toString() {
         String query = "";

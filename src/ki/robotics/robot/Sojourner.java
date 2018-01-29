@@ -193,33 +193,31 @@ public class Sojourner implements Robot {
     }
 
     @Override
-    public String cameraGeneralQuery() {
-        return cam.generalQuery().toString();
+    public int[] cameraGeneralQuery() {
+        return cam.generalQuery().getAllParameters();
     }
 
     @Override
-    public String cameraSignatureQuery(int signature) {
-        return cam.signatureQuery(signature).toString();
+    public int[] cameraSignatureQuery(int signature) {
+        return cam.signatureQuery(signature).getAllParameters();
     }
 
     @Override
-    public String[] cameraAllSignaturesQuery() {
+    public int[][] cameraAllSignaturesQuery() {
         DTOSignatureQuery[] signatures = cam.allSignaturesQuery();
-        String[] response = new String[signatures.length];
+        int[][] response = new int[signatures.length][];
         for (int i = 0  ;  i < signatures.length  ;  i++) {
-            response[i] = signatures[i].toString();
+            response[i] = signatures[i].getAllParameters();
         }
         return response;
     }
 
     @Override
-    public String cameraColorCodeQuery(int color) {
-        return cam.colorCodeQuery(color).toString();
+    public int[] cameraColorCodeQuery(int color) {
+        return cam.colorCodeQuery(color).getAllParameters();
     }
 
-    public String cameraAngleQuery() {
-        return cam.angleQuery().toString();
-    }
+    public int cameraAngleQuery() { return cam.angleQuery().getAngleOfLargestColorCodedBlock(); }
 
 
     @Override

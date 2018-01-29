@@ -48,6 +48,16 @@ public class DTOGeneralQuery {
         return heightOfLargestBlock;
     }
 
+    public int[] getAllParameters() {
+        return new int[] {
+                signatureOfLargestBlock,
+                xCenterOfLargestBlock,
+                yCenterOfLargestBlock,
+                widthOfLargestBlock,
+                heightOfLargestBlock
+        };
+    }
+
 
     @Override
     public String toString() {
