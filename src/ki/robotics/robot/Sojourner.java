@@ -265,11 +265,8 @@ public class Sojourner implements Robot {
         pilot.travel(-deltaSensorAxis * 10);
         int endCorrection = 10;
 
-        if(!lrc.isDirection()){ //in Gegenteil der letzten Richtung drehen
-            botTurnLeft(lrc.getDegrees() + endCorrection);
-        } else {
-            botTurnRight(lrc.getDegrees() + endCorrection);
-        }
+        //in Gegenteil der letzten Richtung drehen
+        turnForCorrection(lrc.getDegrees() + endCorrection, !lrc.isDirection());
         pilot.travel(deltaSensorAxis * 10);
     }
 
@@ -285,12 +282,7 @@ public class Sojourner implements Robot {
 
         while (measureColor() != java.awt.Color.WHITE.getRGB()) {
             if(iteratorWiggle.hasNext()) iteratorStep = iteratorWiggle.next();
-
-            if (pivotRight) {
-                botTurnRight(iteratorStep);
-            } else {
-                botTurnLeft(iteratorStep);
-            }
+            turnForCorrection(iteratorStep, pivotRight);
             pivotRight = !pivotRight;
 
         }
@@ -298,6 +290,13 @@ public class Sojourner implements Robot {
         return new LineReturnCode(iteratorStep, pivotRight);
     }
 
+    private void turnForCorrection(int degree, boolean right) {
+        if (right) {
+            botTurnRight(degree);
+        } else {
+            botTurnLeft(degree);
+        }
+    }
 
 
     /**
