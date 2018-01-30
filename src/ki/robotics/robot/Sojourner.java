@@ -19,6 +19,7 @@ import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 
+import javax.sound.sampled.Line;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -259,27 +260,42 @@ public class Sojourner implements Robot {
      * lets Sojourner end up on the line with its axis
      */
     private void getBackToWhiteLine() {
-        alignColorSensor();
-        botTravelBackward(deltaSensorAxis);
-        alignColorSensor();
+
+        LineReturnCode lrc = alignColorSensor();
+        pilot.travel(-deltaSensorAxis * 10);
+        int endCorrection = 10;
+
+        if(!lrc.isDirection()){ //in Gegenteil der letzten Richtung drehen
+            botTurnLeft(lrc.getDegrees() + endCorrection);
+        } else {
+            botTurnRight(lrc.getDegrees() + endCorrection);
+        }
+        pilot.travel(deltaSensorAxis * 10);
     }
 
     /**
      * lets Sojourner end up on the line with its sensor
      */
-    private void alignColorSensor() {
+    private LineReturnCode alignColorSensor() {
+
         final List<Integer> wiggleSteps = Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45);
         final Iterator<Integer> iteratorWiggle = wiggleSteps.iterator();
         boolean pivotRight = true;
+        int iteratorStep=0;
 
         while (measureColor() != java.awt.Color.WHITE.getRGB()) {
+            if(iteratorWiggle.hasNext()) iteratorStep = iteratorWiggle.next();
+
             if (pivotRight) {
-                botTurnRight(iteratorWiggle.next());
+                botTurnRight(iteratorStep);
             } else {
-                botTurnLeft(iteratorWiggle.next());
+                botTurnLeft(iteratorStep);
             }
             pivotRight = !pivotRight;
+
         }
+
+        return new LineReturnCode(iteratorStep, pivotRight);
     }
 
 
@@ -308,6 +324,25 @@ public class Sojourner implements Robot {
             case lejos.robotics.Color.BROWN:		return new java.awt.Color(165, 42, 42).getRed();
             case lejos.robotics.Color.NONE: 		return -1;
             default: return -2;
+        }
+    }
+
+
+    private class LineReturnCode{
+        int degrees;
+        boolean direction;
+
+        private LineReturnCode(int degrees, boolean direction){
+            this.degrees = degrees;
+            this.direction = direction;
+        }
+
+        public int getDegrees() {
+            return degrees;
+        }
+
+        public boolean isDirection() {
+            return direction;
         }
     }
 }
