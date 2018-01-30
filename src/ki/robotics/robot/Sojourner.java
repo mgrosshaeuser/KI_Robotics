@@ -41,8 +41,8 @@ public class Sojourner implements Robot {
 
     private int sensorCurrentPosition;
 
-    private final int deltaSensorAxis = 5;
-    private boolean stayOnWhiteLine = false;
+    private final int deltaSensorAxis = 15;
+    private boolean stayOnWhiteLine = true;
 
 
     /**
@@ -113,7 +113,7 @@ public class Sojourner implements Robot {
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
 
-        if (stayOnWhiteLine) {
+        if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {
             getBackToWhiteLine();
         }
 
@@ -275,10 +275,8 @@ public class Sojourner implements Robot {
         while (measureColor() != java.awt.Color.WHITE.getRGB()) {
             if (pivotRight) {
                 botTurnRight(iteratorWiggle.next());
-                System.out.println("getBackToWhiteLine: rechts");
             } else {
                 botTurnLeft(iteratorWiggle.next());
-                System.out.println("getBackToWhiteLine: links");
             }
             pivotRight = !pivotRight;
         }
