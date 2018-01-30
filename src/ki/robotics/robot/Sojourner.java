@@ -19,6 +19,10 @@ import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
 
 /**
  * Singleton for accessing the hardware of a Lego-EV3-Robot.
@@ -37,6 +41,8 @@ public class Sojourner implements Robot {
 
     private int sensorCurrentPosition;
 
+    private final int deltaSensorAxis = 5;
+    private boolean stayOnWhiteLine = false;
 
 
     /**
@@ -107,12 +113,17 @@ public class Sojourner implements Robot {
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
 
+        if (stayOnWhiteLine) {
+            getBackToWhiteLine();
+        }
+
         return distance;
     }
 
     @Override
     public double botTravelBackward(double distance) {
         pilot.travel(distance * -10);
+
         return distance;
     }
 
@@ -193,33 +204,31 @@ public class Sojourner implements Robot {
     }
 
     @Override
-    public String cameraGeneralQuery() {
-        return cam.generalQuery().toString();
+    public int[] cameraGeneralQuery() {
+        return cam.generalQuery().getAllParameters();
     }
 
     @Override
-    public String cameraSignatureQuery(int signature) {
-        return cam.signatureQuery(signature).toString();
+    public int[] cameraSignatureQuery(int signature) {
+        return cam.signatureQuery(signature).getAllParameters();
     }
 
     @Override
-    public String[] cameraAllSignaturesQuery() {
+    public int[][] cameraAllSignaturesQuery() {
         DTOSignatureQuery[] signatures = cam.allSignaturesQuery();
-        String[] response = new String[signatures.length];
+        int[][] response = new int[signatures.length][];
         for (int i = 0  ;  i < signatures.length  ;  i++) {
-            response[i] = signatures[i].toString();
+            response[i] = signatures[i].getAllParameters();
         }
         return response;
     }
 
     @Override
-    public String cameraColorCodeQuery(int color) {
-        return cam.colorCodeQuery(color).toString();
+    public int[] cameraColorCodeQuery(int color) {
+        return cam.colorCodeQuery(color).getAllParameters();
     }
 
-    public String cameraAngleQuery() {
-        return cam.angleQuery().toString();
-    }
+    public int cameraAngleQuery() { return cam.angleQuery().getAngleOfLargestColorCodedBlock(); }
 
 
     @Override
@@ -240,8 +249,40 @@ public class Sojourner implements Robot {
         return true;
     }
 
+    @Override
+    public boolean setStayOnWhiteLine(boolean stayOnWhiteLine) {
+        this.stayOnWhiteLine = stayOnWhiteLine;
+        return stayOnWhiteLine;
+    }
 
+    /**
+     * lets Sojourner end up on the line with its axis
+     */
+    private void getBackToWhiteLine() {
+        alignColorSensor();
+        botTravelBackward(deltaSensorAxis);
+        alignColorSensor();
+    }
 
+    /**
+     * lets Sojourner end up on the line with its sensor
+     */
+    private void alignColorSensor() {
+        final List<Integer> wiggleSteps = Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45);
+        final Iterator<Integer> iteratorWiggle = wiggleSteps.iterator();
+        boolean pivotRight = true;
+
+        while (measureColor() != java.awt.Color.WHITE.getRGB()) {
+            if (pivotRight) {
+                botTurnRight(iteratorWiggle.next());
+                System.out.println("getBackToWhiteLine: rechts");
+            } else {
+                botTurnLeft(iteratorWiggle.next());
+                System.out.println("getBackToWhiteLine: links");
+            }
+            pivotRight = !pivotRight;
+        }
+    }
 
 
 

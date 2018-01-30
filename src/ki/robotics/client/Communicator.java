@@ -7,8 +7,8 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 
-import static ki.robotics.utility.crisp.CRISP.BOT_DISCONNECT;
-import static ki.robotics.utility.crisp.CRISP.INSTRUCTION_SEQUENCE_FINISHED;
+import static ki.robotics.utility.crisp.CRISP.DISCONNECT;
+import static ki.robotics.utility.crisp.CRISP.END_OF_INSTRUCTION_SEQUENCE;
 
 
 /**
@@ -43,7 +43,7 @@ final class Communicator implements Runnable{
     /**
      * Starts a connection-attempt to the server.
      * Once a connection is established an initial request is sent to the server. The connection is kept
-     * until either this client or the server (robots) sends a 'SFIN'- (instruction Sequence FINished) or
+     * until either this client or the server (robots) sends a 'EOSQ'- (End Of SeQuence) or
      * 'DCNT'- (DisCoNnecT) signal.
      */
     @Override
@@ -68,14 +68,14 @@ final class Communicator implements Runnable{
                         continue;
                     }
                     ComController.handleResponse(response);
-                    if (response.contains(INSTRUCTION_SEQUENCE_FINISHED)) {
+                    if (response.contains(END_OF_INSTRUCTION_SEQUENCE)) {
                         break;
                     }
                 } while (true);
                 request = ComController.getNextRequest();
-            } while ( running && !request.equals(BOT_DISCONNECT));
+            } while ( running && !request.equals(DISCONNECT));
 
-            out.println(BOT_DISCONNECT);
+            out.println(DISCONNECT);
             out.close();
             in.close();
             socket.close();

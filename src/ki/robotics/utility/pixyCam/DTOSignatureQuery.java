@@ -16,13 +16,21 @@ public class DTOSignatureQuery {
         heightOfLargestBlock = camResponse[4];
     }
 
-    public DTOSignatureQuery(String botTransmission) {
-        String[] values = botTransmission.trim().split(" ");
+    public DTOSignatureQuery(String botRawTransmission) {
+        String[] values = botRawTransmission.trim().split(" ");
         numberOfMatchingBlocks = Integer.parseInt(values[0]);
         xCenterOfLargestBlock = Integer.parseInt(values[1]);
         yCenterOfLargestBlock = Integer.parseInt(values[2]);
         widthOfLargestBlock = Integer.parseInt(values[3]);
         heightOfLargestBlock = Integer.parseInt(values[4]);
+    }
+
+    public DTOSignatureQuery(int[] botTransmission) {
+        numberOfMatchingBlocks = botTransmission[0];
+        xCenterOfLargestBlock = botTransmission[1];
+        yCenterOfLargestBlock = botTransmission[2];
+        widthOfLargestBlock = botTransmission[3];
+        heightOfLargestBlock = botTransmission[4];
     }
 
 
@@ -46,6 +54,16 @@ public class DTOSignatureQuery {
         return heightOfLargestBlock;
     }
 
+
+    public int[] getAllParameters() {
+        return new int[] {
+                numberOfMatchingBlocks,
+                xCenterOfLargestBlock,
+                yCenterOfLargestBlock,
+                widthOfLargestBlock,
+                heightOfLargestBlock
+        };
+    }
 
     @Override
     public String toString() {

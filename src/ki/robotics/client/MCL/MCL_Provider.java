@@ -117,31 +117,28 @@ public class MCL_Provider {
      * @return          The absolute weight of the particle.
      */
     private double calculateBotParticleDeviation(SensorModel bot, MCLParticle particle) {
+        //0 is left, 1 is center, 2 is right
         float[] botDistances = bot.getAllDistances();
         double[] particleDistances = particle.ultrasonicThreeWayScan();
 
-        int cnt = 0;
-        double xDeviation = 0, yDeviation = 0, hDeviation = 0;
-        int xWeight = 0, yWeight = 0, hWeight = 0;
+        double leftDeviation, centerDeviation, rightDeviation;
+        int leftWeight = 0, centerWeight = 0, rightWeight = 0;
 
         if (botDistances[0] > 0  &&  particleDistances[0] > 0) {
-            xDeviation = Math.abs(botDistances[0] - particleDistances[0]);
-            xWeight = deviationToWeight(xDeviation, botDistances[0]);
-            cnt++;
+            leftDeviation = Math.abs(botDistances[0] - particleDistances[0]);
+            leftWeight = deviationToWeight(leftDeviation, botDistances[0]);
         }
 
         if (botDistances[1] > 0  &&  particleDistances[1] > 0) {
-            yDeviation = Math.abs(botDistances[1] - particleDistances[1]);
-            yWeight = deviationToWeight(yDeviation, botDistances[1]);
-            cnt++;
+            centerDeviation = Math.abs(botDistances[1] - particleDistances[1]);
+            centerWeight = deviationToWeight(centerDeviation, botDistances[1]);
         }
         if (botDistances[2] > 0  &&  particleDistances[2] > 0) {
-            hDeviation = Math.abs(botDistances[2] - particleDistances[2]);
-            hWeight = deviationToWeight(hDeviation, botDistances[2]);
-            cnt ++;
+            rightDeviation = Math.abs(botDistances[2] - particleDistances[2]);
+            rightWeight = deviationToWeight(rightDeviation, botDistances[2]);
         }
 
-        int deviation = xWeight + yWeight + hWeight;
+        int deviation = leftWeight + centerWeight + rightWeight;
         if (deviation > 0) {
             return 1.0 / (double)deviation;
         }
@@ -151,11 +148,11 @@ public class MCL_Provider {
 
     private int deviationToWeight(double deviation, double referenceValue) {
         if (deviation > 0.9 * referenceValue) {
-            return 16;
+            return 32;
         } else if (deviation > 0.75 * referenceValue) {
-            return 8;
+            return 16;
         } else if (deviation > 0.5 * referenceValue) {
-            return 4;
+            return 8;
         } else if (deviation > 0.25 * referenceValue) {
             return 2;
         } else {

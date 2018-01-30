@@ -32,7 +32,7 @@ public class TerminalComController implements ComController{
         Scanner in = new Scanner(System.in);
         System.out.print("\n\n>>> ");
         String cmd = in.nextLine();
-        if (cmd.equals(BOT_DISCONNECT)) {
+        if (cmd.equals(DISCONNECT)) {
             stop();
         }
         return cmd;
