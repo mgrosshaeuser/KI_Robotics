@@ -134,6 +134,6 @@ public abstract class VirtualRobotModel implements Robot {
     abstract void translate(float dx, float dy);
     abstract void turnFull(int degrees);
     abstract void turnSensor(int position);
-
+    public boolean setStayOnWhiteLine(boolean stayOnWhiteLine) { return false; }
 
 }
