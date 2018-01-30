@@ -278,7 +278,7 @@ public class Sojourner implements Robot {
                 System.out.println("getBackToWhiteLine: rechts");
             } else {
                 botTurnLeft(iteratorWiggle.next());
-                System.out.println("getBackToWhiteLine: rechts");
+                System.out.println("getBackToWhiteLine: links");
             }
             pivotRight = !pivotRight;
         }
