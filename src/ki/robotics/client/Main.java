@@ -14,12 +14,12 @@ public class Main {
     public static final int PORT = 9999;
 
     static {
-        int oneSecondTimeout = 1000;
+        int twoSecondTimeout = 2000;
         String hostToTry = "192.168.43.171";
         String hostToSet;
 
         try {
-            if (InetAddress.getByName(hostToTry).isReachable(oneSecondTimeout)) {
+            if (InetAddress.getByName(hostToTry).isReachable(twoSecondTimeout)) {
                 hostToSet = hostToTry;
             } else {
                 hostToSet = "localhost";
