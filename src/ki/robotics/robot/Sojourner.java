@@ -41,8 +41,7 @@ public class Sojourner implements Robot {
 
     private int sensorCurrentPosition;
 
-    private final List<Integer> wiggleSteps = Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45);
-    private final Iterator<Integer> iteratorWiggle = wiggleSteps.iterator();
+    private final int deltaSensorAxis = 5;
     private boolean stayOnWhiteLine = false;
 
 
@@ -111,12 +110,12 @@ public class Sojourner implements Robot {
         double distanceToFront = measureDistance();
         double bumper = 8;
 
-        if (stayOnWhiteLine) {
-            getBackToWhiteLine('R');
-        }
-
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
+
+        if (stayOnWhiteLine) {
+            getBackToWhiteLine();
+        }
 
         return distance;
     }
@@ -256,18 +255,32 @@ public class Sojourner implements Robot {
         return stayOnWhiteLine;
     }
 
-    private void getBackToWhiteLine(char direction) {
-        int color = measureColor();
-        if (color == java.awt.Color.WHITE.getRGB()) {
-            System.out.println("getBackToWhiteLine: fertig");
-        } else if (direction == 'L' && iteratorWiggle.hasNext()) {
-            botTurnLeft(iteratorWiggle.next());
-            System.out.println("getBackToWhiteLine: links");
-            getBackToWhiteLine('R');
-        } else if (direction == 'R' && iteratorWiggle.hasNext()) {
-            botTurnRight(iteratorWiggle.next());
-            System.out.println("getBackToWhiteLine: rechts");
-            getBackToWhiteLine('L');
+    /**
+     * lets Sojourner end up on the line with its axis
+     */
+    private void getBackToWhiteLine() {
+        alignColorSensor();
+        botTravelBackward(deltaSensorAxis);
+        alignColorSensor();
+    }
+
+    /**
+     * lets Sojourner end up on the line with its sensor
+     */
+    private void alignColorSensor() {
+        final List<Integer> wiggleSteps = Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45);
+        final Iterator<Integer> iteratorWiggle = wiggleSteps.iterator();
+        boolean pivotRight = true;
+
+        while (measureColor() != java.awt.Color.WHITE.getRGB()) {
+            if (pivotRight) {
+                botTurnRight(iteratorWiggle.next());
+                System.out.println("getBackToWhiteLine: rechts");
+            } else {
+                botTurnRight(iteratorWiggle.next());
+                System.out.println("getBackToWhiteLine: rechts");
+            }
+            pivotRight = !pivotRight;
         }
     }
 
