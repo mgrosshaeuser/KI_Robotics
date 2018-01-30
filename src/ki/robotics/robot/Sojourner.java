@@ -260,14 +260,18 @@ public class Sojourner implements Robot {
      * lets Sojourner end up on the line with its axis
      */
     private void getBackToWhiteLine() {
-
-        LineReturnCode lrc = alignColorSensor();
-        pilot.travel(-deltaSensorAxis * 10);
         int endCorrection = 10;
 
-        //in Gegenteil der letzten Richtung drehen
-        turnForCorrection(lrc.getDegrees() + endCorrection, !lrc.isDirection());
-        pilot.travel(deltaSensorAxis * 10);
+        LineReturnCode lrc = alignColorSensor();
+        if(lrc.breakForTurn){
+            turnForCorrection(lrc.getDegrees(), lrc.isDirection());
+            pilot.travel(25*10);
+        }else{
+            pilot.travel(-deltaSensorAxis * 10);
+            //in Gegenteil der letzten Richtung drehen
+            turnForCorrection(lrc.getDegrees() + endCorrection, lrc.isDirection());
+            pilot.travel(deltaSensorAxis * 10);
+        }
     }
 
     /**
@@ -277,17 +281,23 @@ public class Sojourner implements Robot {
 
         final List<Integer> wiggleSteps = Arrays.asList(5, 10, 15, 20, 25, 30, 35, 40, 45);
         final Iterator<Integer> iteratorWiggle = wiggleSteps.iterator();
-        boolean pivotRight = true;
+        boolean pivotRight = true, breakForTurn = false;
         int iteratorStep=0;
 
-        while (measureColor() != java.awt.Color.WHITE.getRGB()) {
-            if(iteratorWiggle.hasNext()) iteratorStep = iteratorWiggle.next();
+        while (measureColor() != java.awt.Color.WHITE.getRGB() && !breakForTurn) {
+            if(iteratorWiggle.hasNext()){
+                iteratorStep = iteratorWiggle.next();
+            }else{
+                breakForTurn = true;
+                iteratorStep = 205; //25 aus letzter Drehung + 180
+                break;
+            }
             turnForCorrection(iteratorStep, pivotRight);
             pivotRight = !pivotRight;
 
         }
 
-        return new LineReturnCode(iteratorStep, pivotRight);
+        return new LineReturnCode(iteratorStep, pivotRight, breakForTurn);
     }
 
     private void turnForCorrection(int degree, boolean right) {
@@ -329,11 +339,12 @@ public class Sojourner implements Robot {
 
     private class LineReturnCode{
         int degrees;
-        boolean direction;
+        boolean direction, breakForTurn;
 
-        private LineReturnCode(int degrees, boolean direction){
+        private LineReturnCode(int degrees, boolean direction, boolean breakForTurn){
             this.degrees = degrees;
             this.direction = direction;
+            this.breakForTurn = breakForTurn;
         }
 
         public int getDegrees() {
@@ -342,6 +353,10 @@ public class Sojourner implements Robot {
 
         public boolean isDirection() {
             return direction;
+        }
+
+        public boolean isBreakForTurn() {
+            return breakForTurn;
         }
     }
 }
