@@ -148,11 +148,11 @@ public class MCL_Provider {
 
     private int deviationToWeight(double deviation, double referenceValue) {
         if (deviation > 0.9 * referenceValue) {
-            return 32;
+            return 20;
         } else if (deviation > 0.75 * referenceValue) {
-            return 16;
+            return 10;
         } else if (deviation > 0.5 * referenceValue) {
-            return 8;
+            return 5;
         } else if (deviation > 0.25 * referenceValue) {
             return 2;
         } else {
