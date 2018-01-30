@@ -190,11 +190,11 @@ public class GUIComController implements ComController {
                 break;
             case THREE_WAY_SCAN_CENTER:
                 double distanceCenter = ((Instruction.SingleFloatInstruction)response).getParameter();
-                roverModel.setDistanceToLeft((float) distanceCenter);
+                roverModel.setDistanceToCenter((float) distanceCenter);
                 break;
             case THREE_WAY_SCAN_RIGHT:
                 double distanceRight = ((Instruction.SingleFloatInstruction)response).getParameter();
-                roverModel.setDistanceToLeft((float) distanceRight);
+                roverModel.setDistanceToRight((float) distanceRight);
                 break;
             case SENSOR_THREE_WAY_SCAN:
                 mclProvider.recalculateParticleWeight(roverModel);
