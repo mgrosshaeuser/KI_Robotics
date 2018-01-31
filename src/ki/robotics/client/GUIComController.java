@@ -156,6 +156,10 @@ public class GUIComController implements ComController {
                 return;
             case BOT_LINE_FOLLOWING_DISABLED:
                 return;
+            case BOT_U_TURN:
+                ((Configuration.ConfigOneD)configuration).flipDirection();
+                mclProvider.turnFull(180);
+                return;
         }
 
         double parameter = ((Instruction.SingleFloatInstruction)response).getParameter();
@@ -171,14 +175,6 @@ public class GUIComController implements ComController {
                 return;
             case BOT_TURN_RIGHT:
                 mclProvider.turnFull((int) Math.abs(parameter) * -1);
-                return;
-            case BOT_LINE_FOLLOWING_ENABLED:
-                return;
-            case BOT_LINE_FOLLOWING_DISABLED:
-                return;
-            case BOT_U_TURN:
-                ((Configuration.ConfigOneD)configuration).flipDirection();
-                mclProvider.turnFull(180);
                 return;
         }
     }
