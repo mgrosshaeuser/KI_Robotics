@@ -19,7 +19,6 @@ import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 
-import javax.sound.sampled.Line;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +41,8 @@ public class Sojourner implements Robot {
 
     private int sensorCurrentPosition;
 
-    private final int deltaSensorAxis = 15;
+    private final int deltaColorSensorAxis = 15;
+    private final int deltaUSSensorAxis = 10;
     private boolean stayOnWhiteLine = true;
 
 
@@ -187,7 +187,7 @@ public class Sojourner implements Robot {
         double[] sonicValues = new double[3];
         int degreeStep = 90;
         //front measurement
-        sonicValues[1] = measureDistance();
+        sonicValues[1] = measureDistance() + deltaUSSensorAxis; //correcting particles for delta
         sensorHeadTurnLeft(degreeStep);
         //left measurement
         sonicValues[0] = measureDistance();
@@ -268,10 +268,10 @@ public class Sojourner implements Robot {
             turnForCorrection(lrc.getDegrees(), lrc.isDirection());
             pilot.travel(25*10);
         }else{
-            pilot.travel(-deltaSensorAxis * 10);
+            pilot.travel(-deltaColorSensorAxis * 10);
             //in Gegenteil der letzten Richtung drehen
             turnForCorrection(lrc.getDegrees() + endCorrection, lrc.isDirection());
-            pilot.travel(deltaSensorAxis * 10);
+            pilot.travel(deltaColorSensorAxis * 10);
         }
     }
 
