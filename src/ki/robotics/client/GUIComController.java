@@ -124,8 +124,6 @@ public class GUIComController implements ComController {
      */
     @Override
     public void handleResponse(String botResponse) {
-        System.out.println(botResponse);
-
         Instruction response = transcoder.decodeInstruction(botResponse);
         switch (response.getInstructionGroup()) {
             case BOT_INSTRUCTION:
