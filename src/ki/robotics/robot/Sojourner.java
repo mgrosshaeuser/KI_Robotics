@@ -43,7 +43,7 @@ public class Sojourner implements Robot {
 
     private final int deltaColorSensorAxis = 15;
     private final int deltaUSSensorAxis = 10;
-    private boolean stayOnWhiteLine = true;
+    private boolean stayOnWhiteLine = false;
 
 
     /**
@@ -110,15 +110,16 @@ public class Sojourner implements Robot {
         sensorHeadReset();
         double distanceToFront = measureDistance();
         double bumper = 8;
+        boolean uTurn = false;
 
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         pilot.travel(distance * 10);
 
         if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {
-            getBackToWhiteLine();
-            distance = -distance;
+            uTurn = getBackToWhiteLine();
         }
 
+        if(uTurn) distance = -distance;
         return distance;
     }
 
@@ -260,11 +261,11 @@ public class Sojourner implements Robot {
     /**
      * lets Sojourner end up on the line with its axis
      */
-    private void getBackToWhiteLine() {
-        int endCorrection = 10;
+    private boolean getBackToWhiteLine() {
+        int endCorrection = 5;
 
         LineReturnCode lrc = alignColorSensor();
-        if(lrc.breakForTurn){
+        if(lrc.isBreakForTurn()){
             turnForCorrection(lrc.getDegrees(), lrc.isDirection());
             pilot.travel(25*10);
         }else{
@@ -273,6 +274,7 @@ public class Sojourner implements Robot {
             turnForCorrection(lrc.getDegrees() + endCorrection, lrc.isDirection());
             pilot.travel(deltaColorSensorAxis * 10);
         }
+        return lrc.isBreakForTurn();
     }
 
     /**
