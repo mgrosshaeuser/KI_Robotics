@@ -112,7 +112,6 @@ public class GUIComController implements ComController {
                 instruction = BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }
         }
-        System.out.println(instruction);
         return instruction;
     }
 
