@@ -71,7 +71,7 @@ public class GUIComController implements ComController {
      */
     @Override
     public String getInitialRequest() {
-        return SENSOR_RESET;
+        return BOT_LINE_FOLLOWING_DISABLED + ", " + SENSOR_RESET;
     }
 
 
