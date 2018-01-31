@@ -8,17 +8,14 @@ import ki.robotics.utility.map.Map;
 import ki.robotics.robot.MCLParticle;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
+import sun.security.krb5.Config;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 
 /**
@@ -166,8 +163,8 @@ public class MCL_Display extends JFrame{
         private final JCheckBox rightSensor = new JCheckBox("Right sensor");
         private final JRadioButton startFromLeft = new JRadioButton("Start from left");
         private final JRadioButton startFromRight = new JRadioButton("Start from right");
-        private final JTextField stepsize = new JTextField("10", 5);
-        private final JTextField particles = new JTextField("1000",5);
+        private final JTextField stepsize = new JTextField( 5);
+        private final JTextField particles = new JTextField(5);
         private final JButton start = new JButton("Start");
         private final JButton stop = new JButton("Stop");
 
@@ -213,8 +210,8 @@ public class MCL_Display extends JFrame{
 
         private void initializeOneDimensionalControls() {
             ExtButtonGroup leftOrRight = new ExtButtonGroup();
-            startFromLeft.setSelected(true);
-            startFromRight.setSelected(false);
+            startFromLeft.setSelected(Configuration.ConfigOneD.DEFAULT.isStartFromLeft());
+            startFromRight.setSelected(Configuration.ConfigOneD.DEFAULT.isStartFromRight());
             leftOrRight.addAll(startFromLeft, startFromRight);
             oneDimensionalControls.addAll(startFromLeft, startFromRight);
         }
@@ -235,7 +232,9 @@ public class MCL_Display extends JFrame{
             JLabel particleCnt = new JLabel("Particles: ");
             particleCnt.setLabelFor(particles);
             stepsize.setHorizontalAlignment(JTextField.RIGHT);
+            stepsize.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getStepSize()));
             particles.setHorizontalAlignment(JTextField.RIGHT);
+            particles.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getNumberOfParticles()));
 
             start.addActionListener(new StartButtonActionListener());
             stop.addActionListener(new StopButtonActionListener());
@@ -254,7 +253,8 @@ public class MCL_Display extends JFrame{
             container.setLayout(new GridLayout(2,2));
 
             ExtButtonGroup angleGroup = new ExtButtonGroup();
-            turnFree.setSelected(true);
+            turnFree.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseFreeAngles());
+            turnRightAngle.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseRightAngles());
             angleGroup.addAll(turnFree, turnRightAngle);
 
             container.addAll(turnFree, turnRightAngle);
@@ -269,9 +269,9 @@ public class MCL_Display extends JFrame{
         private void addSensorSelectionToUI() {
             ExtJPanel sensorContainer = new ExtJPanel();
             sensorContainer.setLayout(new GridLayout(3,1));
-            leftSensor.setSelected(true);
-            frontSensor.setSelected(true);
-            rightSensor.setSelected(true);
+            leftSensor.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseLeftSensor());
+            frontSensor.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseFrontSensor());
+            rightSensor.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseRightSensor());
             sensorContainer.addAll(leftSensor, frontSensor, rightSensor);
             twoDimensionalControls.add(sensorContainer);
         }

@@ -93,11 +93,11 @@ public abstract class VirtualRobotModel implements Robot {
     @Override
     public double[] ultrasonicThreeWayScan() {
         int temp = sensorHeadPosition;
-        turnSensor(90);
+        turnSensor(-90);
         double a = measureDistance();
         turnSensor(0);
         double b = measureDistance();
-        turnSensor(-90);
+        turnSensor(90);
         double c = measureDistance();
         turnSensor(temp);
         return new double[]{a, b, c};

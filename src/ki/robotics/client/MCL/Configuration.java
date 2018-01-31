@@ -95,6 +95,14 @@ public abstract class Configuration {
             this.measureDistanceToLeft = !measureDistanceToLeft;
         }
 
+        public boolean isStartFromLeft() {
+            return startFromLeft;
+        }
+
+        public boolean isStartFromRight() {
+            return !startFromLeft;
+        }
+
         @Override
         public ArrayList<String> getSensingInstructions() {
             ArrayList<String> instr = new ArrayList<>();
