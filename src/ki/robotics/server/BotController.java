@@ -125,7 +125,11 @@ class BotController {
         switch (instruction.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
                 double travelledForward = robot.botTravelForward(parameter);
-                out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
+                if (travelledForward < 0) {
+                    out.println(new Instruction(BOT_INSTRUCTION, BOT_U_TURN));
+                } else {
+                    out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
+                }
                 return true;
             case BOT_TRAVEL_BACKWARD:
                 double travelledBackward = robot.botTravelBackward(parameter);

@@ -116,6 +116,7 @@ public class Sojourner implements Robot {
 
         if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {
             getBackToWhiteLine();
+            distance = -distance;
         }
 
         return distance;

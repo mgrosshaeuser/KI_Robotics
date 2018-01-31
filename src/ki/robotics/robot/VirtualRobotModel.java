@@ -79,7 +79,6 @@ public abstract class VirtualRobotModel implements Robot {
         if (map.getColorAtPosition(Math.round(pose.getX()), Math.round(pose.getY())) != Color.WHITE.getRGB()) {
             return 6;
         } else {
-            botTurnRight(180);
             return -1;
         }
     }
