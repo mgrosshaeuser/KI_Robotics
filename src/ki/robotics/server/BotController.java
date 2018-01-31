@@ -115,13 +115,19 @@ class BotController {
      * @return              A status.
      */
     private boolean processBotInstruction(Instruction instruction) {
-        if (instruction.getMnemonic().equals(BOT_RETURN_POSE)) {
-            //TODO Implementation
-            return true;
+        switch (instruction.getMnemonic()) {
+            case BOT_RETURN_POSE:
+                //TODO Implementation
+                return true;
+            case BOT_LINE_FOLLOWING_ENABLED:
+                out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_ENABLED));
+                return robot.setStayOnWhiteLine(true);
+            case BOT_LINE_FOLLOWING_DISABLED:
+                out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_DISABLED));
+                return robot.setStayOnWhiteLine(false);
         }
 
         double parameter = ((Instruction.SingleFloatInstruction)instruction).getParameter();
-
         switch (instruction.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
                 double travelledForward = robot.botTravelForward(parameter);
@@ -141,10 +147,6 @@ class BotController {
             case BOT_TURN_RIGHT:
                 out.println(instruction);
                 return robot.botTurnRight(parameter);
-            case BOT_LINE_FOLLOWING_ENABLED:
-                return robot.setStayOnWhiteLine(true);
-            case BOT_LINE_FOLLOWING_DISABLED:
-                return robot.setStayOnWhiteLine(false);
             default:
                 out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
                 return true;

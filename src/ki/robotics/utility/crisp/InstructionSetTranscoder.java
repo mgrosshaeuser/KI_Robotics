@@ -72,6 +72,9 @@ public class InstructionSetTranscoder {
                 return new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, mnemonic, parameter);
             case BOT_RETURN_POSE:
                 return new Instruction(BOT_INSTRUCTION, BOT_RETURN_POSE);
+            case BOT_LINE_FOLLOWING_ENABLED:
+            case BOT_LINE_FOLLOWING_DISABLED:
+                return new Instruction(BOT_INSTRUCTION, mnemonic);
             default:
                 return new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION);
         }
