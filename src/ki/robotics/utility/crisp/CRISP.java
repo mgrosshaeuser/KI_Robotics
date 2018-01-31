@@ -18,6 +18,8 @@ public class CRISP {
     public static final String BOT_TURN_LEFT =                  "BTNL";
     public static final String BOT_TURN_RIGHT =                 "BTNR";
     public static final String BOT_RETURN_POSE =                "BPOS";
+    public static final String BOT_LINE_FOLLOWING_ENABLED =     "BLFE";
+    public static final String BOT_LINE_FOLLOWING_DISABLED =    "BLFD";
 
     public static final String SENSOR_TURN_LEFT =               "STNL";
     public static final String SENSOR_TURN_RIGHT =              "STNR";
@@ -32,8 +34,6 @@ public class CRISP {
     public static final String CAMERA_COLOR_CODE_QUERY =        "CCOL";
     public static final String CAMERA_ANGLE_QUERY =             "CANG";
 
-    public static final String STAY_ON_WHITE_LINE =             "SOWL";
-
     public static final String SHUTDOWN =                       "DOWN";
     public static final String DISCONNECT =                     "DCNT";
 
@@ -41,6 +41,7 @@ public class CRISP {
     public static final String BOT_POSE_X =                     "BPSX";
     public static final String BOT_POSE_Y =                     "BPSY";
     public static final String BOT_POSE_HEADING =               "BPSH";
+    public static final String BOT_U_TURN =                     "BUTN";
 
     public static final String THREE_WAY_SCAN_LEFT =            "STWL";
     public static final String THREE_WAY_SCAN_CENTER =          "STWC";

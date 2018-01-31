@@ -1,6 +1,7 @@
 package ki.robotics.client.MCL;
 
 import ki.robotics.utility.crisp.CRISP;
+import ki.robotics.utility.map.MapProvider;
 
 import java.util.ArrayList;
 
@@ -9,16 +10,11 @@ import java.util.ArrayList;
  *
  * @version 1.0 01/02/18
  */
-public class Configuration {
+public abstract class Configuration {
     private final String mapKey;
     private final boolean isOneDimensional;
     private final boolean isTwoDimensional;
-    private final boolean useRightAngles;
-    private final boolean useFreeAngles;
-    private final boolean useLeftSensor;
-    private final boolean useFrontSensor;
-    private final boolean useRightSensor;
-    private final int stepsize;
+    private final int stepSize;
     private final int numberOfParticles;
 
 
@@ -28,56 +24,17 @@ public class Configuration {
      * @param mapKey                A key, identifying a map provided by the MapProvider
      * @param isOneDimensional      Marks the operating range as one-dimensional.
      * @param isTwoDimensional      Marks the operating range as two-dimensional.
-     * @param useRightAngles        Bot can only change direction in 90°-steps.
-     * @param useFreeAngles         Bot can change direction in 1°-steps.
-     * @param useLeftSensor         Distance-Measurement to the left is desired.
-     * @param useFrontSensor        Distance-Measurement to the front is desired.
-     * @param useRightSensor        Distance-Measurement to the right is desired.
-     * @param stepsize              Distance to robot moves with every travel-instruction.
+     * @param stepSize              Distance to robot moves with every travel-instruction.
      * @param numberOfParticles     Number of particles for the monte-carlo-localization.
      */
-    public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean useRightAngles,
-                         boolean useFreeAngles, boolean useLeftSensor, boolean useFrontSensor,
-                         boolean useRightSensor, int stepsize, int numberOfParticles) {
+    public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional,
+                         int stepSize, int numberOfParticles) {
         this.mapKey = mapKey;
         this.isOneDimensional = isOneDimensional;
         this.isTwoDimensional = isTwoDimensional;
-        this.useRightAngles = useRightAngles;
-        this.useFreeAngles = useFreeAngles;
-        this.useLeftSensor = useLeftSensor;
-        this.useFrontSensor = useFrontSensor;
-        this.useRightSensor = useRightSensor;
-        this.stepsize = stepsize;
+        this.stepSize = stepSize;
         this.numberOfParticles = numberOfParticles;
     }
-
-
-
-    /**
-     * Returns a List of the sensor reading that have to be performed by the robot, according to the specifications
-     * made in the constructor.
-     *
-     * @return  List of sensor-related instructions to be executed.
-     */
-    public ArrayList<String> getSensingInstructions() {
-        ArrayList<String> instr = new ArrayList<>();
-        if (useRightSensor && useFrontSensor && useLeftSensor) {
-            instr.add(CRISP.SENSOR_THREE_WAY_SCAN);
-        } else {
-            if (useLeftSensor) {
-                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-            }
-            if (useFrontSensor) {
-                instr.add(CRISP.SENSOR_RESET + ", " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-            }
-            if (useRightSensor) {
-                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-            }
-        }
-        return instr;
-    }
-
-
 
     public String getMapKey() {
         return mapKey;
@@ -91,31 +48,152 @@ public class Configuration {
         return isTwoDimensional;
     }
 
-    public boolean isUseRightAngles() {
-        return useRightAngles;
-    }
-
-    public boolean isUseFreeAngles() {
-        return useFreeAngles;
-    }
-
-    public boolean isUseLeftSensor() {
-        return useLeftSensor;
-    }
-
-    public boolean isUseFrontSensor() {
-        return useFrontSensor;
-    }
-
-    public boolean isUseRightSensor() {
-        return useRightSensor;
-    }
-
-    public int getStepsize() {
-        return stepsize;
+    public int getStepSize() {
+        return stepSize;
     }
 
     public int getNumberOfParticles() {
         return numberOfParticles;
+    }
+
+    public abstract ArrayList<String> getSensingInstructions();
+
+
+
+
+    public static class ConfigOneD extends Configuration{
+        public static final ConfigOneD DEFAULT = new ConfigOneD(
+                MapProvider.MAP_KEY_HOUSES,
+                true,
+                false,
+                10,
+                1000,
+                true
+        );
+
+        private final boolean startFromLeft;
+        private boolean measureDistanceToLeft;
+
+        /**
+         * Constructor
+         *
+         * @param mapKey            A key, identifying a map provided by the MapProvider
+         * @param isOneDimensional  Marks the operating range as one-dimensional.
+         * @param isTwoDimensional  Marks the operating range as two-dimensional.
+         * @param stepsize          Distance to robot moves with every travel-instruction.
+         * @param numberOfParticles Number of particles for the monte-carlo-localization.
+         * @param startFromLeft     Bot starts from the left (true) or from the right (false)
+         */
+        public ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, int stepsize,
+                          int numberOfParticles, boolean startFromLeft) {
+            super(mapKey, isOneDimensional, isTwoDimensional, stepsize, numberOfParticles);
+            this.startFromLeft = startFromLeft;
+            this.measureDistanceToLeft = startFromLeft;
+        }
+
+        public void flipDirection() {
+            this.measureDistanceToLeft = !measureDistanceToLeft;
+        }
+
+        @Override
+        public ArrayList<String> getSensingInstructions() {
+            ArrayList<String> instr = new ArrayList<>();
+            if (measureDistanceToLeft) {
+                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
+            } else {
+                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
+            }
+            return instr;
+        }
+    }
+
+
+
+
+
+    public static class ConfigTwoD extends Configuration{
+        public static final ConfigTwoD DEFAULT = new ConfigTwoD(
+                MapProvider.MAP_KEY_ROOM,
+                false,
+                true,
+                10,
+                1000,
+                true,
+                false,
+                true,
+                true,
+                true
+        );
+
+        private final boolean useRightAngles;
+        private final boolean useFreeAngles;
+        private final boolean useLeftSensor;
+        private final boolean useFrontSensor;
+        private final boolean useRightSensor;
+
+        /**
+         * Constructor
+         *
+         * @param mapKey            A key, identifying a map provided by the MapProvider
+         * @param isOneDimensional  Marks the operating range as one-dimensional.
+         * @param isTwoDimensional  Marks the operating range as two-dimensional.
+         * @param stepsize          Distance to robot moves with every travel-instruction.
+         * @param numberOfParticles Number of particles for the monte-carlo-localization.
+         */
+        public ConfigTwoD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, int stepsize,
+                          int numberOfParticles,  boolean useRightAngles, boolean useFreeAngles,
+                          boolean useLeftSensor, boolean useFrontSensor, boolean useRightSensor) {
+            super(mapKey, isOneDimensional, isTwoDimensional, stepsize, numberOfParticles);
+            this.useRightAngles = useRightAngles;
+            this.useFreeAngles = useFreeAngles;
+            this.useLeftSensor = useLeftSensor;
+            this.useFrontSensor = useFrontSensor;
+            this.useRightSensor = useRightSensor;
+        }
+
+        public boolean isUseRightAngles() {
+            return useRightAngles;
+        }
+
+        public boolean isUseFreeAngles() {
+            return useFreeAngles;
+        }
+
+        public boolean isUseLeftSensor() {
+            return useLeftSensor;
+        }
+
+        public boolean isUseFrontSensor() {
+            return useFrontSensor;
+        }
+
+        public boolean isUseRightSensor() {
+            return useRightSensor;
+        }
+
+
+        /**
+         * Returns a List of the sensor reading that have to be performed by the robot, according to the specifications
+         * made in the constructor.
+         *
+         * @return  List of sensor-related instructions to be executed.
+         */
+        public ArrayList<String> getSensingInstructions() {
+            ArrayList<String> instr = new ArrayList<>();
+            if (useRightSensor && useFrontSensor && useLeftSensor) {
+                instr.add(CRISP.SENSOR_THREE_WAY_SCAN);
+            } else {
+                if (useLeftSensor) {
+                    instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
+                }
+                if (useFrontSensor) {
+                    instr.add(CRISP.SENSOR_RESET + ", " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
+                }
+                if (useRightSensor) {
+                    instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
+                }
+            }
+            return instr;
+        }
     }
 }

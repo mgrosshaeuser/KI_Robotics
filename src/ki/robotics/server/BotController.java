@@ -8,7 +8,6 @@ import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -138,6 +137,10 @@ class BotController {
             case BOT_TURN_RIGHT:
                 out.println(instruction);
                 return robot.botTurnRight(parameter);
+            case BOT_LINE_FOLLOWING_ENABLED:
+                return robot.setStayOnWhiteLine(true);
+            case BOT_LINE_FOLLOWING_DISABLED:
+                return robot.setStayOnWhiteLine(false);
             default:
                 out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
                 return true;
@@ -178,8 +181,6 @@ class BotController {
                 out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_RIGHT, tws[2]));
                 out.println(SENSOR_THREE_WAY_SCAN);
                 return true;
-            case STAY_ON_WHITE_LINE:
-                return robot.setStayOnWhiteLine(true);
             default:
                 out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
                 return true;

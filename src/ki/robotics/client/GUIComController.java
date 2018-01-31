@@ -94,16 +94,16 @@ public class GUIComController implements ComController {
         }
 
         if (configuration.isOneDimensional()) {
-            return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+            return BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
 
         } else{
             double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
             if(center > bumper){
-                return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+                return BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }else if(left < right){
-                return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+                return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }else{
-                return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+                return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }
         }
 
@@ -160,6 +160,10 @@ public class GUIComController implements ComController {
                 break;
             case BOT_TURN_RIGHT:
                 mclProvider.turnFull((int) Math.abs(parameter) * -1);
+                break;
+            case BOT_U_TURN:
+                ((Configuration.ConfigOneD)configuration).flipDirection();
+                mclProvider.turnFull(180);
                 break;
         }
     }
