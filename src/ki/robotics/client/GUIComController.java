@@ -89,7 +89,6 @@ public class GUIComController implements ComController {
     @Override
     public String getNextRequest() {
         int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
-        int bumper = 8;
         String instruction;
 
         StringBuilder scans = new StringBuilder();
@@ -154,7 +153,6 @@ public class GUIComController implements ComController {
     private void handleBotResponse(Instruction response) {
         switch (response.getMnemonic()) {
             case BOT_RETURN_POSE:
-                //TODO Implementation
                 return;
             case BOT_LINE_FOLLOWING_ENABLED:
                 return;
