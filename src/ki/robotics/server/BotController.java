@@ -8,7 +8,6 @@ import ki.robotics.utility.crisp.InstructionSetTranscoder;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -116,17 +115,27 @@ class BotController {
      * @return              A status.
      */
     private boolean processBotInstruction(Instruction instruction) {
-        if (instruction.getMnemonic().equals(BOT_RETURN_POSE)) {
-            //TODO Implementation
-            return true;
+        switch (instruction.getMnemonic()) {
+            case BOT_RETURN_POSE:
+                //TODO Implementation
+                return true;
+            case BOT_LINE_FOLLOWING_ENABLED:
+                out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_ENABLED));
+                return robot.setStayOnWhiteLine(true);
+            case BOT_LINE_FOLLOWING_DISABLED:
+                out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_DISABLED));
+                return robot.setStayOnWhiteLine(false);
         }
 
         double parameter = ((Instruction.SingleFloatInstruction)instruction).getParameter();
-
         switch (instruction.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
                 double travelledForward = robot.botTravelForward(parameter);
-                out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
+                if (travelledForward < 0) {
+                    out.println(new Instruction(BOT_INSTRUCTION, BOT_U_TURN));
+                } else {
+                    out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
+                }
                 return true;
             case BOT_TRAVEL_BACKWARD:
                 double travelledBackward = robot.botTravelBackward(parameter);
@@ -178,8 +187,6 @@ class BotController {
                 out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_RIGHT, tws[2]));
                 out.println(SENSOR_THREE_WAY_SCAN);
                 return true;
-            case STAY_ON_WHITE_LINE:
-                return robot.setStayOnWhiteLine(true);
             default:
                 out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
                 return true;

@@ -71,7 +71,12 @@ public class GUIComController implements ComController {
      */
     @Override
     public String getInitialRequest() {
-        return SENSOR_RESET;
+
+        if (configuration.isOneDimensional()) {
+            return SENSOR_RESET + ", " + BOT_LINE_FOLLOWING_ENABLED;
+        } else {
+            return SENSOR_RESET + ", " + BOT_LINE_FOLLOWING_DISABLED;
+        }
     }
 
 
@@ -83,32 +88,31 @@ public class GUIComController implements ComController {
      */
     @Override
     public String getNextRequest() {
-        int bumper = 8;
+        int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
+        String instruction;
 
         StringBuilder scans = new StringBuilder();
         for (String s : configuration.getSensingInstructions()) {
             scans.append(s).append(", ");
         }
         if (roverModel.getDistanceToLeft() == 0 && roverModel.getDistanceToRight() == 0 && roverModel.getDistanceToCenter() == 0) {
-            return scans + SENSOR_MEASURE_COLOR;
+            instruction = scans + SENSOR_MEASURE_COLOR;
         }
 
         if (configuration.isOneDimensional()) {
-            return BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+            instruction = BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
 
         } else{
             double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
             if(center > bumper){
-                return BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+                instruction = BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }else if(left < right){
-                return BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+                instruction = BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }else{
-                return BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepsize() + ", " + scans + SENSOR_MEASURE_COLOR;
+                instruction = BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
             }
         }
-
-
-
+        return instruction;
     }
 
 
@@ -120,8 +124,6 @@ public class GUIComController implements ComController {
      */
     @Override
     public void handleResponse(String botResponse) {
-        System.out.println(botResponse);
-
         Instruction response = transcoder.decodeInstruction(botResponse);
         switch (response.getInstructionGroup()) {
             case BOT_INSTRUCTION:
@@ -147,20 +149,37 @@ public class GUIComController implements ComController {
      * @param response   The instruction-response.
      */
     private void handleBotResponse(Instruction response) {
+        switch (response.getMnemonic()) {
+            case BOT_RETURN_POSE:
+                return;
+            case BOT_LINE_FOLLOWING_ENABLED:
+                return;
+            case BOT_LINE_FOLLOWING_DISABLED:
+                return;
+        }
+
         double parameter = ((Instruction.SingleFloatInstruction)response).getParameter();
         switch (response.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
                 mclProvider.translateParticle((float)parameter);
-                break;
+                return;
             case BOT_TRAVEL_BACKWARD:
                 mclProvider.translateParticle((float)(-parameter));
-                break;
+                return;
             case BOT_TURN_LEFT:
                 mclProvider.turnFull((int) Math.abs(parameter));
-                break;
+                return;
             case BOT_TURN_RIGHT:
                 mclProvider.turnFull((int) Math.abs(parameter) * -1);
-                break;
+                return;
+            case BOT_LINE_FOLLOWING_ENABLED:
+                return;
+            case BOT_LINE_FOLLOWING_DISABLED:
+                return;
+            case BOT_U_TURN:
+                ((Configuration.ConfigOneD)configuration).flipDirection();
+                mclProvider.turnFull(180);
+                return;
         }
     }
 

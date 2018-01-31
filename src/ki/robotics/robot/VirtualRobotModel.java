@@ -3,8 +3,8 @@ package ki.robotics.robot;
 import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
-public abstract class VirtualRobotModel implements Robot {
 
+public abstract class VirtualRobotModel implements Robot {
     Pose pose;
     int sensorHeadPosition = 0;
     private final float bumper = 5f;

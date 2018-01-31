@@ -8,11 +8,14 @@ import ki.robotics.utility.map.Map;
 import ki.robotics.robot.MCLParticle;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
+import sun.security.krb5.Config;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 
 /**
@@ -23,7 +26,7 @@ import java.util.ArrayList;
 public class MCL_Display extends JFrame{
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
-    private static final String DEFAULT_SELECTED_MAP = "Room";
+    private static final String DEFAULT_SELECTED_MAP = "Houses";
 
     private Map map;
     private final ClientMapPanel mapPanel;
@@ -149,16 +152,19 @@ public class MCL_Display extends JFrame{
         private final String[] mapkeys;
         private final MCL_Display parent;
 
-        private JComboBox maps = new JComboBox();
-        private final JRadioButton oneDimensional = new JRadioButton("1-D");
-        private final JRadioButton twoDimensional = new JRadioButton("2-D");
+        private JTabbedPane specificElements = new JTabbedPane();
+        private ExtJPanel oneDimensionalControls = new ExtJPanel();
+        private ExtJPanel twoDimensionalControls = new ExtJPanel();
+
         private final JRadioButton turnRightAngle = new JRadioButton("90° Angles");
         private final JRadioButton turnFree = new JRadioButton("Free Angles");
         private final JCheckBox leftSensor = new JCheckBox("Left sensor");
         private final JCheckBox frontSensor = new JCheckBox("Front sensor");
         private final JCheckBox rightSensor = new JCheckBox("Right sensor");
-        private final JTextField stepsize = new JTextField("10", 5);
-        private final JTextField particles = new JTextField("1000",5);
+        private final JRadioButton startFromLeft = new JRadioButton("Start from left");
+        private final JRadioButton startFromRight = new JRadioButton("Start from right");
+        private final JTextField stepsize = new JTextField( 5);
+        private final JTextField particles = new JTextField(5);
         private final JButton start = new JButton("Start");
         private final JButton stop = new JButton("Stop");
 
@@ -168,52 +174,75 @@ public class MCL_Display extends JFrame{
          *
          * @param parent    The parent-MCL-Display.
          */
-        ControlPanel(MCL_Display parent) {
+        ControlPanel(final MCL_Display parent) {
             this.parent = parent;
             this.mapkeys = MapProvider.getInstance().getMapKeys();
             this.setLayout(new FlowLayout());
-            initializeGuiComponents();
-        }
 
-
-        /**
-         * Initialization of the gui-elements.
-         */
-        private void initializeGuiComponents() {
-            addMapSelectionToUI();
-            addMovementLimitationsSelectionToUI();
-            addSensorSelectionToUI();
-            addOthers();
-        }
-
-
-        /**
-         * Adding gui-element for map-selection to control-panel.
-         */
-        private void addMapSelectionToUI() {
-            JPanel mapSelectionContainer = new JPanel();
-            mapSelectionContainer.setLayout(new BorderLayout());
-            JLabel mapLabel = new JLabel("Select Map");
-
-            maps = new JComboBox(mapkeys);
-            maps.setSelectedIndex(0);
-            maps.addActionListener(new ActionListener() {
+            initializeOneDimensionalControls();
+            initializeTwoDimensionalControls();
+            specificElements.addTab("One-D", oneDimensionalControls);
+            specificElements.addTab("Two-D", twoDimensionalControls);
+            oneDimensionalControls.addComponentListener(new ComponentAdapter() {
                 @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (parent.mapPanel.isModifiable()) {
-                        String mapkey = mapkeys[maps.getSelectedIndex()];
-                        parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapkey));
-                        map = MapProvider.getInstance().getMap(mapkey);
-                        mclProvider = null;
-                        parent.repaint();
-                    }
+                public void componentShown(ComponentEvent e) {
+                    super.componentShown(e);
+                    String mapkey1D = Configuration.ConfigOneD.DEFAULT.getMapKey();
+                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapkey1D));
+                    map = MapProvider.getInstance().getMap(mapkey1D);
+                    mclProvider = null;
+                    parent.repaint();
                 }
             });
-
-            mapSelectionContainer.add(mapLabel, BorderLayout.PAGE_START);
-            mapSelectionContainer.add(maps, BorderLayout.CENTER);
-            add(mapSelectionContainer);
+            twoDimensionalControls.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent e) {
+                    String mapKey2D = Configuration.ConfigTwoD.DEFAULT.getMapKey();
+                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKey2D));
+                    map = MapProvider.getInstance().getMap(mapKey2D);
+                    mclProvider = null;
+                    parent.repaint();
+                }
+            });
+            add(specificElements);
+            initializeCommonComponents();
         }
+
+        private void initializeOneDimensionalControls() {
+            ExtButtonGroup leftOrRight = new ExtButtonGroup();
+            startFromLeft.setSelected(Configuration.ConfigOneD.DEFAULT.isStartFromLeft());
+            startFromRight.setSelected(Configuration.ConfigOneD.DEFAULT.isStartFromRight());
+            leftOrRight.addAll(startFromLeft, startFromRight);
+            oneDimensionalControls.addAll(startFromLeft, startFromRight);
+        }
+
+        private void initializeTwoDimensionalControls() {
+            addMovementLimitationsSelectionToUI();
+            addSensorSelectionToUI();
+        }
+
+        /**
+         * Initialization of the common gui-elements.
+         */
+        private void initializeCommonComponents() {
+            ExtJPanel others = new ExtJPanel();
+            others.setLayout(new GridLayout(2,3));
+            JLabel stepLabel = new JLabel("Stepsize: ");
+            stepLabel.setLabelFor(stepsize);
+            JLabel particleCnt = new JLabel("Particles: ");
+            particleCnt.setLabelFor(particles);
+            stepsize.setHorizontalAlignment(JTextField.RIGHT);
+            stepsize.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getStepSize()));
+            particles.setHorizontalAlignment(JTextField.RIGHT);
+            particles.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getNumberOfParticles()));
+
+            start.addActionListener(new StartButtonActionListener());
+            stop.addActionListener(new StopButtonActionListener());
+
+            others.addAll(stepLabel, stepsize, start, particleCnt, particles, stop);
+            add(others);
+        }
+
 
 
         /**
@@ -223,17 +252,14 @@ public class MCL_Display extends JFrame{
             ExtJPanel container = new ExtJPanel();
             container.setLayout(new GridLayout(2,2));
 
-            ExtButtonGroup xyGroup = new ExtButtonGroup();
-            twoDimensional.setSelected(true);
-            xyGroup.addAll(oneDimensional, twoDimensional);
-
             ExtButtonGroup angleGroup = new ExtButtonGroup();
-            turnFree.setSelected(true);
+            turnFree.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseFreeAngles());
+            turnRightAngle.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseRightAngles());
             angleGroup.addAll(turnFree, turnRightAngle);
 
-            container.addAll(oneDimensional, twoDimensional, turnFree, turnRightAngle);
+            container.addAll(turnFree, turnRightAngle);
 
-            add(container);
+            twoDimensionalControls.add(container);
         }
 
 
@@ -243,34 +269,13 @@ public class MCL_Display extends JFrame{
         private void addSensorSelectionToUI() {
             ExtJPanel sensorContainer = new ExtJPanel();
             sensorContainer.setLayout(new GridLayout(3,1));
-            leftSensor.setSelected(true);
-            frontSensor.setSelected(true);
-            rightSensor.setSelected(true);
+            leftSensor.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseLeftSensor());
+            frontSensor.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseFrontSensor());
+            rightSensor.setSelected(Configuration.ConfigTwoD.DEFAULT.isUseRightSensor());
             sensorContainer.addAll(leftSensor, frontSensor, rightSensor);
-            add(sensorContainer);
+            twoDimensionalControls.add(sensorContainer);
         }
 
-        /**
-         * Adding all other gui-elements such as
-         * - the distance of a single step of the robot.
-         * - the number of particles for the mcl.
-         */
-        private void addOthers() {
-            ExtJPanel others = new ExtJPanel();
-            others.setLayout(new GridLayout(2,3));
-            JLabel stepLabel = new JLabel("Stepsize: ");
-            stepLabel.setLabelFor(stepsize);
-            JLabel particleCnt = new JLabel("Particles: ");
-            particleCnt.setLabelFor(particles);
-            stepsize.setHorizontalAlignment(JTextField.RIGHT);
-            particles.setHorizontalAlignment(JTextField.RIGHT);
-
-            start.addActionListener(new StartButtonActionListener());
-            stop.addActionListener(new StopButtonActionListener());
-
-            others.addAll(stepLabel, stepsize, start, particleCnt, particles, stop);
-            add(others);
-        }
 
         /**
          * Action-Listener for the Start-Button.
@@ -281,19 +286,37 @@ public class MCL_Display extends JFrame{
                 parent.mapPanel.setModifiable(false);
                 int step = Integer.parseInt(stepsize.getText());
                 int numOfParticles = Integer.parseInt(particles.getText());
-                Configuration config = new Configuration(
-                        mapkeys[maps.getSelectedIndex()],
-                        oneDimensional.isSelected(),
-                        twoDimensional.isSelected(),
-                        turnRightAngle.isSelected(),
-                        turnFree.isSelected(),
-                        leftSensor.isSelected(),
-                        frontSensor.isSelected(),
-                        rightSensor.isSelected(),
-                        step,
-                        numOfParticles);
-                start.setEnabled(false);
-                start(config);
+                String mapkey;
+                if (oneDimensionalControls.isShowing()) {
+                    mapkey = Configuration.ConfigOneD.DEFAULT.getMapKey();
+                    Configuration config1D = new Configuration.ConfigOneD(
+                            mapkey,
+                            true,
+                            false,
+                            step,
+                            numOfParticles,
+                            startFromLeft.isSelected()
+                    );
+                    setEnabled(false);
+                    start(config1D);
+                }
+                if (twoDimensionalControls.isShowing()) {
+                    mapkey = Configuration.ConfigTwoD.DEFAULT.getMapKey();
+                    Configuration config2D = new Configuration.ConfigTwoD(
+                            mapkey,
+                            false,
+                            true,
+                            step,
+                            numOfParticles,
+                            turnRightAngle.isSelected(),
+                            turnFree.isSelected(),
+                            leftSensor.isSelected(),
+                            frontSensor.isSelected(),
+                            rightSensor.isSelected());
+                    start(config2D);
+                    setEnabled(false);
+                    start(config2D);
+                }
             }
         }
 
@@ -308,5 +331,6 @@ public class MCL_Display extends JFrame{
                 start.setEnabled(true);
             }
         }
+
     }
 }

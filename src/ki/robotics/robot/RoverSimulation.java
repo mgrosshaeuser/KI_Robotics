@@ -19,7 +19,7 @@ import java.awt.event.*;
  * @version 1.0 01/02/18
  */
 public class RoverSimulation extends VirtualRobotModel {
-    private static final String DEFAULT_SELECTED_MAP = "Room";
+    private static final String DEFAULT_SELECTED_MAP = MapProvider.MAP_KEY_HOUSES;
     private static final int ANIMATION_INTER_FRAME_TIME = 50;
 
     private final BotServer botServer;
