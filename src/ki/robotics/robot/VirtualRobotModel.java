@@ -3,10 +3,8 @@ package ki.robotics.robot;
 import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
-import java.awt.*;
 
 public abstract class VirtualRobotModel implements Robot {
-
     Pose pose;
     int sensorHeadPosition = 0;
     private final float bumper = 5f;
@@ -76,11 +74,7 @@ public abstract class VirtualRobotModel implements Robot {
 
     @Override
     public int measureColor() {
-        if (map.getColorAtPosition(Math.round(pose.getX()), Math.round(pose.getY())) != Color.WHITE.getRGB()) {
-            return 6;
-        } else {
-            return -1;
-        }
+        return map.getColorAtPosition(Math.round(pose.getX()), Math.round(pose.getY()));
     }
 
 

@@ -26,7 +26,7 @@ public class MapProvider {
         this.limitations.put(MAP_KEY_ROOM, new int[]{NO_LIMITATION, NO_LIMITATION, NO_LIMITATION});
 
         this.files.put(MAP_KEY_HOUSES, new File(getClass().getClassLoader().getResource("Houses.svg").getFile()));
-        this.boundaries.put(MAP_KEY_HOUSES, new Polygon (new int[]{1,399, 399,1}, new int[]{69,69,71,71}, 4));
+        this.boundaries.put(MAP_KEY_HOUSES, new Polygon (new int[]{1,499, 499,1}, new int[]{69,69,71,71}, 4));
         this.limitations.put(MAP_KEY_HOUSES, new int[]{NO_LIMITATION, 70,0});
 
     /*
