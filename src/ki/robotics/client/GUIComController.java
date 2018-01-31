@@ -83,7 +83,7 @@ public class GUIComController implements ComController {
      */
     @Override
     public String getNextRequest() {
-        int bumper = 8;
+        int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
 
         StringBuilder scans = new StringBuilder();
         for (String s : configuration.getSensingInstructions()) {
