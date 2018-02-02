@@ -7,6 +7,7 @@ import java.util.HashMap;
 public class MapProvider {
     public static final String MAP_KEY_ROOM = "Room";
     public static final String MAP_KEY_HOUSES = "Houses";
+    public static final String MAP_KEY_MARKED_ROOM = "MarkedRoom";
 
     private static final MapProvider INSTANCE = new MapProvider();
     private static final int NO_LIMITATION = -1;
@@ -24,6 +25,10 @@ public class MapProvider {
         this.files.put(MAP_KEY_ROOM, new File(getClass().getClassLoader().getResource("room.svg").getFile()));
         this.boundaries.put (MAP_KEY_ROOM, new Polygon(new int[]{0, 150, 150, 100, 100, 0}, new int[]{0, 0, 150, 150, 200, 200},6));
         this.limitations.put(MAP_KEY_ROOM, new int[]{NO_LIMITATION, NO_LIMITATION, NO_LIMITATION});
+
+        this.files.put(MAP_KEY_MARKED_ROOM, new File(getClass().getClassLoader().getResource("room_with_marks.svg").getFile()));
+        this.boundaries.put (MAP_KEY_MARKED_ROOM, new Polygon(new int[]{0, 150, 150, 100, 100, 0}, new int[]{0, 0, 150, 150, 200, 200},6));
+        this.limitations.put(MAP_KEY_MARKED_ROOM, new int[]{NO_LIMITATION, NO_LIMITATION, NO_LIMITATION});
 
         this.files.put(MAP_KEY_HOUSES, new File(getClass().getClassLoader().getResource("Houses.svg").getFile()));
         this.boundaries.put(MAP_KEY_HOUSES, new Polygon (new int[]{1,499, 499,1}, new int[]{69,69,71,71}, 4));

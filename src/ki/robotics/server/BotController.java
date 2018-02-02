@@ -209,7 +209,7 @@ class BotController {
             case CAMERA_SINGLE_SIGNATURE_QUERY:
                 int signature = ((Instruction.MultiIntInstruction)instruction).getParameters()[0];
                 int[] singleSignatureResult = robot.cameraSignatureQuery(signature);
-                out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_SINGLE_SIGNATURE_QUERY, singleSignatureResult));
+                out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_SIGNATURE_BASE + signature, singleSignatureResult));
                 return true;
             case CAMERA_ALL_SIGNATURES_QUERY:
                 int[][] allSignatures = robot.cameraAllSignaturesQuery();
