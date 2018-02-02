@@ -104,24 +104,32 @@ public abstract class VirtualRobotModel implements Robot {
     }
 
     @Override
-    public int[] cameraGeneralQuery() { return new int[]{0,0,0,0,0}; }
+    public int[] cameraGeneralQuery() {
+        return map.getGeneralCameraQuery(pose.getX(), pose.getY(), 360 - pose.getHeading() - sensorHeadPosition);
+    }
 
     @Override
     public int[] cameraSignatureQuery(int signature) {
-        return new int[]{0,0,0,0,0};
+        return map.getCameraSignatureQuery(pose.getX(), pose.getY(), pose.getHeading(), signature);
     }
 
     @Override
     public int[][] cameraAllSignaturesQuery() {
-        return new int[][]{{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+        int[][] result = new int[7][];
+        for (int i = 0   ;   i < 7   ;   i++) {
+            result[i] = map.getCameraSignatureQuery(pose.getX(), pose.getY(), 360 - pose.getHeading() - sensorHeadPosition, i);
+        }
+    return result;
     }
 
     @Override
-    public int[] cameraColorCodeQuery(int color) { return new int[]{0,0,0,0,0,0,0}; }
+    public int[] cameraColorCodeQuery(int color) {
+        return map.getCameraColorCodeQuery(pose.getX(), pose.getY(), 360 - pose.getHeading() - sensorHeadPosition, color);
+    }
 
     @Override
     public int cameraAngleQuery() {
-        return 0;
+        return map.getCameraAngleQuery(pose.getX(), pose.getY(), 360 - pose.getHeading() - sensorHeadPosition);
     }
 
 

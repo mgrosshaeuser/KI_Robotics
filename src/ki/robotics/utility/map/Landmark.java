@@ -22,6 +22,10 @@ class Landmark {
         );
     }
 
+    public String getId() {
+        return circle.getId();
+    }
+
     public void paint(Graphics g, int scaleFactor, int xOffset, int yOffset) {
         Graphics2D g2d = (Graphics2D) g;
         g2d.setColor(new Color(this.circle.getFill()));
@@ -33,5 +37,9 @@ class Landmark {
                 diameter * scaleFactor,
                 diameter * scaleFactor
                 );
+        g2d.setColor(Color.BLACK);
+        g2d.drawString(this.getId(),
+                (this.circle.getXAsInt() - radius) * scaleFactor + xOffset + (diameter / 2 * scaleFactor),
+                (this.circle.getYAsInt() - radius) * scaleFactor + yOffset + (diameter / 2 * scaleFactor));
     }
 }

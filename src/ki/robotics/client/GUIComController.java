@@ -162,7 +162,7 @@ public class GUIComController implements ComController {
     private InstructionSequence getNextRequestWithCamera() {
         int stepSize = configuration.getStepSize();
         ArrayList<String> scans = configuration.getSensingInstructions();
-        return new InstructionSequence().botTravelForward(stepSize).perform(scans);
+        return new InstructionSequence().botTurnRight(180).disconnect();
     }
 
 
@@ -199,6 +199,7 @@ public class GUIComController implements ComController {
      * @param response   The instruction-response.
      */
     private void handleBotResponse(Instruction response) {
+        // Robot-responses without parameter.
         switch (response.getMnemonic()) {
             case BOT_RETURN_POSE:
                 return;
@@ -212,6 +213,7 @@ public class GUIComController implements ComController {
                 return;
         }
 
+        // Robot-responses with one floating-point parameter
         double parameter = ((Instruction.SingleFloatInstruction)response).getParameter();
         switch (response.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:

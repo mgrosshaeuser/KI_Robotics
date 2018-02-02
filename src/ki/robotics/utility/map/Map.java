@@ -1,5 +1,6 @@
 package ki.robotics.utility.map;
 
+import ki.robotics.utility.pixyCam.PixyCam;
 import ki.robotics.utility.svg.SVGParser;
 import ki.robotics.utility.svg.svg_Circle;
 import ki.robotics.utility.svg.svg_Line;
@@ -182,6 +183,53 @@ public class Map {
 
 
 
+    public int[] getGeneralCameraQuery(float x, float y, float angle) {
+        return new int[]{0,0,0,0,0};
+    }
+
+    public int getCameraAngleQuery(float x, float y, float angle) {
+        return 0;
+    }
+
+    public int[] getCameraSignatureQuery(float x, float y, float angle, int signature) {
+        String sig = "M" + signature;
+        // Maximum distance possible within the map-boundaries.
+        double maxLineLength = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
+        Line2D.Double sensorBeam = new Line2D.Double(
+                x,
+                y,
+                Math.round(Math.cos(Math.toRadians(angle)) * maxLineLength) + x,
+                Math.round(Math.sin(Math.toRadians(angle)) * maxLineLength) + y
+        );
+        for (Landmark l : landmarks) {
+            if (! l.getId().equals(sig)) {
+                continue;
+            }
+
+            Line2D.Double roadToLandmark = new Line2D.Double(x, y, l.getCenter().getX(), l.getCenter().getY());
+            double imageAngle = calculateAngleBetweenLines(sensorBeam, roadToLandmark);
+
+            if (imageAngle < -37.5  || imageAngle > 37.5) {
+                continue;
+            }
+            double distanceToLandmark = Point2D.distance(x,y, l.getCenter().getX(), l.getCenter().getY());
+            double nearestObstacle = getDistanceToObstacle(x, y, (float)imageAngle);
+            if (Math.abs(distanceToLandmark - nearestObstacle) > EPSILON) {
+                continue;
+            }
+
+            int pixelX = PixyCam.angleDegreeToPixel(imageAngle);
+            return new int[]{1,pixelX,0,0,0};
+        }
+        return new int[]{0,0,0,0,0};
+    }
+
+    public int[] getCameraColorCodeQuery(float x, float y, float angle, int coloCode) {
+        return new int[]{0,0,0,0,0,0};
+    }
+
+
+
     /**
      * Finds the point of intersection between two given lines.
      * ATTENTION: This Method does not perform a pre-check whether the lines intersect at all!
@@ -227,6 +275,20 @@ public class Map {
         } else {
             return (line.getY2() - line.getY1()) / (line.getX2() - line.getX1());
         }
+    }
+
+    private double calculateAngleBetweenLines(Line2D.Double first, Line2D.Double second) {
+        double lengthOfFirst = Math.sqrt(Math.pow((first.x1 - first.x2),2) + Math.pow((first.y1 - first.y2),2));
+        double lengthOfSecond = Math.sqrt(Math.pow((second.x1 - second.x2),2) + Math.pow((second.y1 - second.y2),2));
+
+        double xSectionOfFirst = first.x2 - first.x1;
+        double xSectionOfSecond = second.x2 - second.x1;
+
+        //TODO Angle-Calculation incomplete.
+        double angleFirst = 0;
+        double angleSeconds = 0;
+
+        return angleFirst - angleSeconds;
     }
 
 }
