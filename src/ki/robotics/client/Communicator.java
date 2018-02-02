@@ -67,7 +67,7 @@ final class Communicator implements Runnable{
                     if (response == null) {
                         continue;
                     }
-                    ComController.handleResponse(response);
+                     ComController.handleResponse(response);
                     if (response.contains(END_OF_INSTRUCTION_SEQUENCE)) {
                         break;
                     }

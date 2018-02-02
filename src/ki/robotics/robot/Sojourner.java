@@ -82,7 +82,7 @@ public class Sojourner implements Robot {
         pilot.setLinearAcceleration(150);
         pilot.setAngularSpeed(60);
         pilot.setLinearSpeed(100);
-        Sound.setVolume(2);
+        Sound.setVolume(20);
         Sound.twoBeeps();
         return pilot;
     }
@@ -112,10 +112,13 @@ public class Sojourner implements Robot {
     public double botTravelForward(double distance) {
         sensorHeadReset();
         double distanceToFront = measureDistance();
+        System.out.println("a " + distanceToFront);
         double bumper = 8;
         boolean uTurn = false;
 
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
+        distance = Math.abs(distance);
+        System.out.println("b" + distance);
         pilot.travel(distance * 10);
 
         if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {

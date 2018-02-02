@@ -132,7 +132,7 @@ class BotController {
         switch (instruction.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
                 double travelledForward = robot.botTravelForward(parameter);
-                if (travelledForward <0) {
+                if (travelledForward < 0 ) {
                     out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
                 }else if (travelledForward < -8) { //bumper
                     out.println(new Instruction(BOT_INSTRUCTION, BOT_U_TURN));
