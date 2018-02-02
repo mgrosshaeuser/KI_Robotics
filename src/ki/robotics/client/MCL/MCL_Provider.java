@@ -150,9 +150,9 @@ public class MCL_Provider {
         if (deviation > 0.9 * referenceValue) {
             return 20;
         } else if (deviation > 0.75 * referenceValue) {
-            return 10;
+            return 8;
         } else if (deviation > 0.5 * referenceValue) {
-            return 5;
+            return 4;
         } else if (deviation > 0.25 * referenceValue) {
             return 2;
         } else {
