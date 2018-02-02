@@ -42,9 +42,12 @@ public class Sojourner implements Robot {
     private int sensorCurrentPosition;
 
     private final int deltaColorSensorAxis = 15;
-    private final int deltaUSSensorAxis = 10;
+    private final int deltaUSSensorAxis = 13;
     private boolean stayOnWhiteLine = false;
 
+    //Distance the bot travels back onto the white line after doing a turn
+    private final int stepSize = 10;
+    private final int distanceOnWhiteLine = 2*deltaUSSensorAxis + stepSize;
 
     /**
      * Constructor.
@@ -118,8 +121,8 @@ public class Sojourner implements Robot {
         if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {
             uTurn = getBackToWhiteLine();
         }
-
-        if(uTurn) distance = -distance;
+        //distance the bot traveled on the line and considering the distance the sensor changed while turning
+        if(uTurn) distance = -((distanceOnWhiteLine-distance) + 2*deltaUSSensorAxis);
         return distance;
     }
 
@@ -263,11 +266,10 @@ public class Sojourner implements Robot {
      */
     private boolean getBackToWhiteLine() {
         int endCorrection = 5;
-
         LineReturnCode lrc = alignColorSensor();
         if(lrc.isBreakForTurn()){
             turnForCorrection(lrc.getDegrees(), lrc.isDirection());
-            pilot.travel(25*10);
+            pilot.travel(distanceOnWhiteLine*10);
         }else{
             pilot.travel(-deltaColorSensorAxis * 10);
             //in Gegenteil der letzten Richtung drehen

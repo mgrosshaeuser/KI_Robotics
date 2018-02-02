@@ -134,6 +134,7 @@ class BotController {
                 double travelledForward = robot.botTravelForward(parameter);
                 if (travelledForward < 0) {
                     out.println(new Instruction(BOT_INSTRUCTION, BOT_U_TURN));
+                    out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), -travelledForward ));
                 } else {
                     out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
                 }

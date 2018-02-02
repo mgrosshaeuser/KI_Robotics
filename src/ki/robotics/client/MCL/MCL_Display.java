@@ -77,6 +77,9 @@ public class MCL_Display extends JFrame{
      */
     private void start(Configuration configuration) {
         int[] limitations = MapProvider.getInstance().getMapLimitations(configuration.getMapKey());
+        if (configuration.isOneDimensional()   && ((Configuration.ConfigOneD)configuration).isStartFromRight()) {
+                limitations[2] = 180;
+        }
         this.mclProvider = new MCL_Provider(map, configuration.getNumberOfParticles(), limitations);
         ComController.start(configuration);
         repaint();
