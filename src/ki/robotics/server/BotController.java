@@ -124,7 +124,8 @@ class BotController {
                 return robot.setStayOnWhiteLine(true);
             case BOT_LINE_FOLLOWING_DISABLED:
                 out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_DISABLED));
-                return robot.setStayOnWhiteLine(false);
+                robot.setStayOnWhiteLine(false);
+                return true;
         }
 
         double parameter = ((Instruction.SingleFloatInstruction)instruction).getParameter();
