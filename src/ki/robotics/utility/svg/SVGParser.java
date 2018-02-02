@@ -177,7 +177,8 @@ public class SVGParser {
         double cx = Double.parseDouble(circle.getAttribute("cx"));
         double cy = Double.parseDouble(circle.getAttribute("cy"));
         double r = Double.parseDouble(circle.getAttribute("r"));
-        return new svg_Circle(cx, cy, r, colors[0], colors[1]);
+        String id = circle.getAttribute("id");
+        return new svg_Circle(cx, cy, 2*r, id,colors[0], colors[1]);
     }
 
 

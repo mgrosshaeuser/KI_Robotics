@@ -155,14 +155,27 @@ public class MCL_Display extends JFrame{
         private JTabbedPane specificElements = new JTabbedPane();
         private ExtJPanel oneDimensionalControls = new ExtJPanel();
         private ExtJPanel twoDimensionalControls = new ExtJPanel();
+        private ExtJPanel twoDimensionalWithCam = new ExtJPanel();
 
         private final JRadioButton turnRightAngle = new JRadioButton("90° Angles");
         private final JRadioButton turnFree = new JRadioButton("Free Angles");
         private final JCheckBox leftSensor = new JCheckBox("Left sensor");
         private final JCheckBox frontSensor = new JCheckBox("Front sensor");
         private final JCheckBox rightSensor = new JCheckBox("Right sensor");
+
         private final JRadioButton startFromLeft = new JRadioButton("Start from left");
         private final JRadioButton startFromRight = new JRadioButton("Start from right");
+
+        private final JCheckBox camGeneralQuery = new JCheckBox("General Query");
+        private final JCheckBox camAngleQuery = new JCheckBox("Angle Query");
+        private final JCheckBox camSignature1 = new JCheckBox("Signature 1");
+        private final JCheckBox camSignature2 = new JCheckBox("Signature 2");
+        private final JCheckBox camSignature3 = new JCheckBox("Signature 3");
+        private final JCheckBox camSignature4 = new JCheckBox("Signature 4");
+        private final JCheckBox camSignature5 = new JCheckBox("Signature 5");
+        private final JCheckBox camSignature6 = new JCheckBox("Signature 6");
+        private final JCheckBox camSignature7 = new JCheckBox("Signature 7");
+
         private final JTextField stepsize = new JTextField( 5);
         private final JTextField particles = new JTextField(5);
         private final JButton start = new JButton("Start");
@@ -181,29 +194,12 @@ public class MCL_Display extends JFrame{
 
             initializeOneDimensionalControls();
             initializeTwoDimensionalControls();
+            initializeTwoDimensionalCameraControls();
+
             specificElements.addTab("One-D", oneDimensionalControls);
             specificElements.addTab("Two-D", twoDimensionalControls);
-            oneDimensionalControls.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentShown(ComponentEvent e) {
-                    super.componentShown(e);
-                    String mapkey1D = Configuration.ConfigOneD.DEFAULT.getMapKey();
-                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapkey1D));
-                    map = MapProvider.getInstance().getMap(mapkey1D);
-                    mclProvider = null;
-                    parent.repaint();
-                }
-            });
-            twoDimensionalControls.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentShown(ComponentEvent e) {
-                    String mapKey2D = Configuration.ConfigTwoD.DEFAULT.getMapKey();
-                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKey2D));
-                    map = MapProvider.getInstance().getMap(mapKey2D);
-                    mclProvider = null;
-                    parent.repaint();
-                }
-            });
+            specificElements.addTab("Camera", twoDimensionalWithCam);
+
             add(specificElements);
             initializeCommonComponents();
         }
@@ -214,11 +210,61 @@ public class MCL_Display extends JFrame{
             startFromRight.setSelected(Configuration.ConfigOneD.DEFAULT.isStartFromRight());
             leftOrRight.addAll(startFromLeft, startFromRight);
             oneDimensionalControls.addAll(startFromLeft, startFromRight);
+            oneDimensionalControls.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent e) {
+                    super.componentShown(e);
+                    String mapKey1D = Configuration.ConfigOneD.DEFAULT.getMapKey();
+                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKey1D));
+                    map = MapProvider.getInstance().getMap(mapKey1D);
+                    mclProvider = null;
+                    parent.repaint();
+                }
+            });
         }
 
         private void initializeTwoDimensionalControls() {
             addMovementLimitationsSelectionToUI();
             addSensorSelectionToUI();
+            twoDimensionalControls.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent e) {
+                    String mapKey2D = Configuration.ConfigTwoD.DEFAULT.getMapKey();
+                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKey2D));
+                    map = MapProvider.getInstance().getMap(mapKey2D);
+                    mclProvider = null;
+                    parent.repaint();
+                }
+            });
+        }
+
+        private void initializeTwoDimensionalCameraControls() {
+            ExtJPanel container = new ExtJPanel();
+            container.setLayout(new GridLayout(3, 4));
+            camGeneralQuery.setSelected(Configuration.ConfigCamera.DEFAULT.isUseGeneralQuery());
+            camAngleQuery.setSelected((Configuration.ConfigCamera.DEFAULT.isUseAngleQuery()));
+            camSignature1.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureOne());
+            camSignature2.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureTwo());
+            camSignature3.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureThree());
+            camSignature4.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureFour());
+            camSignature5.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureFive());
+            camSignature6.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureSix());
+            camSignature7.setSelected(Configuration.ConfigCamera.DEFAULT.isUseSignatureSeven());
+            container.addAll(
+                    camGeneralQuery, camAngleQuery, new JLabel(), new JLabel(),
+                    camSignature1, camSignature2, camSignature3, camSignature4,
+                    camSignature5, camSignature6, camSignature7);
+            twoDimensionalWithCam.add(container);
+            twoDimensionalWithCam.addComponentListener(new ComponentAdapter() {
+                @Override
+                public void componentShown(ComponentEvent e) {
+                    String mapKeyCam = Configuration.ConfigCamera.DEFAULT.getMapKey();
+                    parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKeyCam));
+                    map = MapProvider.getInstance().getMap(mapKeyCam);
+                    mclProvider = null;
+                    parent.repaint();
+                }
+            });
         }
 
         /**
@@ -293,6 +339,7 @@ public class MCL_Display extends JFrame{
                             mapkey,
                             true,
                             false,
+                            false,
                             step,
                             numOfParticles,
                             startFromLeft.isSelected()
@@ -306,16 +353,39 @@ public class MCL_Display extends JFrame{
                             mapkey,
                             false,
                             true,
+                            false,
                             step,
                             numOfParticles,
                             turnRightAngle.isSelected(),
                             turnFree.isSelected(),
                             leftSensor.isSelected(),
                             frontSensor.isSelected(),
-                            rightSensor.isSelected());
-                    start(config2D);
+                            rightSensor.isSelected()
+                    );
                     setEnabled(false);
                     start(config2D);
+                }
+                if (twoDimensionalWithCam.isShowing()) {
+                    mapkey = Configuration.ConfigCamera.DEFAULT.getMapKey();
+                    Configuration configWithCam = new Configuration.ConfigCamera(
+                            mapkey,
+                            false,
+                            true,
+                            true,
+                            step,
+                            numOfParticles,
+                            camGeneralQuery.isSelected(),
+                            camAngleQuery.isSelected(),
+                            camSignature1.isSelected(),
+                            camSignature2.isSelected(),
+                            camSignature3.isSelected(),
+                            camSignature4.isSelected(),
+                            camSignature5.isSelected(),
+                            camSignature6.isSelected(),
+                            camSignature7.isSelected()
+                    );
+                    setEnabled(false);
+                    start(configWithCam);
                 }
             }
         }

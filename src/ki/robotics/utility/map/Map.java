@@ -1,6 +1,7 @@
 package ki.robotics.utility.map;
 
 import ki.robotics.utility.svg.SVGParser;
+import ki.robotics.utility.svg.svg_Circle;
 import ki.robotics.utility.svg.svg_Line;
 import ki.robotics.utility.svg.svg_Rectangle;
 
@@ -8,6 +9,7 @@ import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.*;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 
@@ -24,6 +26,7 @@ public class Map {
 
     private ArrayList<Wall> map;
     private ArrayList<FloorTile> floor;
+    private ArrayList<Landmark> landmarks;
     private final SVGParser svgParser;
 
     private final Polygon boundaries;
@@ -68,6 +71,12 @@ public class Map {
         for (svg_Rectangle r : rectangles) {
             floor.add(new FloorTile(r));
         }
+
+        ArrayList<svg_Circle> circles = svgParser.getCircles();
+        this.landmarks = new ArrayList<>();
+        for (svg_Circle c : circles) {
+            landmarks.add(new Landmark(c));
+        }
     }
 
 
@@ -84,6 +93,9 @@ public class Map {
         Graphics2D g2d = (Graphics2D) g;
         for (FloorTile f : floor) {
             f.paint(g2d, scaleFactor, xOffset, yOffset);
+        }
+        for (Landmark l : landmarks) {
+            l.paint(g2d, scaleFactor, xOffset, yOffset);
         }
         for (Wall w : map) {
             w.paint(g2d, scaleFactor, xOffset, yOffset);

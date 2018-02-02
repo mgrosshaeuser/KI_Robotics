@@ -5,11 +5,14 @@ import ki.robotics.client.MCL.MCL_Display;
 import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.crisp.Instruction;
+import ki.robotics.utility.crisp.InstructionSequence;
 import ki.robotics.utility.crisp.InstructionSetTranscoder;
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
 import ki.robotics.utility.pixyCam.DTOColorCodeQuery;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
+
+import java.util.ArrayList;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
@@ -60,6 +63,7 @@ public class GUIComController implements ComController {
     public void stop() {
         if (t != null) {
             Communicator.running = false;
+            t= null;
         }
     }
 
@@ -71,12 +75,13 @@ public class GUIComController implements ComController {
      */
     @Override
     public String getInitialRequest() {
-
+        InstructionSequence sequence = new InstructionSequence();
         if (configuration.isOneDimensional()) {
-            return SENSOR_RESET + ", " + BOT_LINE_FOLLOWING_ENABLED;
+            sequence.sensorReset().botEnableLineFollower().perform(configuration.getSensingInstructions());
         } else {
-            return SENSOR_RESET + ", " + BOT_LINE_FOLLOWING_DISABLED;
+            sequence.sensorReset().botDisableLineFollower().perform(configuration.getSensingInstructions());
         }
+        return sequence.toString();
     }
 
 
@@ -89,30 +94,75 @@ public class GUIComController implements ComController {
     @Override
     public String getNextRequest() {
         int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
-        String instruction;
 
-        StringBuilder scans = new StringBuilder();
-        for (String s : configuration.getSensingInstructions()) {
-            scans.append(s).append(", ");
-        }
-        if (roverModel.getDistanceToLeft() == 0 && roverModel.getDistanceToRight() == 0 && roverModel.getDistanceToCenter() == 0) {
-            instruction = scans + SENSOR_MEASURE_COLOR;
-        }
-
+        InstructionSequence sequence = new InstructionSequence();
         if (configuration.isOneDimensional()) {
-            instruction = BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
-
-        } else{
-            double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
-            if(center > bumper){
-                instruction = BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
-            }else if(left < right){
-                instruction = BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
-            }else{
-                instruction = BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
+            return getNextInstructionSequenceForOneDimension().toString();
+        } else {
+            if ( ! configuration.isWithCamera()) {
+                return getNextRequestForTwoDimensions(bumper).toString();
+            } else {
+                return getNextRequestWithCamera().toString();
             }
         }
+    }
+
+
+    /**
+     * Formulates the next request (InstructionSequence) for the one-dimensional map.
+     *
+     * @return  InstructionSequence for the next request.
+     */
+    private InstructionSequence getNextInstructionSequenceForOneDimension() {
+        int stepSize = configuration.getStepSize();
+        ArrayList<String > scans = configuration.getSensingInstructions();
+        return new InstructionSequence().botTravelForward(stepSize).perform(scans);
+    }
+
+
+    /**
+     * Formulates the next request (InstructionSequence) for the two-dimensional map.
+     *
+     * @return  InstructionSequence for the next request.
+     */
+    private InstructionSequence getNextRequestForTwoDimensions(int bumper) {
+        int stepSize = configuration.getStepSize();
+        ArrayList<String > scans = configuration.getSensingInstructions();
+        double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
+
+        if(center > bumper){
+            return new InstructionSequence().botTravelForward(stepSize).perform(scans);
+        }else if(right > left  &&  right > bumper){
+            return new InstructionSequence().botTurnRight(90).botTravelForward(stepSize).perform(scans);
+        }else if (left > right  &&  left > bumper){
+            return new InstructionSequence().botTurnLeft(90).botTravelForward(stepSize).perform(scans);
+        } else {
+            return new InstructionSequence().botTurnRight(180).botTravelForward(stepSize).perform(scans);
+        }
+
+/*
+        String instruction;
+        if(center > bumper){
+            instruction = BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
+        }else if(left < right){
+            instruction = BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
+        }else{
+            instruction = BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
+        }
         return instruction;
+*/
+    }
+
+
+    /**
+     * Formulates the next request (InstructionSequence) for the two-dimensional map with camera usage.
+     *
+     * @return  InstructionSequence for the next request.
+     */
+    private InstructionSequence getNextRequestWithCamera() {
+        int stepSize = configuration.getStepSize();
+        ArrayList<String> scans = configuration.getSensingInstructions();
+        return new InstructionSequence().botTravelForward(stepSize).perform(scans);
     }
 
 
@@ -231,6 +281,7 @@ public class GUIComController implements ComController {
      * @param response  The instruction-response.
      */
     private  void handleCameraResponse(Instruction response) {
+        System.out.println(response);
         switch (response.getMnemonic()) {
             case CAMERA_GENERAL_QUERY:
                 int[] generalQuery = ((Instruction.MultiIntInstruction)response).getParameters();
@@ -288,7 +339,6 @@ public class GUIComController implements ComController {
     private void handleOtherResponse(Instruction response) {
         switch (response.getMnemonic()) {
             case END_OF_INSTRUCTION_SEQUENCE:
-                System.out.println();
                 break;
         }
     }

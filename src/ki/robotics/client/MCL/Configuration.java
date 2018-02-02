@@ -14,6 +14,7 @@ public abstract class Configuration {
     private final String mapKey;
     private final boolean isOneDimensional;
     private final boolean isTwoDimensional;
+    private final boolean isWithCamera;
     private final int stepSize;
     private final int numberOfParticles;
 
@@ -28,10 +29,11 @@ public abstract class Configuration {
      * @param numberOfParticles     Number of particles for the monte-carlo-localization.
      */
     public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional,
-                         int stepSize, int numberOfParticles) {
+                         boolean isWithCamera, int stepSize, int numberOfParticles) {
         this.mapKey = mapKey;
         this.isOneDimensional = isOneDimensional;
         this.isTwoDimensional = isTwoDimensional;
+        this.isWithCamera = isWithCamera;
         this.stepSize = stepSize;
         this.numberOfParticles = numberOfParticles;
     }
@@ -47,6 +49,8 @@ public abstract class Configuration {
     public boolean isTwoDimensional() {
         return isTwoDimensional;
     }
+
+    public boolean isWithCamera() { return  isWithCamera; }
 
     public int getStepSize() {
         return stepSize;
@@ -66,6 +70,7 @@ public abstract class Configuration {
                 MapProvider.MAP_KEY_HOUSES,
                 true,
                 false,
+                false,
                 10,
                 1000,
                 true
@@ -84,9 +89,9 @@ public abstract class Configuration {
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
          * @param startFromLeft     Bot starts from the left (true) or from the right (false)
          */
-        public ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, int stepsize,
-                          int numberOfParticles, boolean startFromLeft) {
-            super(mapKey, isOneDimensional, isTwoDimensional, stepsize, numberOfParticles);
+        public ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
+                          int stepsize, int numberOfParticles, boolean startFromLeft) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles);
             this.startFromLeft = startFromLeft;
             this.measureDistanceToLeft = startFromLeft;
         }
@@ -124,6 +129,7 @@ public abstract class Configuration {
                 MapProvider.MAP_KEY_ROOM,
                 false,
                 true,
+                false,
                 10,
                 1000,
                 true,
@@ -148,10 +154,10 @@ public abstract class Configuration {
          * @param stepsize          Distance to robot moves with every travel-instruction.
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
          */
-        public ConfigTwoD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, int stepsize,
-                          int numberOfParticles,  boolean useRightAngles, boolean useFreeAngles,
+        public ConfigTwoD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
+                          int stepsize, int numberOfParticles,  boolean useRightAngles, boolean useFreeAngles,
                           boolean useLeftSensor, boolean useFrontSensor, boolean useRightSensor) {
-            super(mapKey, isOneDimensional, isTwoDimensional, stepsize, numberOfParticles);
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles);
             this.useRightAngles = useRightAngles;
             this.useFreeAngles = useFreeAngles;
             this.useLeftSensor = useLeftSensor;
@@ -191,17 +197,123 @@ public abstract class Configuration {
             if (useRightSensor && useFrontSensor && useLeftSensor) {
                 instr.add(CRISP.SENSOR_THREE_WAY_SCAN);
             } else {
-                if (useLeftSensor) {
-                    instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-                }
-                if (useFrontSensor) {
-                    instr.add(CRISP.SENSOR_RESET + ", " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-                }
-                if (useRightSensor) {
-                    instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-                }
+                if (useLeftSensor)  { instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);  }
+                if (useFrontSensor) { instr.add(CRISP.SENSOR_RESET + ", " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);         }
+                if (useRightSensor) { instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN); }
             }
             return instr;
+        }
+    }
+
+
+
+
+
+
+    public static class ConfigCamera extends Configuration {
+        public static final ConfigCamera DEFAULT = new ConfigCamera(
+                MapProvider.MAP_KEY_MARKED_ROOM,
+                false,
+                true,
+                true,
+                10,
+                1000,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                true,
+                false,
+                false
+        );
+
+        private final boolean useGeneralQuery;
+        private final boolean useAngleQuery;
+        private final boolean useSignatureOne;
+        private final boolean useSignatureTwo;
+        private final boolean useSignatureThree;
+        private final boolean useSignatureFour;
+        private final boolean useSignatureFive;
+        private final boolean useSignatureSix;
+        private final boolean useSignatureSeven;
+
+        /**
+         * Constructor
+         *
+         * @param mapKey            A key, identifying a map provided by the MapProvider
+         * @param isOneDimensional  Marks the operating range as one-dimensional.
+         * @param isTwoDimensional  Marks the operating range as two-dimensional.
+         * @param stepSize          Distance to robot moves with every travel-instruction.
+         * @param numberOfParticles Number of particles for the monte-carlo-localization.
+         */
+        public ConfigCamera(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
+                            int stepSize, int numberOfParticles, boolean useGeneralQuery, boolean useAngleQuery,
+                            boolean useSignatureOne, boolean useSignatureTwo, boolean useSignatureThree,
+                            boolean useSignatureFour, boolean useSignatureFive, boolean useSignatureSix,
+                            boolean useSignatureSeven) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepSize, numberOfParticles);
+            this.useGeneralQuery = useGeneralQuery;
+            this.useAngleQuery = useAngleQuery;
+            this.useSignatureOne = useSignatureOne;
+            this.useSignatureTwo = useSignatureTwo;
+            this.useSignatureThree = useSignatureThree;
+            this.useSignatureFour = useSignatureFour;
+            this.useSignatureFive = useSignatureFive;
+            this.useSignatureSix = useSignatureSix;
+            this.useSignatureSeven = useSignatureSeven;
+        }
+
+        @Override
+        public ArrayList<String> getSensingInstructions() {
+            ArrayList<String> instructions = new ArrayList<>();
+            if (useGeneralQuery) { instructions.add(CRISP.CAMERA_GENERAL_QUERY);}
+            if (useGeneralQuery  &&  useAngleQuery) { instructions.add(CRISP.CAMERA_ANGLE_QUERY); }
+            if (useSignatureOne) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 1");}
+            if (useSignatureTwo) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 2");}
+            if (useSignatureThree) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 3");}
+            if (useSignatureFour) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 4");}
+            if (useSignatureFive) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 5");}
+            if (useSignatureSix) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 6");}
+            if (useSignatureSeven) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 7");}
+            return instructions;
+        }
+
+        public boolean isUseGeneralQuery() {
+            return useGeneralQuery;
+        }
+
+        public boolean isUseAngleQuery() {
+            return useAngleQuery;
+        }
+
+        public boolean isUseSignatureOne() {
+            return useSignatureOne;
+        }
+
+        public boolean isUseSignatureTwo() {
+            return useSignatureTwo;
+        }
+
+        public boolean isUseSignatureThree() {
+            return useSignatureThree;
+        }
+
+        public boolean isUseSignatureFour() {
+            return useSignatureFour;
+        }
+
+        public boolean isUseSignatureFive() {
+            return useSignatureFive;
+        }
+
+        public boolean isUseSignatureSix() {
+            return useSignatureSix;
+        }
+
+        public boolean isUseSignatureSeven() {
+            return useSignatureSeven;
         }
     }
 }

@@ -11,9 +11,10 @@ import java.awt.geom.Rectangle2D;
  *
  * @version 1.0, 12/28/17
  */
-class svg_Circle extends Ellipse2D.Double {
+public class svg_Circle extends Ellipse2D.Double {
     private Point2D.Double center;
     private double diameter;
+    private String id;
     private int stroke;
     private int fill;
 
@@ -42,8 +43,9 @@ class svg_Circle extends Ellipse2D.Double {
      * @param stroke    Stroke-color of the circle as integer-RGB-value.
      * @param fill      Fill-color of the circle as integer-RGB-value.
      */
-    public svg_Circle(double cx, double cy, double diameter, int stroke, int fill) {
+    public svg_Circle(double cx, double cy, double diameter, String id, int stroke, int fill) {
         this(cx, cy, diameter);
+        this.id = id;
         this.stroke = stroke;
         this.fill = fill;
     }
@@ -160,6 +162,21 @@ class svg_Circle extends Ellipse2D.Double {
     }
 
 
+    /**
+     * Returns the id of the circle.
+     *
+     * @return  The id of the circle.
+     */
+    public String getId() { return id; }
+
+
+    public int getStroke() {
+        return stroke;
+    }
+
+    public int getFill() {
+        return fill;
+    }
 
     /**
      * Returns the x-coordinate of the center of the circle as integer-value.
