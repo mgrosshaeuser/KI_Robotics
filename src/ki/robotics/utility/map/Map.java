@@ -207,7 +207,7 @@ public class Map {
             }
 
             Line2D.Double roadToLandmark = new Line2D.Double(x, y, l.getCenter().getX(), l.getCenter().getY());
-            double imageAngle = calculateAngleBetweenLines(sensorBeam, roadToLandmark);
+            double imageAngle = angleBetween2Lines(sensorBeam, roadToLandmark);
 
             if (imageAngle < -37.5  || imageAngle > 37.5) {
                 continue;
@@ -277,18 +277,13 @@ public class Map {
         }
     }
 
-    private double calculateAngleBetweenLines(Line2D.Double first, Line2D.Double second) {
-        double lengthOfFirst = Math.sqrt(Math.pow((first.x1 - first.x2),2) + Math.pow((first.y1 - first.y2),2));
-        double lengthOfSecond = Math.sqrt(Math.pow((second.x1 - second.x2),2) + Math.pow((second.y1 - second.y2),2));
-
-        double xSectionOfFirst = first.x2 - first.x1;
-        double xSectionOfSecond = second.x2 - second.x1;
-
-        //TODO Angle-Calculation incomplete.
-        double angleFirst = 0;
-        double angleSeconds = 0;
-
-        return angleFirst - angleSeconds;
+    private double angleBetween2Lines(Line2D line1, Line2D line2) {
+        int fullCircle = 360;
+        double angle1 = Math.atan2(line1.getY1() - line1.getY2(),
+                line1.getX1() - line1.getX2());
+        double angle2 = Math.atan2(line2.getY1() - line2.getY2(),
+                line2.getX1() - line2.getX2());
+        return fullCircle - Math.toDegrees(angle1-angle2);
     }
 
 }
