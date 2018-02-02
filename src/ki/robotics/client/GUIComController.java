@@ -130,7 +130,9 @@ public class GUIComController implements ComController {
         ArrayList<String > scans = configuration.getSensingInstructions();
         double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
 
-        if(center > bumper){
+        int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
+
+        if(center > bumper + randomNumberSoBoDoesntStutterInFrontOfWall){
             return new InstructionSequence().botTravelForward(stepSize).perform(scans);
         }else if(right > left  &&  right > bumper){
             return new InstructionSequence().botTurnRight(90).botTravelForward(stepSize).perform(scans);
