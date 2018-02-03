@@ -22,9 +22,7 @@ public class PixyCam extends I2CSensor{
     private static final int BYTES_IN_COLOR_CODE_QUERY_RESPONSE = 6;
 
     private static final int PIXEL_WIDTH_OF_SENSOR = 255;
-    private static final int LEFT_MOST_PIXEL_OF_SENSOR = 0;
     private static final int CENTRAL_PIXEL_OF_SENSOR = 128;
-    private static final int RIGHT_MOST_PIXEL_OF_SENSOR = 255;
     private static final int IMAGE_ANGLE = 75;
 
 
@@ -82,10 +80,9 @@ public class PixyCam extends I2CSensor{
         if (degree == 0) {
             return CENTRAL_PIXEL_OF_SENSOR;
         } else if(degree < 0) {
-            return (int) Math.round((Math.abs(degree) / IMAGE_ANGLE * PIXEL_WIDTH_OF_SENSOR) + LEFT_MOST_PIXEL_OF_SENSOR);
+            return CENTRAL_PIXEL_OF_SENSOR + ((int) Math.round((Math.abs(degree) / IMAGE_ANGLE * PIXEL_WIDTH_OF_SENSOR)));
         } else {
-            return (int) Math.round((Math.abs(degree) / IMAGE_ANGLE * PIXEL_WIDTH_OF_SENSOR) + CENTRAL_PIXEL_OF_SENSOR);
-
+            return CENTRAL_PIXEL_OF_SENSOR - ((int) Math.round((Math.abs(degree) / IMAGE_ANGLE * PIXEL_WIDTH_OF_SENSOR)));
         }
     }
 

@@ -149,31 +149,25 @@ public class Map {
      * Finds the closest obstacle (e.g. wall) from given observation-coordinates (e.g. the location of
      * the robot) and an angle (e.g. the direction in which the distance-sensor points).
      *
-     * @param x         X-Coordinate of the observer.
-     * @param y         Y-Coordinate of the observer.
+     * @param originX         X-Coordinate of the observer.
+     * @param originY         Y-Coordinate of the observer.
      * @param angle     Direction of view.
      * @return          Distance to the closest obstacle.
      */
-    public double getDistanceToObstacle(float x, float y, float angle) {
+    public double getDistanceToObstacle(float originX, float originY, float angle) {
         // Maximum distance possible within the map-boundaries.
-        double maxLine = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
+        double maxLineLength = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
+        Line2D.Double sensorBeam = makeLine(new Point2D.Double(originX, originY), angle, maxLineLength);
+
 
         double nearestObstacle = Double.MAX_VALUE;
         for (Wall w : map) {
             Line2D wall = new Line2D.Double(w.getStart(), w.getEnd());
 
-            Point2D sensorBeamStart = new Point2D.Double(x, y);
-            Point2D sensorBeamEnd = new Point2D.Double(
-                    Math.round(Math.cos(Math.toRadians(angle)) * maxLine) + sensorBeamStart.getX(),
-                    Math.round(Math.sin(Math.toRadians(angle)) * maxLine) + sensorBeamStart.getY()
-            );
-
-            Line2D sensorBeam = new Line2D.Double(sensorBeamStart, sensorBeamEnd);
-
             if (sensorBeam.intersectsLine(wall)) {
                 Point2D intersectionPoint = getIntersectionPoint(wall, sensorBeam);
                 if (wall.ptSegDist(intersectionPoint) < EPSILON) {
-                    double distance = sensorBeamStart.distance(intersectionPoint);
+                    double distance = sensorBeam.getP1().distance(intersectionPoint);
                     nearestObstacle = distance < nearestObstacle ? distance : nearestObstacle;
                 }
             }
@@ -184,42 +178,82 @@ public class Map {
 
 
     public int[] getGeneralCameraQuery(float x, float y, float angle) {
-        return new int[]{0,0,0,0,0};
+        int numberOfAvailableSIgnatures = 7;
+        int byteHoldingSignatureSizeInformation = 3;
+        int valuesInSignatureQuery = 5;
+        int signature = 1;
+        int[] signatureA, signatureB;
+        signatureA = getCameraSignatureQuery(x, y, angle, signature);
+        for (int i = 2  ;  i <= numberOfAvailableSIgnatures  ;  i++) {
+            signatureB = getCameraSignatureQuery(x, y, angle, i);
+            if (signatureA[byteHoldingSignatureSizeInformation] < signatureB [byteHoldingSignatureSizeInformation]) {
+                signatureA = signatureB;
+                signature = i;
+            }
+        }
+        if (signatureA[0] == 0) {
+            return new int[]{0, 0, 0, 0, 0};
+        } else {
+            return new int[]{
+                    signature, signatureA[1], 0, signatureA[3], 0
+            };
+        }
     }
+
 
     public int getCameraAngleQuery(float x, float y, float angle) {
         return 0;
     }
 
+
     public int[] getCameraSignatureQuery(float x, float y, float angle, int signature) {
-        String sig = "M" + signature;
+        double imageHalfAngle = 32.5;
+        String signatureString = "M" + signature;
+        Point2D.Double origin = new Point2D.Double(x, y);
         // Maximum distance possible within the map-boundaries.
         double maxLineLength = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
-        Line2D.Double sensorBeam = new Line2D.Double(
-                x,
-                y,
-                Math.round(Math.cos(Math.toRadians(angle)) * maxLineLength) + x,
-                Math.round(Math.sin(Math.toRadians(angle)) * maxLineLength) + y
-        );
+        Line2D.Double cameraCenterOfFocus = makeLine(origin, angle, maxLineLength);
+
+        landmark_loop:
         for (Landmark l : landmarks) {
-            if (! l.getId().equals(sig)) {
+            if (! l.getId().equals(signatureString)) {
+                continue;
+            }
+            Line2D.Double landmarkVector = new Line2D.Double(x, y, l.getCenter().x, l.getCenter().y);
+            double angleToSensorBeam = angleBetween2Lines(landmarkVector, cameraCenterOfFocus);
+            if (angleToSensorBeam >= imageHalfAngle) {
                 continue;
             }
 
-            Line2D.Double roadToLandmark = new Line2D.Double(x, y, l.getCenter().getX(), l.getCenter().getY());
-            double imageAngle = angleBetween2Lines(sensorBeam, roadToLandmark);
-
-            if (imageAngle < -37.5  || imageAngle > 37.5) {
-                continue;
-            }
-            double distanceToLandmark = Point2D.distance(x,y, l.getCenter().getX(), l.getCenter().getY());
-            double nearestObstacle = getDistanceToObstacle(x, y, (float)imageAngle);
-            if (Math.abs(distanceToLandmark - nearestObstacle) > EPSILON) {
-                continue;
+            for (Wall w : map) {
+                Line2D.Double wall = new Line2D.Double(w.getStart(), w.getEnd());
+                if (wall.intersectsLine(landmarkVector)) {
+                    continue landmark_loop;
+                }
             }
 
-            int pixelX = PixyCam.angleDegreeToPixel(imageAngle);
-            return new int[]{1,pixelX,0,0,0};
+            Line2D.Double cameraLeftOuterRim = makeLine(origin, angle - imageHalfAngle, maxLineLength);
+            Line2D.Double cameraRightOuterRim = makeLine(origin, angle + imageHalfAngle, maxLineLength);
+            double angleToLeftOuterRim = angleBetween2Lines(cameraLeftOuterRim, landmarkVector);
+            double angleToRightOuterRim = angleBetween2Lines(cameraRightOuterRim, landmarkVector);
+
+            angleToSensorBeam = (angleToLeftOuterRim < angleToRightOuterRim) ? angleToSensorBeam : -angleToSensorBeam;
+            int xCoordinateOfLandmarkCenter = PixyCam.angleDegreeToPixel(angleToSensorBeam);
+
+
+            Line2D.Double imaginaryViewVector = makeLine(origin, angle, calculateLengthOfLine(landmarkVector));
+            Line2D.Double imaginaryViewPane = makeLine(imaginaryViewVector.getP2(), angle+90, maxLineLength);
+            Line2D.Double imaginaryScreen = new Line2D.Double(
+                    getIntersectionPoint(cameraLeftOuterRim, imaginaryViewPane),
+                    getIntersectionPoint(cameraRightOuterRim, imaginaryViewPane)
+            );
+            double lengthOfImaginaryScreen = calculateLengthOfLine(imaginaryScreen);
+            double widthOfLandMark= l.getBound().getWidth();
+
+            double relativeWidth = widthOfLandMark / lengthOfImaginaryScreen;
+            int absoluteWidth = (int) Math.round(relativeWidth * 255);
+
+            return new int[]{1,xCoordinateOfLandmarkCenter,0,absoluteWidth,0};
         }
         return new int[]{0,0,0,0,0};
     }
@@ -278,12 +312,33 @@ public class Map {
     }
 
     private double angleBetween2Lines(Line2D line1, Line2D line2) {
-        int fullCircle = 360;
-        double angle1 = Math.atan2(line1.getY1() - line1.getY2(),
-                line1.getX1() - line1.getX2());
-        double angle2 = Math.atan2(line2.getY1() - line2.getY2(),
-                line2.getX1() - line2.getX2());
-        return fullCircle - Math.toDegrees(angle1-angle2);
+        double line1abs = calculateLengthOfLine(line1);
+        double line2abs = calculateLengthOfLine(line2);
+        double vectorProduct = calculateVectorProductOfTwoLine(line1, line2);
+        double angleInRadians = Math.acos(vectorProduct / (line1abs * line2abs));
+        return Math.toDegrees(angleInRadians);
     }
 
+    private double calculateLengthOfLine(Line2D line) {
+        double lineDX = line.getX2()-line.getX1();
+        double lineDY = line.getY2()-line.getY1();
+        return Math.sqrt(Math.pow(lineDX, 2) + Math.pow(lineDY, 2));
+    }
+
+    private double calculateVectorProductOfTwoLine(Line2D line1, Line2D line2) {
+        double line1DX = line1.getX2()-line1.getX1();
+        double line1DY = line1.getY2()-line1.getY1();
+        double line2DX = line2.getX2()-line2.getX1();
+        double line2DY = line2.getY2()-line2.getY1();
+        return (line1DX * line2DX) + (line1DY * line2DY);
+    }
+
+    private Line2D.Double makeLine(Point2D origin, double angle, double length) {
+        return new Line2D.Double(
+                origin.getX(),
+                origin.getY(),
+                Math.round(Math.cos(Math.toRadians(angle)) * length) + origin.getX(),
+                Math.round(Math.sin(Math.toRadians(angle)) * length) + origin.getY()
+        );
+    }
 }

@@ -3,6 +3,7 @@ package ki.robotics.utility.map;
 import ki.robotics.utility.svg.svg_Circle;
 
 import java.awt.*;
+import java.awt.geom.Rectangle2D;
 
 class Landmark {
     private final svg_Circle circle;
@@ -20,6 +21,10 @@ class Landmark {
                 (int) Math.round(circle.getX()),
                 (int) Math.round(circle.getY())
         );
+    }
+
+    public Rectangle2D getBound() {
+        return this.circle.getBounds2D();
     }
 
     public String getId() {

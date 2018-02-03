@@ -164,7 +164,7 @@ public class GUIComController implements ComController {
     private InstructionSequence getNextRequestWithCamera() {
         int stepSize = configuration.getStepSize();
         ArrayList<String> scans = configuration.getSensingInstructions();
-        return new InstructionSequence().botTurnRight(180).disconnect();
+        return new InstructionSequence().disconnect();
     }
 
 
