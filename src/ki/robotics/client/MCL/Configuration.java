@@ -17,6 +17,7 @@ public abstract class Configuration {
     private final boolean isWithCamera;
     private final int stepSize;
     private final int numberOfParticles;
+    private final boolean stopWhenDone;
 
 
     /**
@@ -29,13 +30,14 @@ public abstract class Configuration {
      * @param numberOfParticles     Number of particles for the monte-carlo-localization.
      */
     public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional,
-                         boolean isWithCamera, int stepSize, int numberOfParticles) {
+                         boolean isWithCamera, int stepSize, int numberOfParticles, boolean stopWhenDone) {
         this.mapKey = mapKey;
         this.isOneDimensional = isOneDimensional;
         this.isTwoDimensional = isTwoDimensional;
         this.isWithCamera = isWithCamera;
         this.stepSize = stepSize;
         this.numberOfParticles = numberOfParticles;
+        this.stopWhenDone = stopWhenDone;
     }
 
     public String getMapKey() {
@@ -60,6 +62,8 @@ public abstract class Configuration {
         return numberOfParticles;
     }
 
+    public boolean stopWhenDone() { return stopWhenDone; }
+
     public abstract ArrayList<String> getSensingInstructions();
 
 
@@ -73,6 +77,7 @@ public abstract class Configuration {
                 false,
                 10,
                 1000,
+                true,
                 true
         );
 
@@ -90,8 +95,8 @@ public abstract class Configuration {
          * @param startFromLeft     Bot starts from the left (true) or from the right (false)
          */
         public ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                          int stepsize, int numberOfParticles, boolean startFromLeft) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles);
+                          int stepsize, int numberOfParticles, boolean stopWhenDone, boolean startFromLeft) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone);
             this.startFromLeft = startFromLeft;
             this.measureDistanceToLeft = startFromLeft;
         }
@@ -133,6 +138,7 @@ public abstract class Configuration {
                 10,
                 1000,
                 true,
+                true,
                 false,
                 true,
                 true,
@@ -155,9 +161,9 @@ public abstract class Configuration {
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
          */
         public ConfigTwoD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                          int stepsize, int numberOfParticles,  boolean useRightAngles, boolean useFreeAngles,
-                          boolean useLeftSensor, boolean useFrontSensor, boolean useRightSensor) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles);
+                          int stepsize, int numberOfParticles,  boolean stopWhenDone, boolean useRightAngles,
+                          boolean useFreeAngles, boolean useLeftSensor, boolean useFrontSensor, boolean useRightSensor) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone);
             this.useRightAngles = useRightAngles;
             this.useFreeAngles = useFreeAngles;
             this.useLeftSensor = useLeftSensor;
@@ -219,6 +225,7 @@ public abstract class Configuration {
                 10,
                 1000,
                 true,
+                true,
                 false,
                 true,
                 true,
@@ -249,11 +256,11 @@ public abstract class Configuration {
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
          */
         public ConfigCamera(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                            int stepSize, int numberOfParticles, boolean useGeneralQuery, boolean useAngleQuery,
-                            boolean useSignatureOne, boolean useSignatureTwo, boolean useSignatureThree,
-                            boolean useSignatureFour, boolean useSignatureFive, boolean useSignatureSix,
-                            boolean useSignatureSeven) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepSize, numberOfParticles);
+                            int stepSize, int numberOfParticles, boolean stopWhenDone, boolean useGeneralQuery,
+                            boolean useAngleQuery, boolean useSignatureOne, boolean useSignatureTwo,
+                            boolean useSignatureThree, boolean useSignatureFour, boolean useSignatureFive,
+                            boolean useSignatureSix, boolean useSignatureSeven) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepSize, numberOfParticles, stopWhenDone);
             this.useGeneralQuery = useGeneralQuery;
             this.useAngleQuery = useAngleQuery;
             this.useSignatureOne = useSignatureOne;

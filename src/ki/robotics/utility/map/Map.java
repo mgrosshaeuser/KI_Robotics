@@ -178,13 +178,12 @@ public class Map {
 
 
     public int[] getGeneralCameraQuery(float x, float y, float angle) {
-        int numberOfAvailableSIgnatures = 7;
+        int numberOfAvailableSignatures = 7;
         int byteHoldingSignatureSizeInformation = 3;
-        int valuesInSignatureQuery = 5;
         int signature = 1;
         int[] signatureA, signatureB;
         signatureA = getCameraSignatureQuery(x, y, angle, signature);
-        for (int i = 2  ;  i <= numberOfAvailableSIgnatures  ;  i++) {
+        for (int i = 2  ;  i <= numberOfAvailableSignatures  ;  i++) {
             signatureB = getCameraSignatureQuery(x, y, angle, i);
             if (signatureA[byteHoldingSignatureSizeInformation] < signatureB [byteHoldingSignatureSizeInformation]) {
                 signatureA = signatureB;

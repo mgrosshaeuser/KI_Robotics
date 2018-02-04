@@ -413,6 +413,20 @@ public class RoverSimulation extends VirtualRobotModel {
 
                 xInput.setText("" + Math.round(pose.getX()));
                 yInput.setText("" + Math.round(pose.getY()));
+                xInput.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        super.focusGained(e);
+                        ((JTextField) e.getSource()).selectAll();
+                    }
+                });
+                yInput.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        super.focusGained(e);
+                        ((JTextField) e.getSource()).selectAll();
+                    }
+                });
 
                 panel.addAll(xLabel, xInput, yLabel, yInput);
                 window.add(panel, BorderLayout.CENTER);
@@ -541,6 +555,12 @@ public class RoverSimulation extends VirtualRobotModel {
 
             g2d.setColor(Color.YELLOW);
             g2d.fillArc(botX, botY, botDia, botDia, startAngle, arcAngle );
+
+            g2d.setColor(Color.BLACK);
+            g2d.drawString("Sojourner:",10,20);
+            g2d.drawString("X: " + String.valueOf(pose.getX()), 10,40);
+            g2d.drawString("Y: " + String.valueOf(pose.getY()), 10,55);
+            g2d.drawString("H: " + String.valueOf(pose.getHeading()), 10, 70);
         }
 
 
