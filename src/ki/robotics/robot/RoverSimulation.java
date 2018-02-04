@@ -9,6 +9,8 @@ import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -31,12 +33,12 @@ public class RoverSimulation extends VirtualRobotModel {
      * @param botServer     An instance of the BotServer for communication.
      */
     public RoverSimulation(BotServer botServer) {
-        this.botServer = botServer;
-        this.map = MapProvider.getInstance().getMap(DEFAULT_SELECTED_MAP);
-        this.window = new SimulationDisplay(map);
         this.pose = new Pose();
         this.pose.setLocation(10,10);
         this.pose.setHeading(0);
+        this.botServer = botServer;
+        this.map = MapProvider.getInstance().getMap(DEFAULT_SELECTED_MAP);
+        this.window = new SimulationDisplay(map);
         window.repaint();
     }
 
@@ -157,7 +159,7 @@ public class RoverSimulation extends VirtualRobotModel {
      * The simulation-gui including the display and a control-panel.
      */
     private class SimulationDisplay extends JFrame {
-        private static final int WINDOW_WIDTH = 600;
+        private static final int WINDOW_WIDTH = 800;
         private static final int WINDOW_HEIGHT = 800;
 
         private final ControlPanel controlPanel;
@@ -194,9 +196,9 @@ public class RoverSimulation extends VirtualRobotModel {
         private final MapProvider mapProvider;
 
         private JComboBox maps;
-        private JTextField heading;
         private JButton lock;
         private boolean isLocked = false;
+
 
         private final String[] mapkeys;
 
@@ -249,81 +251,29 @@ public class RoverSimulation extends VirtualRobotModel {
          * Adds gui-elements to specify the initial heading of the simulated robot.
          */
         private void addBotInitPositionChooseToUI() {
-            heading = new JTextField("Pose",4);
-            heading.setHorizontalAlignment(JTextField.RIGHT);
-            heading.setEnabled(false);
+            int currentHeading = Math.round(pose.getHeading());
+            final JLabel headingLabel = new JLabel(String.valueOf("Heading: " + currentHeading));
+            final JSlider headingSlider = new JSlider(0,359,currentHeading);
+            headingSlider.setMinorTickSpacing(5);
+            headingSlider.setMajorTickSpacing(45);
+            headingSlider.setPaintTicks(true);
+            headingSlider.setSnapToTicks(true);
+
+            headingSlider.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    if (parent.mapOverlay.isModifiable()) {
+                        pose.setHeading(headingSlider.getValue());
+                        headingLabel.setText("Heading: " + pose.getHeading());
+                        window.repaint();
+                    }
+                }
+            });
+
             ExtJPanel initContainer = new ExtJPanel();
-            initContainer.setLayout(new GridLayout(2,4));
+            initContainer.setLayout(new GridLayout(2,1));
 
-            JButton hpp = new JButton("H++");
-            hpp.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (parent.mapOverlay.isModifiable()) {
-                        pose.setHeading((pose.getHeading() + 10) % 360);
-                        heading.setText("" + Math.round(pose.getHeading()));
-                        window.repaint();
-                    }
-                }
-            });
-
-            JButton hp = new JButton("H+");
-            hp.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (parent.mapOverlay.isModifiable()) {
-                        pose.setHeading((pose.getHeading() + 1) % 360);
-                        heading.setText("" + Math.round(pose.getHeading()));
-                        window.repaint();
-                    }
-                }
-            });
-
-            JButton hZero = new JButton("0");
-            hZero.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (parent.mapOverlay.isModifiable()) {
-                        pose.setHeading(0);
-                        heading.setText("" + Math.round(pose.getHeading()));
-                        window.repaint();
-                    }
-                }
-            });
-
-            JButton hn = new JButton("H-");
-            hn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (parent.mapOverlay.isModifiable()) {
-                        if (pose.getHeading() >= 1) {
-                            pose.setHeading(pose.getHeading() - 1);
-                        } else {
-                            pose.setHeading(359);
-                        }
-                        heading.setText("" + Math.round(pose.getHeading()));
-                        window.repaint();
-                    }
-                }
-            });
-
-            JButton hnn = new JButton("H--");
-            hnn.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    if (parent.mapOverlay.isModifiable()) {
-                        if (pose.getHeading() >= 10) {
-                            pose.setHeading(pose.getHeading() - 10);
-                        } else {
-                            pose.setHeading(360 - (10 - pose.getHeading()));
-                        }
-                        heading.setText("" + Math.round(pose.getHeading()));
-                        window.repaint();
-                    }
-                }
-            });
-
-            initContainer.addAll(hpp, hp, hZero, hnn, hn, heading);
+            initContainer.addAll(headingLabel, headingSlider);
             add(initContainer);
         }
 
@@ -356,6 +306,7 @@ public class RoverSimulation extends VirtualRobotModel {
             controlContainer.add(lock, BorderLayout.PAGE_START);
             add(controlContainer);
         }
+
     }
 
 
@@ -386,7 +337,7 @@ public class RoverSimulation extends VirtualRobotModel {
                     super.mouseClicked(e);
                     Rectangle botOutline = rover.getBounds(getScaleFactor(), getxOffset(), getyOffset());
                     if (isModifiable()) {
-                        new CoordinateInput();
+                        new CoordinateInput((MapOverlay)e.getSource());
                         repaint();
                     }
                 }
@@ -427,16 +378,18 @@ public class RoverSimulation extends VirtualRobotModel {
             private final JTextField xInput = new JTextField(10);
             private final JTextField yInput = new JTextField(10);
             private final JButton okButton = new JButton("OK");
+            private MapOverlay parent;
 
             /**
              * Constructor.
              */
-            CoordinateInput() {
+            CoordinateInput(MapOverlay parent) {
                 this.setTitle("Insert Robot-Coordinates");
+                this.parent = parent;
                 this.setLocationRelativeTo(parent);
                 this.setSize(250,100);
                 this.setLayout(new FlowLayout());
-                this.setModalExclusionType(Dialog.ModalExclusionType.NO_EXCLUDE);
+                this.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
                 this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
                 initializeElements();
                 this.setVisible(true);
@@ -460,6 +413,20 @@ public class RoverSimulation extends VirtualRobotModel {
 
                 xInput.setText("" + Math.round(pose.getX()));
                 yInput.setText("" + Math.round(pose.getY()));
+                xInput.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        super.focusGained(e);
+                        ((JTextField) e.getSource()).selectAll();
+                    }
+                });
+                yInput.addFocusListener(new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        super.focusGained(e);
+                        ((JTextField) e.getSource()).selectAll();
+                    }
+                });
 
                 panel.addAll(xLabel, xInput, yLabel, yInput);
                 window.add(panel, BorderLayout.CENTER);
@@ -474,11 +441,34 @@ public class RoverSimulation extends VirtualRobotModel {
                         } catch (NumberFormatException ignored) {
 
                         }
+                        parent.repaint();
                         dispose();
                     }
                 });
                 window.add(okButton, BorderLayout.PAGE_END);
+                window.addKeyListener(new EnterKeyListener());
+                yInput.addKeyListener(new EnterKeyListener());
+                xInput.addKeyListener(new EnterKeyListener());
+                okButton.addKeyListener(new EnterKeyListener());
                 add(window);
+            }
+
+            private class EnterKeyListener extends KeyAdapter {
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    super.keyReleased(e);
+                    if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                        try {
+                            int xVal = Integer.parseInt(xInput.getText());
+                            int yVal = Integer.parseInt(yInput.getText());
+                            pose.setLocation(xVal, yVal);
+                        } catch (NumberFormatException ignored) {
+
+                        }
+                        parent.repaint();
+                        dispose();
+                    }
+                }
             }
         }
     }
@@ -565,6 +555,12 @@ public class RoverSimulation extends VirtualRobotModel {
 
             g2d.setColor(Color.YELLOW);
             g2d.fillArc(botX, botY, botDia, botDia, startAngle, arcAngle );
+
+            g2d.setColor(Color.BLACK);
+            g2d.drawString("Sojourner:",10,20);
+            g2d.drawString("X: " + String.valueOf(pose.getX()), 10,40);
+            g2d.drawString("Y: " + String.valueOf(pose.getY()), 10,55);
+            g2d.drawString("H: " + String.valueOf(pose.getHeading()), 10, 70);
         }
 
 

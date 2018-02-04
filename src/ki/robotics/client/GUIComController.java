@@ -141,18 +141,6 @@ public class GUIComController implements ComController {
         } else {
             return new InstructionSequence().botTurnRight(180).botTravelForward(stepSize).perform(scans);
         }
-
-/*
-        String instruction;
-        if(center > bumper){
-            instruction = BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
-        }else if(left < right){
-            instruction = BOT_TURN_RIGHT + " 90, " + BOT_TRAVEL_FORWARD + " " + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
-        }else{
-            instruction = BOT_TURN_LEFT + " 90, " + BOT_TRAVEL_FORWARD + configuration.getStepSize() + ", " + scans + SENSOR_MEASURE_COLOR;
-        }
-        return instruction;
-*/
     }
 
 
@@ -164,7 +152,7 @@ public class GUIComController implements ComController {
     private InstructionSequence getNextRequestWithCamera() {
         int stepSize = configuration.getStepSize();
         ArrayList<String> scans = configuration.getSensingInstructions();
-        return new InstructionSequence().botTurnRight(180).disconnect();
+        return new InstructionSequence().disconnect();
     }
 
 
@@ -190,6 +178,11 @@ public class GUIComController implements ComController {
             default:
                 handleOtherResponse(response);
                 break;
+        }
+        if (configuration.stopWhenDone()  &&  mclProvider.isLocalizationDone()) {
+            mclProvider.badParticlesFinalKill();
+            window.repaint();
+            stop();
         }
         window.repaint();
     }

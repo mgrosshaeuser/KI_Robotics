@@ -136,11 +136,21 @@ public class MCL_Display extends JFrame{
             }
             Pose p = mclProvider.getEstimatedBotPose();
 
-            g.setColor(Color.RED);
+            g.setColor(mclProvider.isLocalizationDone() ? Color.GREEN : Color.RED);
+            int radius = (int)Math.ceil(mclProvider.getEstimatedBotPoseDeviation());
+            radius = radius < MCL_Provider.BOT_POSITION_DESIRED_CERTAINTY_LEVEL ? MCL_Provider.BOT_POSITION_DESIRED_CERTAINTY_LEVEL : radius;
             g.drawOval(
-                    (Math.round(p.getX())-10) * getScaleFactor() + getxOffset(),
-                    (Math.round(p.getY())-10) * getScaleFactor() + getyOffset(), 20* getScaleFactor(),20* getScaleFactor());
+                    (Math.round(p.getX())-radius) * getScaleFactor() + getxOffset(),
+                    (Math.round(p.getY())-radius) * getScaleFactor() + getyOffset(),
+                    radius * 2 * getScaleFactor(),
+                    radius * 2 * getScaleFactor());
+            g.drawString("Deviation: " + String.valueOf(radius),10,40);
 
+            g.setColor(Color.BLACK);
+            g.drawString("Estimated Bot Position: ", 10,20);
+            g.drawString("X: " + String.valueOf(Math.round(p.getX())),10,55);
+            g.drawString("Y: " + String.valueOf(Math.round(p.getY())), 10,70);
+            g.drawString("H: " + String.valueOf(Math.round(p.getHeading())), 10,85);
         }
     }
 
@@ -152,7 +162,6 @@ public class MCL_Display extends JFrame{
      * Control-Panel to modify the terms of the monte-carlo-localization.
      */
     private class ControlPanel extends JPanel {
-        private final String[] mapkeys;
         private final MCL_Display parent;
 
         private JTabbedPane specificElements = new JTabbedPane();
@@ -183,6 +192,7 @@ public class MCL_Display extends JFrame{
         private final JTextField particles = new JTextField(5);
         private final JButton start = new JButton("Start");
         private final JButton stop = new JButton("Stop");
+        private final JCheckBox stopWhenDone = new JCheckBox("auto");
 
 
         /**
@@ -192,7 +202,6 @@ public class MCL_Display extends JFrame{
          */
         ControlPanel(final MCL_Display parent) {
             this.parent = parent;
-            this.mapkeys = MapProvider.getInstance().getMapKeys();
             this.setLayout(new FlowLayout());
 
             initializeOneDimensionalControls();
@@ -275,7 +284,7 @@ public class MCL_Display extends JFrame{
          */
         private void initializeCommonComponents() {
             ExtJPanel others = new ExtJPanel();
-            others.setLayout(new GridLayout(2,3));
+            others.setLayout(new GridLayout(3,3));
             JLabel stepLabel = new JLabel("Stepsize: ");
             stepLabel.setLabelFor(stepsize);
             JLabel particleCnt = new JLabel("Particles: ");
@@ -288,7 +297,8 @@ public class MCL_Display extends JFrame{
             start.addActionListener(new StartButtonActionListener());
             stop.addActionListener(new StopButtonActionListener());
 
-            others.addAll(stepLabel, stepsize, start, particleCnt, particles, stop);
+            stopWhenDone.setSelected(Configuration.ConfigOneD.DEFAULT.stopWhenDone());
+            others.addAll(stepLabel, stepsize, start, particleCnt, particles, stop, new JLabel(), new JLabel(), stopWhenDone);
             add(others);
         }
 
@@ -345,6 +355,7 @@ public class MCL_Display extends JFrame{
                             false,
                             step,
                             numOfParticles,
+                            stopWhenDone.isSelected(),
                             startFromLeft.isSelected()
                     );
                     setEnabled(false);
@@ -359,6 +370,7 @@ public class MCL_Display extends JFrame{
                             false,
                             step,
                             numOfParticles,
+                            stopWhenDone.isSelected(),
                             turnRightAngle.isSelected(),
                             turnFree.isSelected(),
                             leftSensor.isSelected(),
@@ -377,6 +389,7 @@ public class MCL_Display extends JFrame{
                             true,
                             step,
                             numOfParticles,
+                            stopWhenDone.isSelected(),
                             camGeneralQuery.isSelected(),
                             camAngleQuery.isSelected(),
                             camSignature1.isSelected(),

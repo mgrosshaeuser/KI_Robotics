@@ -14,6 +14,8 @@ import java.util.Random;
  * @version 1.0 01/02/18
  */
 public class MCL_Provider {
+    public static final int BOT_POSITION_DESIRED_CERTAINTY_LEVEL = 10;
+
     private final Map map;
     private final int particleCount;
     private final int fixedX;
@@ -265,10 +267,44 @@ public class MCL_Provider {
             ySum += pPose.getY();
             hSum += pPose.getHeading();
         }
-        Pose p = new Pose();
-        p.setLocation((float)(xSum/particleCount), (float)(ySum/particleCount));
-        p.setHeading((float)(hSum/particleCount));
-        return p;
+        float estimatedX = (float) xSum/particleCount;
+        float estimatedY = (float) ySum/particleCount;
+        float estimatedHeading = (float) hSum/particleCount;
+        return new Pose(estimatedX, estimatedY, estimatedHeading);
+    }
+
+
+    public boolean isLocalizationDone() {
+        Pose bPose = getEstimatedBotPose();
+        for (MCLParticle p :particles) {
+            Pose pPose = p.getPose();
+            double dx = pPose.getX()- bPose.getX();
+            double dy = pPose.getY()-bPose.getY();
+            double distance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
+            if (distance > BOT_POSITION_DESIRED_CERTAINTY_LEVEL) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    public double getEstimatedBotPoseDeviation() {
+        double distance = 0;
+        Pose bPose = getEstimatedBotPose();
+        for (MCLParticle p : particles) {
+            Pose pPose = p.getPose();
+            double dx = pPose.getX()- bPose.getX();
+            double dy = pPose.getY()-bPose.getY();
+            double pDistance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
+            distance = distance > pDistance ? distance : pDistance;
+        }
+        return distance;
+    }
+
+
+    public void badParticlesFinalKill() {
+       resample();
     }
 
 
@@ -281,9 +317,9 @@ public class MCL_Provider {
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            //float d = (float)Math.abs(r.nextGaussian());
-            //p.botTravelForward(distance * (1 +(d/10)));
-            p.botTravelForward(distance);
+            float d = (float)Math.abs(r.nextGaussian());
+            p.botTravelForward(distance * (1 +(d/10)));
+            //p.botTravelForward(distance);
         }
     }
 
@@ -296,8 +332,8 @@ public class MCL_Provider {
     public void turnFull(int degrees){
         Random r = new Random();
         for (MCLParticle p : particles) {
-            //double d = r.nextGaussian();
-            //degrees = (int) Math.round(degrees * (1+(d/10)));
+            double d = r.nextGaussian();
+            degrees = (int) Math.round(degrees * (1+(d/720)));
             p.turnFull(degrees);
         }
     }
