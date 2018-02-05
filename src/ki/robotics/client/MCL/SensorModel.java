@@ -72,7 +72,7 @@ public class SensorModel {
     }
 
     public void setSensorHeadPosition(float sensorHeadPosition) {
-        this.sensorHeadPosition = sensorHeadPosition;
+        this.sensorHeadPosition = sensorHeadPosition%360;
     }
 
 

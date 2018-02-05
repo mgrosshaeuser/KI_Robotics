@@ -238,7 +238,7 @@ public class GUIComController implements ComController {
                 break;
             case SENSOR_TURN_RIGHT:
                 int rightAngle = ((Instruction.SingleIntInstruction)response).getParameter();
-                roverModel.setSensorHeadPosition(rightAngle);
+                roverModel.setSensorHeadPosition(-rightAngle);
                 break;
             case SENSOR_MEASURE_COLOR:
                 int color = ((Instruction.SingleIntInstruction)response).getParameter();
