@@ -113,13 +113,11 @@ public class Sojourner implements Robot {
     public double botTravelForward(double distance) {
         sensorHeadReset();
         double distanceToFront = measureDistance();
-        System.out.println("a " + distanceToFront);
         double bumper = 8;
         boolean uTurn = false;
 
         distance = (distanceToFront >= distance + bumper) ? distance : (distanceToFront - bumper);
         distance = Math.abs(distance);
-        System.out.println("b" + distance);
         pilot.travel(distance * 10);
 
         if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {
