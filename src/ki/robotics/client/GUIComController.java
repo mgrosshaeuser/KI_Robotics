@@ -102,7 +102,7 @@ public class GUIComController implements ComController {
             if ( ! configuration.isWithCamera()) {
                 return getNextRequestForTwoDimensions(bumper).toString();
             } else {
-                return getNextRequestWithCamera().toString();
+                return getNextRequestWithCamera(bumper).toString();
             }
         }
     }
@@ -149,9 +149,7 @@ public class GUIComController implements ComController {
      *
      * @return  InstructionSequence for the next request.
      */
-    private InstructionSequence getNextRequestWithCamera() {
-        int stepSize = configuration.getStepSize();
-        ArrayList<String> scans = configuration.getSensingInstructions();
+    private InstructionSequence getNextRequestWithCamera(int bumper) {
         return new InstructionSequence().disconnect();
     }
 
@@ -325,6 +323,7 @@ public class GUIComController implements ComController {
                 roverModel.setSignatureQuery7(new DTOSignatureQuery(signatureQuery7));
                 break;
         }
+        mclProvider.recalculateParticleWeight(roverModel);
     }
 
 

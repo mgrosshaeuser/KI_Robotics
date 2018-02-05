@@ -18,6 +18,7 @@ public abstract class Configuration {
     private final int stepSize;
     private final int numberOfParticles;
     private final boolean stopWhenDone;
+    private final int acceptableTolerance;
 
 
     /**
@@ -29,8 +30,8 @@ public abstract class Configuration {
      * @param stepSize              Distance to robot moves with every travel-instruction.
      * @param numberOfParticles     Number of particles for the monte-carlo-localization.
      */
-    public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional,
-                         boolean isWithCamera, int stepSize, int numberOfParticles, boolean stopWhenDone) {
+    public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
+                         int stepSize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance) {
         this.mapKey = mapKey;
         this.isOneDimensional = isOneDimensional;
         this.isTwoDimensional = isTwoDimensional;
@@ -38,6 +39,7 @@ public abstract class Configuration {
         this.stepSize = stepSize;
         this.numberOfParticles = numberOfParticles;
         this.stopWhenDone = stopWhenDone;
+        this.acceptableTolerance = acceptableTolerance;
     }
 
     public String getMapKey() {
@@ -64,6 +66,8 @@ public abstract class Configuration {
 
     public boolean stopWhenDone() { return stopWhenDone; }
 
+    public int getAcceptableTolerance() { return  acceptableTolerance; }
+
     public abstract ArrayList<String> getSensingInstructions();
 
 
@@ -78,6 +82,7 @@ public abstract class Configuration {
                 10,
                 1000,
                 true,
+                10,
                 true
         );
 
@@ -95,8 +100,9 @@ public abstract class Configuration {
          * @param startFromLeft     Bot starts from the left (true) or from the right (false)
          */
         public ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                          int stepsize, int numberOfParticles, boolean stopWhenDone, boolean startFromLeft) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone);
+                          int stepsize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance,
+                          boolean startFromLeft) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone, acceptableTolerance);
             this.startFromLeft = startFromLeft;
             this.measureDistanceToLeft = startFromLeft;
         }
@@ -138,6 +144,7 @@ public abstract class Configuration {
                 10,
                 1000,
                 true,
+                10,
                 true,
                 false,
                 true,
@@ -161,9 +168,10 @@ public abstract class Configuration {
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
          */
         public ConfigTwoD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                          int stepsize, int numberOfParticles,  boolean stopWhenDone, boolean useRightAngles,
-                          boolean useFreeAngles, boolean useLeftSensor, boolean useFrontSensor, boolean useRightSensor) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone);
+                          int stepsize, int numberOfParticles,  boolean stopWhenDone, int acceptableTolerance,
+                          boolean useRightAngles, boolean useFreeAngles, boolean useLeftSensor, boolean useFrontSensor,
+                          boolean useRightSensor) {
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone, acceptableTolerance);
             this.useRightAngles = useRightAngles;
             this.useFreeAngles = useFreeAngles;
             this.useLeftSensor = useLeftSensor;
@@ -225,6 +233,7 @@ public abstract class Configuration {
                 10,
                 1000,
                 true,
+                10,
                 true,
                 false,
                 true,
@@ -256,11 +265,11 @@ public abstract class Configuration {
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
          */
         public ConfigCamera(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                            int stepSize, int numberOfParticles, boolean stopWhenDone, boolean useGeneralQuery,
-                            boolean useAngleQuery, boolean useSignatureOne, boolean useSignatureTwo,
+                            int stepSize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance,
+                            boolean useGeneralQuery, boolean useAngleQuery, boolean useSignatureOne, boolean useSignatureTwo,
                             boolean useSignatureThree, boolean useSignatureFour, boolean useSignatureFive,
                             boolean useSignatureSix, boolean useSignatureSeven) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepSize, numberOfParticles, stopWhenDone);
+            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepSize, numberOfParticles, stopWhenDone, acceptableTolerance);
             this.useGeneralQuery = useGeneralQuery;
             this.useAngleQuery = useAngleQuery;
             this.useSignatureOne = useSignatureOne;
@@ -284,6 +293,7 @@ public abstract class Configuration {
             if (useSignatureFive) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 5");}
             if (useSignatureSix) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 6");}
             if (useSignatureSeven) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 7");}
+            instructions.add(CRISP.SENSOR_THREE_WAY_SCAN);
             return instructions;
         }
 

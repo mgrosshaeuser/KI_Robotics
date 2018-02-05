@@ -11,6 +11,8 @@ import lejos.robotics.navigation.Pose;
 import sun.security.krb5.Config;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -80,7 +82,7 @@ public class MCL_Display extends JFrame{
         if (configuration.isOneDimensional()   && ((Configuration.ConfigOneD)configuration).isStartFromRight()) {
                 limitations[2] = 180;
         }
-        this.mclProvider = new MCL_Provider(map, configuration.getNumberOfParticles(), limitations);
+        this.mclProvider = new MCL_Provider(map, configuration.getNumberOfParticles(), limitations, configuration);
         ComController.start(configuration);
         repaint();
     }
@@ -138,7 +140,8 @@ public class MCL_Display extends JFrame{
 
             g.setColor(mclProvider.isLocalizationDone() ? Color.GREEN : Color.RED);
             int radius = (int)Math.ceil(mclProvider.getEstimatedBotPoseDeviation());
-            radius = radius < MCL_Provider.BOT_POSITION_DESIRED_CERTAINTY_LEVEL ? MCL_Provider.BOT_POSITION_DESIRED_CERTAINTY_LEVEL : radius;
+            int acceptableTolerance = mclProvider.getAcceptableTolerance();
+            radius = radius < acceptableTolerance ? acceptableTolerance : radius;
             g.drawOval(
                     (Math.round(p.getX())-radius) * getScaleFactor() + getxOffset(),
                     (Math.round(p.getY())-radius) * getScaleFactor() + getyOffset(),
@@ -192,7 +195,9 @@ public class MCL_Display extends JFrame{
         private final JTextField particles = new JTextField(5);
         private final JButton start = new JButton("Start");
         private final JButton stop = new JButton("Stop");
-        private final JCheckBox stopWhenDone = new JCheckBox("auto");
+        private final JLabel toleranceLabel = new JLabel();
+        private final JSlider tolerance = new JSlider(1,50,10);
+        private final JCheckBox stopWhenDone = new JCheckBox("Stop when done");
 
 
         /**
@@ -283,23 +288,38 @@ public class MCL_Display extends JFrame{
          * Initialization of the common gui-elements.
          */
         private void initializeCommonComponents() {
-            ExtJPanel others = new ExtJPanel();
-            others.setLayout(new GridLayout(3,3));
+            ExtJPanel commonComponents = new ExtJPanel();
+            commonComponents.setLayout(new GridLayout(5,1));
+
+            ExtJPanel one = new ExtJPanel();
+            one.setLayout(new GridLayout(1,3));
             JLabel stepLabel = new JLabel("Stepsize: ");
             stepLabel.setLabelFor(stepsize);
-            JLabel particleCnt = new JLabel("Particles: ");
-            particleCnt.setLabelFor(particles);
             stepsize.setHorizontalAlignment(JTextField.RIGHT);
             stepsize.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getStepSize()));
+            start.addActionListener(new StartButtonActionListener());
+            one.addAll(stepLabel, stepsize, start);
+
+            ExtJPanel two = new ExtJPanel();
+            two.setLayout(new GridLayout(1,3));
+            JLabel particleCnt = new JLabel("Particles: ");
+            particleCnt.setLabelFor(particles);
             particles.setHorizontalAlignment(JTextField.RIGHT);
             particles.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getNumberOfParticles()));
-
-            start.addActionListener(new StartButtonActionListener());
             stop.addActionListener(new StopButtonActionListener());
+            two.addAll(particleCnt, particles, stop);
 
+            toleranceLabel.setText("Acceptable Tolerance: " + Configuration.ConfigOneD.DEFAULT.getAcceptableTolerance() + " cm");
+            tolerance.addChangeListener(new ChangeListener() {
+                @Override
+                public void stateChanged(ChangeEvent e) {
+                    toleranceLabel.setText("Acceptable Tolerance: " + tolerance.getValue() + " cm");
+                }
+            });
             stopWhenDone.setSelected(Configuration.ConfigOneD.DEFAULT.stopWhenDone());
-            others.addAll(stepLabel, stepsize, start, particleCnt, particles, stop, new JLabel(), new JLabel(), stopWhenDone);
-            add(others);
+            commonComponents.addAll(toleranceLabel, tolerance, one, two, stopWhenDone);
+
+            add(commonComponents);
         }
 
 
@@ -356,6 +376,7 @@ public class MCL_Display extends JFrame{
                             step,
                             numOfParticles,
                             stopWhenDone.isSelected(),
+                            tolerance.getValue(),
                             startFromLeft.isSelected()
                     );
                     setEnabled(false);
@@ -371,6 +392,7 @@ public class MCL_Display extends JFrame{
                             step,
                             numOfParticles,
                             stopWhenDone.isSelected(),
+                            tolerance.getValue(),
                             turnRightAngle.isSelected(),
                             turnFree.isSelected(),
                             leftSensor.isSelected(),
@@ -390,6 +412,7 @@ public class MCL_Display extends JFrame{
                             step,
                             numOfParticles,
                             stopWhenDone.isSelected(),
+                            tolerance.getValue(),
                             camGeneralQuery.isSelected(),
                             camAngleQuery.isSelected(),
                             camSignature1.isSelected(),
