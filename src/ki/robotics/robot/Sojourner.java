@@ -43,11 +43,12 @@ public class Sojourner implements Robot {
 
     private final int deltaColorSensorAxis = 15;
     private final int deltaUSSensorAxis = 13;
+    private final int sensorDeltaAfterTurn = 6;
     private boolean stayOnWhiteLine = false;
 
     //Distance the bot travels back onto the white line after doing a turn
     private final int stepSize = 10;
-    private final int distanceOnWhiteLine = 2*deltaUSSensorAxis + stepSize;
+    private final int distanceOnWhiteLine = 2 * deltaUSSensorAxis + stepSize;
 
     /**
      * Constructor.
@@ -124,9 +125,11 @@ public class Sojourner implements Robot {
         if (stayOnWhiteLine && measureColor() != java.awt.Color.WHITE.getRGB()) {
             uTurn = getBackToWhiteLine();
         }
+
         //distance the bot traveled on the line and considering the distance the sensor changed while turning
-        if(uTurn) distance = -((distanceOnWhiteLine-distance) + 2*deltaUSSensorAxis);
+        if(uTurn) distance = distance - distanceOnWhiteLine - sensorDeltaAfterTurn;
         return distance;
+
     }
 
     @Override
