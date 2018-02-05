@@ -99,10 +99,10 @@ public class GUIComController implements ComController {
         if (configuration.isOneDimensional()) {
             return getNextInstructionSequenceForOneDimension().toString();
         } else {
-            if ( ! configuration.isWithCamera()) {
-                return getNextRequestForTwoDimensions(bumper).toString();
-            } else {
+            if (configuration.isWithCamera()  &&  mclProvider.isLocalizationDone()) {
                 return getNextRequestWithCamera(bumper).toString();
+            } else {
+                return getNextRequestForTwoDimensions(bumper).toString();
             }
         }
     }
@@ -150,7 +150,28 @@ public class GUIComController implements ComController {
      * @return  InstructionSequence for the next request.
      */
     private InstructionSequence getNextRequestWithCamera(int bumper) {
-        return new InstructionSequence().disconnect();
+        if (mclProvider.getEstimatedBotPoseDeviation() <= configuration.getAcceptableTolerance()) {
+            mclProvider.badParticlesFinalKill();
+            window.repaint();
+            return new InstructionSequence().disconnect();
+        }
+        int stepSize = configuration.getStepSize();
+        ArrayList<String > scans = configuration.getSensingInstructions();
+        double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
+
+        int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
+
+        InstructionSequence n = new InstructionSequence().perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans);
+
+        if(center > bumper + randomNumberSoBoDoesntStutterInFrontOfWall){
+            return new InstructionSequence().botTravelForward(stepSize).append(n);
+        }else if(right > left  &&  right > bumper){
+            return new InstructionSequence().botTurnRight(90).botTravelForward(stepSize).append(n);
+        }else if (left > right  &&  left > bumper){
+            return new InstructionSequence().botTurnLeft(90).botTravelForward(stepSize).append(n);
+        } else {
+            return new InstructionSequence().botTurnLeft(180).botTravelForward(stepSize).append(n);
+        }
     }
 
 
@@ -177,7 +198,7 @@ public class GUIComController implements ComController {
                 handleOtherResponse(response);
                 break;
         }
-        if (configuration.stopWhenDone()  &&  mclProvider.isLocalizationDone()) {
+        if (configuration.stopWhenDone()  && ! configuration.isWithCamera()  &&  mclProvider.isLocalizationDone()) {
             mclProvider.badParticlesFinalKill();
             window.repaint();
             stop();
@@ -276,7 +297,6 @@ public class GUIComController implements ComController {
      * @param response  The instruction-response.
      */
     private  void handleCameraResponse(Instruction response) {
-        System.out.println(response);
         switch (response.getMnemonic()) {
             case CAMERA_GENERAL_QUERY:
                 int[] generalQuery = ((Instruction.MultiIntInstruction)response).getParameters();
@@ -323,7 +343,9 @@ public class GUIComController implements ComController {
                 roverModel.setSignatureQuery7(new DTOSignatureQuery(signatureQuery7));
                 break;
         }
-        mclProvider.recalculateParticleWeight(roverModel);
+        if (mclProvider.isLocalizationDone()) {
+            mclProvider.recalculateParticleWeight(roverModel);
+        }
     }
 
 

@@ -14,11 +14,9 @@ import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.EventListener;
 
 /**
  * The client-ui for the monte-carlo-localization.
@@ -196,7 +194,7 @@ public class MCL_Display extends JFrame{
         private final JButton start = new JButton("Start");
         private final JButton stop = new JButton("Stop");
         private final JLabel toleranceLabel = new JLabel();
-        private final JSlider tolerance = new JSlider(1,50,10);
+        private final JSlider tolerance = new JSlider(1,25,10);
         private final JCheckBox stopWhenDone = new JCheckBox("Stop when done");
 
 
