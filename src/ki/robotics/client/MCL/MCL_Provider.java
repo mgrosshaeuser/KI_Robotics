@@ -16,6 +16,8 @@ import java.util.Random;
  * @version 1.0 01/02/18
  */
 public class MCL_Provider {
+    public static final int MCL_TOLERANCE_FOR_LOCAL_LOCALIZATION = 20;
+
     private final Map map;
     private final int particleCount;
     private final int fixedX;
@@ -23,6 +25,7 @@ public class MCL_Provider {
     private final int fixedHeading;
     private final Configuration configuration;
     private final int acceptableTolerance;
+    private boolean localized;
 
     private ArrayList<MCLParticle> particles;
 
@@ -41,7 +44,11 @@ public class MCL_Provider {
         this.fixedHeading = limitations[2];
         this.configuration = configuration;
         this.particles = generateSetOfRandomParticles();
-        this.acceptableTolerance = configuration.getAcceptableTolerance();
+        if (configuration.isWithCamera()) {
+            this.acceptableTolerance = MCL_TOLERANCE_FOR_LOCAL_LOCALIZATION;
+        } else {
+            this.acceptableTolerance = configuration.getAcceptableTolerance();
+        }
     }
 
 
@@ -122,7 +129,7 @@ public class MCL_Provider {
      * @return          The absolute weight of the particle.
      */
     private double calculateBotParticleDeviation(SensorModel bot, MCLParticle particle) {
-        if (configuration.isWithCamera()) {
+        if (configuration.isWithCamera()  &&  isLocalizationDone()) {
             return calculatedCameraSupportedDeviation(bot, particle);
         }
 
@@ -194,16 +201,18 @@ public class MCL_Provider {
                     return 0;
             }
 
-            double deviation = 0;
+            double deviation = particle.getWeight();
             if ( botSignatureQuery != null) {
-                deviation = Math.abs(botSignatureQuery.getxCenterOfLargestBlock() - particleSignatureQuery.getxCenterOfLargestBlock());
-                System.out.println("BOT: " + botSignatureQuery.getxCenterOfLargestBlock() + "  PARTICLE: " + particleSignatureQuery.getxCenterOfLargestBlock());
-                return 1.0 / deviationToWeight(deviation, botSignatureQuery.getxCenterOfLargestBlock());
+                double angleDeviation = Math.abs(botSignatureQuery.getxCenterOfLargestBlock() - particleSignatureQuery.getxCenterOfLargestBlock());
+                double sizeDeviation = Math.abs(botSignatureQuery.getWidthOfLargestBlock() - particleSignatureQuery.getWidthOfLargestBlock());
+                double angleRelatedWeight = deviationToWeight(angleDeviation, botSignatureQuery.getxCenterOfLargestBlock());
+                double sizeRelatedWeight = deviationToWeight(sizeDeviation, botSignatureQuery.getWidthOfLargestBlock());
+                return 1.0 / (angleRelatedWeight + sizeRelatedWeight);
             }
             return deviation;
         }
 
-        return 0;
+        return particle.getWeight();
     }
 
 
@@ -277,6 +286,7 @@ public class MCL_Provider {
             newSet.add(new MCLParticle(particles.get(index)));
         }
         particles = newSet;
+        checkLocalizationStatus();
     }
 
     /**
@@ -335,7 +345,10 @@ public class MCL_Provider {
     }
 
 
-    public boolean isLocalizationDone() {
+    private void checkLocalizationStatus() {
+        if (localized) {
+            return;
+        }
         Pose bPose = getEstimatedBotPose();
         for (MCLParticle p :particles) {
             Pose pPose = p.getPose();
@@ -344,16 +357,23 @@ public class MCL_Provider {
             double distance;
             if (configuration.isOneDimensional()) {
                 if (Math.abs(dx) > acceptableTolerance) {
-                    return false;
+                    localized = false;
+                    return;
                 }
             } else {
                 distance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
                 if (distance > acceptableTolerance) {
-                    return false;
+                    localized = false;
+                    return;
                 }
             }
         }
-        return true;
+        localized = true;
+    }
+
+
+    public boolean isLocalizationDone() {
+        return localized;
     }
 
 

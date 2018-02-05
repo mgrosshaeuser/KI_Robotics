@@ -17,6 +17,13 @@ public class InstructionSequence {
     }
 
 
+    public InstructionSequence append(InstructionSequence seq) {
+        if (sequence.length() != 0) { sequence.append(", "); }
+        sequence.append(seq);
+        return this;
+    }
+
+
     public InstructionSequence botTravelForward(int distance) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TRAVEL_FORWARD).append(" ").append(distance);
