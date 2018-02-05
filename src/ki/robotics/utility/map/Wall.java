@@ -3,6 +3,7 @@ package ki.robotics.utility.map;
 import ki.robotics.utility.svg.svg_Line;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 
 
 /**
@@ -67,6 +68,9 @@ class Wall{
     }
 
 
+    public Line2D.Double getAsLine2D() {
+        return new Line2D.Double(this.getStart(), this.getEnd());
+    }
 
     /**
      * Paints the wall in a given graphics-context using given scale-factor and offsets.

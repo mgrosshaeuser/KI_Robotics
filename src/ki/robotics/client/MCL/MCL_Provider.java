@@ -2,6 +2,8 @@ package ki.robotics.client.MCL;
 
 import ki.robotics.utility.map.Map;
 import ki.robotics.robot.MCLParticle;
+import ki.robotics.utility.pixyCam.DTOGeneralQuery;
+import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
@@ -14,13 +16,13 @@ import java.util.Random;
  * @version 1.0 01/02/18
  */
 public class MCL_Provider {
-    public static final int BOT_POSITION_DESIRED_CERTAINTY_LEVEL = 10;
-
     private final Map map;
     private final int particleCount;
     private final int fixedX;
     private final int fixedY;
     private final int fixedHeading;
+    private final Configuration configuration;
+    private final int acceptableTolerance;
 
     private ArrayList<MCLParticle> particles;
 
@@ -31,13 +33,15 @@ public class MCL_Provider {
      * @param particleCount     The number of particles used for the MCL.
      * @param limitations       Limitations for particle-location and -heading;
      */
-    public MCL_Provider(Map map, int particleCount, int[] limitations) {
+    public MCL_Provider(Map map, int particleCount, int[] limitations, Configuration configuration) {
         this.map = map;
         this.particleCount = particleCount;
         this.fixedX = limitations[0];
         this.fixedY = limitations[1];
         this.fixedHeading = limitations[2];
+        this.configuration = configuration;
         this.particles = generateSetOfRandomParticles();
+        this.acceptableTolerance = configuration.getAcceptableTolerance();
     }
 
 
@@ -49,6 +53,8 @@ public class MCL_Provider {
         return this.particles;
     }
 
+
+    public int getAcceptableTolerance() { return acceptableTolerance; }
 
     /**
      * Generates a set of random particles.
@@ -101,11 +107,8 @@ public class MCL_Provider {
             if(p.isOutOfBounds()){
                 p.setWeight(0);
             }else{
-
                 double deviation = calculateBotParticleDeviation(bot, p);
                 p.setWeight((float)deviation);
-                //p.setWeight(p.getWeight() * (float)calculateProbability(bot, p));
-
             }
           }
     }
@@ -119,6 +122,10 @@ public class MCL_Provider {
      * @return          The absolute weight of the particle.
      */
     private double calculateBotParticleDeviation(SensorModel bot, MCLParticle particle) {
+        if (configuration.isWithCamera()) {
+            return calculatedCameraSupportedDeviation(bot, particle);
+        }
+
         //0 is left, 1 is center, 2 is right
         float[] botDistances = bot.getAllDistances();
         double[] particleDistances = particle.ultrasonicThreeWayScan();
@@ -148,17 +155,71 @@ public class MCL_Provider {
     }
 
 
+    private double calculatedCameraSupportedDeviation(SensorModel bot, MCLParticle particle) {
+        DTOGeneralQuery botGeneralQuery = bot.getGeneralQuery();
+        DTOGeneralQuery particleGeneralQuery = new DTOGeneralQuery(particle.cameraGeneralQuery());
+
+        if (botGeneralQuery.getSignatureOfLargestBlock() == particleGeneralQuery.getSignatureOfLargestBlock()) {
+            DTOSignatureQuery botSignatureQuery, particleSignatureQuery;
+            switch (botGeneralQuery.getSignatureOfLargestBlock()) {
+                case 1:
+                    botSignatureQuery = bot.getSignatureQuery1();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(1));
+                    break;
+                case 2:
+                    botSignatureQuery = bot.getSignatureQuery2();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(2));
+                    break;
+                case 3:
+                    botSignatureQuery = bot.getSignatureQuery3();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(3));
+                    break;
+                case 4:
+                    botSignatureQuery = bot.getSignatureQuery4();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(4));
+                    break;
+                case 5 :
+                    botSignatureQuery = bot.getSignatureQuery5();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(5));
+                    break;
+                case 6 :
+                    botSignatureQuery = bot.getSignatureQuery6();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(6));
+                    break;
+                case 7:
+                    botSignatureQuery = bot.getSignatureQuery7();
+                    particleSignatureQuery = new DTOSignatureQuery(particle.cameraSignatureQuery(7));
+                    break;
+                default:
+                    return 0;
+            }
+
+            double deviation = 0;
+            if ( botSignatureQuery != null) {
+                deviation = Math.abs(botSignatureQuery.getxCenterOfLargestBlock() - particleSignatureQuery.getxCenterOfLargestBlock());
+                System.out.println("BOT: " + botSignatureQuery.getxCenterOfLargestBlock() + "  PARTICLE: " + particleSignatureQuery.getxCenterOfLargestBlock());
+                return 1.0 / deviationToWeight(deviation, botSignatureQuery.getxCenterOfLargestBlock());
+            }
+            return deviation;
+        }
+
+        return 0;
+    }
+
+
     private int deviationToWeight(double deviation, double referenceValue) {
+        int[] weights = new int[]{20,10,5,2,1};     // Best working with physical robot.
+        //int[] weights = new int[]{81,27,9,3,1};   // Best working in Simulation.
         if (deviation > 0.9 * referenceValue) {
-            return 20;
+            return weights[0];
         } else if (deviation > 0.75 * referenceValue) {
-            return 10;
+            return weights[1];
         } else if (deviation > 0.5 * referenceValue) {
-            return 5;
+            return weights[2];
         } else if (deviation > 0.25 * referenceValue) {
-            return 2;
+            return weights[3];
         } else {
-            return 1;
+            return weights[4];
         }
     }
 
@@ -280,9 +341,16 @@ public class MCL_Provider {
             Pose pPose = p.getPose();
             double dx = pPose.getX()- bPose.getX();
             double dy = pPose.getY()-bPose.getY();
-            double distance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
-            if (distance > BOT_POSITION_DESIRED_CERTAINTY_LEVEL) {
-                return false;
+            double distance;
+            if (configuration.isOneDimensional()) {
+                if (Math.abs(dx) > acceptableTolerance) {
+                    return false;
+                }
+            } else {
+                distance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
+                if (distance > acceptableTolerance) {
+                    return false;
+                }
             }
         }
         return true;
@@ -333,7 +401,7 @@ public class MCL_Provider {
         Random r = new Random();
         for (MCLParticle p : particles) {
             double d = r.nextGaussian();
-            degrees = (int) Math.round(degrees * (1+(d/720)));
+            degrees = configuration.isTwoDimensional() ? (int) Math.round(degrees * (1+(d/540))) : degrees;
             p.turnFull(degrees);
         }
     }

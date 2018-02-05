@@ -3,13 +3,17 @@ package ki.robotics.utility.map;
 import ki.robotics.utility.svg.svg_Circle;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 
 class Landmark {
     private final svg_Circle circle;
+    private Line2D.Double occupiedWallSpace;
 
     private Landmark(double x, double y, double diameter, String id, int stroke, int fill) {
         this.circle = new svg_Circle(x, y, diameter, id, stroke, fill);
+        this.occupiedWallSpace = new Line2D.Double();
     }
 
     public Landmark (svg_Circle circle) {
@@ -23,13 +27,26 @@ class Landmark {
         );
     }
 
+
+    public void setOccupiedWallSpace(Point2D.Double P1, Point2D.Double P2) {
+        this.occupiedWallSpace = new Line2D.Double(P1, P2);
+    }
+
+
+    public Line2D.Double getOccupiedWallSpace() {
+        return occupiedWallSpace;
+    }
+
+
     public Rectangle2D getBound() {
         return this.circle.getBounds2D();
     }
 
+
     public String getId() {
         return circle.getId();
     }
+
 
     public void paint(Graphics g, int scaleFactor, int xOffset, int yOffset) {
         Graphics2D g2d = (Graphics2D) g;

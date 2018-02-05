@@ -76,7 +76,41 @@ public class Map {
         ArrayList<svg_Circle> circles = svgParser.getCircles();
         this.landmarks = new ArrayList<>();
         for (svg_Circle c : circles) {
-            landmarks.add(new Landmark(c));
+            Landmark landmark = new Landmark(c);
+            for (Wall w : map) {
+                Line2D.Double wall = w.getAsLine2D();
+                if (wall.intersects(landmark.getBound())) {
+                    double slopeOfWall = calculateSlope(wall);
+                    double diameterOfLandmark = landmark.getBound().getWidth() / 2;
+                    double landmarkX = landmark.getCenter().getX();
+                    double landmarkY = landmark.getCenter().getY();
+                    if (Math.abs(slopeOfWall) > EPSILON) {
+                        // Parallel x-Axis
+                        if (wall.y1 < wall.y2) {
+                            Point2D.Double upperRim = new Point2D.Double(wall.getX1(), landmarkY - diameterOfLandmark);
+                            Point2D.Double lowerRim = new Point2D.Double(wall.x2, landmarkY +  diameterOfLandmark);
+                            landmark.setOccupiedWallSpace(upperRim, lowerRim);
+                        } else {
+                            Point2D.Double upperRim = new Point2D.Double(wall.getX1(), landmarkY + diameterOfLandmark);
+                            Point2D.Double lowerRim = new Point2D.Double(wall.x2, landmarkY -  diameterOfLandmark);
+                            landmark.setOccupiedWallSpace(upperRim, lowerRim);
+                        }
+                    } else {
+                        // Parallel y-Axis
+                        if (wall.x1 < wall.x2) {
+                            Point2D.Double leftRim = new Point2D.Double(landmarkX - diameterOfLandmark, wall.y1);
+                            Point2D.Double rightRim = new Point2D.Double(landmarkX + diameterOfLandmark, wall.y1);
+                            landmark.setOccupiedWallSpace(leftRim, rightRim);
+                        } else {
+                            Point2D.Double leftRim = new Point2D.Double(landmarkX + diameterOfLandmark, wall.y1);
+                            Point2D.Double rightRim = new Point2D.Double(landmarkX - diameterOfLandmark, wall.y1);
+                            landmark.setOccupiedWallSpace(leftRim, rightRim);
+                        }
+                    }
+                }
+            }
+
+            landmarks.add(landmark);
         }
     }
 
@@ -206,7 +240,9 @@ public class Map {
 
 
     public int[] getCameraSignatureQuery(float x, float y, float angle, int signature) {
-        double imageHalfAngle = 32.5;
+        double imageFullAngle = 75;
+        double imageHalfAngle = imageFullAngle / 2;
+        int pixelInFullAngle = 255;
         String signatureString = "M" + signature;
         Point2D.Double origin = new Point2D.Double(x, y);
         // Maximum distance possible within the map-boundaries.
@@ -239,18 +275,19 @@ public class Map {
             angleToSensorBeam = (angleToLeftOuterRim < angleToRightOuterRim) ? angleToSensorBeam : -angleToSensorBeam;
             int xCoordinateOfLandmarkCenter = PixyCam.angleDegreeToPixel(angleToSensorBeam);
 
+            Line2D.Double toWallP1 = new Line2D.Double(origin, l.getOccupiedWallSpace().getP1());
+            Line2D.Double toWallP2 = new Line2D.Double(origin, l.getOccupiedWallSpace().getP2());
+            double perceivedAngle = angleBetween2Lines(toWallP1, toWallP2);
+            double angleBetweenSensorBeamAndP1 = angleBetween2Lines(cameraCenterOfFocus, toWallP1);
+            double angleBetweenSensorBeamAndP2 = angleBetween2Lines(cameraCenterOfFocus, toWallP2);
+            if (angleBetweenSensorBeamAndP1 > imageHalfAngle) {
+                perceivedAngle -= (angleBetweenSensorBeamAndP1 - imageHalfAngle);
+            }
+            if (angleBetweenSensorBeamAndP2 > imageHalfAngle) {
+                perceivedAngle -= (angleBetweenSensorBeamAndP2 - imageHalfAngle);
+            }
 
-            Line2D.Double imaginaryViewVector = makeLine(origin, angle, calculateLengthOfLine(landmarkVector));
-            Line2D.Double imaginaryViewPane = makeLine(imaginaryViewVector.getP2(), angle+90, maxLineLength);
-            Line2D.Double imaginaryScreen = new Line2D.Double(
-                    getIntersectionPoint(cameraLeftOuterRim, imaginaryViewPane),
-                    getIntersectionPoint(cameraRightOuterRim, imaginaryViewPane)
-            );
-            double lengthOfImaginaryScreen = calculateLengthOfLine(imaginaryScreen);
-            double widthOfLandMark= l.getBound().getWidth();
-
-            double relativeWidth = widthOfLandMark / lengthOfImaginaryScreen;
-            int absoluteWidth = (int) Math.round(relativeWidth * 255);
+            int absoluteWidth = (int) Math.round(perceivedAngle / imageFullAngle * pixelInFullAngle);
 
             return new int[]{1,xCoordinateOfLandmarkCenter,0,absoluteWidth,0};
         }
