@@ -218,7 +218,7 @@ class BotController {
             case CAMERA_ALL_SIGNATURES_QUERY:
                 int[][] allSignatures = robot.cameraAllSignaturesQuery();
                 for (int i = 0  ;  i < allSignatures.length  ;  i++) {
-                    out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_SIGNATURE_BASE + i, allSignatures[i]));
+                    out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_SIGNATURE_BASE + (i+1), allSignatures[i]));
                 }
                 return true;
             case CAMERA_COLOR_CODE_QUERY:

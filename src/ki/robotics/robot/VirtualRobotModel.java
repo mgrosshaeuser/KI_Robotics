@@ -117,7 +117,7 @@ public abstract class VirtualRobotModel implements Robot {
     public int[][] cameraAllSignaturesQuery() {
         int numberOfAvailableSignatures = 7;
         int[][] result = new int[numberOfAvailableSignatures][];
-        for (int i = 1   ;   i <= numberOfAvailableSignatures   ;   i++) {
+        for (int i = 0   ;   i < numberOfAvailableSignatures   ;   i++) {
             result[i] = map.getCameraSignatureQuery(pose.getX(), pose.getY(), 360 - pose.getHeading(), i);
         }
     return result;
