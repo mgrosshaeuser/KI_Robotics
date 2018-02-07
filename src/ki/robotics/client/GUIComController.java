@@ -99,7 +99,7 @@ public class GUIComController implements ComController {
         if (configuration.isOneDimensional()) {
             return getNextInstructionSequenceForOneDimension().toString();
         } else {
-            if (configuration.isWithCamera()  &&  mclProvider.isLocalizationDone()) {
+            if (configuration.isWithCamera() ){
                 return getNextRequestWithCamera(bumper).toString();
             } else {
                 return getNextRequestForTwoDimensions(bumper).toString();
@@ -155,14 +155,14 @@ public class GUIComController implements ComController {
             window.repaint();
             return new InstructionSequence().disconnect();
         }
+
         int stepSize = configuration.getStepSize();
         ArrayList<String > scans = configuration.getSensingInstructions();
         double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
 
         int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
 
-        InstructionSequence lookAndTurn = new InstructionSequence().perform(scans).botTravelForward(1).botTurnRight(90);
-        InstructionSequence n = new InstructionSequence().append(lookAndTurn).append(lookAndTurn).append(lookAndTurn).append(lookAndTurn);
+        InstructionSequence n = new InstructionSequence().perform(scans);
 
         if(center > bumper + randomNumberSoBoDoesntStutterInFrontOfWall){
             return new InstructionSequence().botTravelForward(stepSize).append(n);

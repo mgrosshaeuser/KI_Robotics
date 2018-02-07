@@ -15,7 +15,7 @@ public class Main {
 
     static {
         int twoSecondTimeout = 2000;
-        String hostToTry = "10.0.1.2";
+        String hostToTry = "10.0.1.3";
         String hostToSet;
 
         try {

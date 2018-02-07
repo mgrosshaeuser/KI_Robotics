@@ -129,8 +129,10 @@ public class MCL_Provider {
      * @return          The absolute weight of the particle.
      */
     private double calculateBotParticleDeviation(SensorModel bot, MCLParticle particle) {
-        if (configuration.isWithCamera()  &&  isLocalizationDone()) {
-            return calculatedCameraSupportedDeviation(bot, particle);
+        int seeingColorScale = 1;
+        if (configuration.isWithCamera() ){
+            seeingColorScale = (calculatedCameraSupportedDeviation(bot, particle) > 0 ) ? 3 : 1;
+            //TODO: Scale the factor depening on how much the particle deviates from the real bot
         }
 
         //0 is left, 1 is center, 2 is right
@@ -156,7 +158,7 @@ public class MCL_Provider {
 
         int deviation = leftWeight + centerWeight + rightWeight;
         if (deviation > 0) {
-            return 1.0 / (double)deviation;
+            return (1.0 / (double)deviation) * seeingColorScale;
         }
         return 1;
     }
@@ -212,13 +214,13 @@ public class MCL_Provider {
             return deviation;
         }
 
-        return particle.getWeight();
+        return 0;
     }
 
 
     private int deviationToWeight(double deviation, double referenceValue) {
-        int[] weights = new int[]{20,10,5,2,1};     // Best working with physical robot.
-        //int[] weights = new int[]{81,27,9,3,1};   // Best working in Simulation.
+        //int[] weights = new int[]{20,10,5,2,1};     // Best working with physical robot.
+        int[] weights = new int[]{81,27,9,3,1};   // Best working in Simulation.
         if (deviation > 0.9 * referenceValue) {
             return weights[0];
         } else if (deviation > 0.75 * referenceValue) {

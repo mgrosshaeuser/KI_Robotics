@@ -19,6 +19,7 @@ import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -55,7 +56,6 @@ public class Sojourner implements Robot {
      */
     private Sojourner() {
         pilot = configureMovePilot();
-
         uss = new EV3UltrasonicSensor(SensorPort.S4);
         cls = new EV3ColorSensor(SensorPort.S1);
         cam = new PixyCam(SensorPort.S2);
@@ -85,6 +85,8 @@ public class Sojourner implements Robot {
         pilot.setLinearSpeed(100);
         Sound.setVolume(20);
         Sound.twoBeeps();
+        //File test = new File("/home/lejos/programs/equinox-8KHz.wav");
+        //System.out.println(Sound.playSample(test));
         return pilot;
     }
 
