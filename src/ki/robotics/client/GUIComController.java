@@ -161,7 +161,8 @@ public class GUIComController implements ComController {
 
         int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
 
-        InstructionSequence n = new InstructionSequence().perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans).botTurnRight(60).perform(scans);
+        InstructionSequence lookAndTurn = new InstructionSequence().perform(scans).botTravelForward(1).botTurnRight(90);
+        InstructionSequence n = new InstructionSequence().append(lookAndTurn).append(lookAndTurn).append(lookAndTurn).append(lookAndTurn);
 
         if(center > bumper + randomNumberSoBoDoesntStutterInFrontOfWall){
             return new InstructionSequence().botTravelForward(stepSize).append(n);

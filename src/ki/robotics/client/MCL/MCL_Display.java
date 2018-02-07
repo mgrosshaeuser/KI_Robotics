@@ -233,6 +233,9 @@ public class MCL_Display extends JFrame{
                     parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKey1D));
                     map = MapProvider.getInstance().getMap(mapKey1D);
                     mclProvider = null;
+                    stepsize.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getStepSize()));
+                    particles.setText(String.valueOf(Configuration.ConfigOneD.DEFAULT.getNumberOfParticles()));
+                    tolerance.setValue(Configuration.ConfigOneD.DEFAULT.getAcceptableTolerance());
                     parent.repaint();
                 }
             });
@@ -248,6 +251,9 @@ public class MCL_Display extends JFrame{
                     parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKey2D));
                     map = MapProvider.getInstance().getMap(mapKey2D);
                     mclProvider = null;
+                    stepsize.setText(String.valueOf(Configuration.ConfigTwoD.DEFAULT.getStepSize()));
+                    particles.setText(String.valueOf(Configuration.ConfigTwoD.DEFAULT.getNumberOfParticles()));
+                    tolerance.setValue(Configuration.ConfigTwoD.DEFAULT.getAcceptableTolerance());
                     parent.repaint();
                 }
             });
@@ -277,6 +283,9 @@ public class MCL_Display extends JFrame{
                     parent.mapPanel.setNewMap(MapProvider.getInstance().getMap(mapKeyCam));
                     map = MapProvider.getInstance().getMap(mapKeyCam);
                     mclProvider = null;
+                    stepsize.setText(String.valueOf(Configuration.ConfigCamera.DEFAULT.getStepSize()));
+                    particles.setText(String.valueOf(Configuration.ConfigCamera.DEFAULT.getNumberOfParticles()));
+                    tolerance.setValue(Configuration.ConfigCamera.DEFAULT.getAcceptableTolerance());
                     parent.repaint();
                 }
             });
@@ -363,11 +372,11 @@ public class MCL_Display extends JFrame{
                 parent.mapPanel.setModifiable(false);
                 int step = Integer.parseInt(stepsize.getText());
                 int numOfParticles = Integer.parseInt(particles.getText());
-                String mapkey;
+                String mapKey;
                 if (oneDimensionalControls.isShowing()) {
-                    mapkey = Configuration.ConfigOneD.DEFAULT.getMapKey();
+                    mapKey = Configuration.ConfigOneD.DEFAULT.getMapKey();
                     Configuration config1D = new Configuration.ConfigOneD(
-                            mapkey,
+                            mapKey,
                             true,
                             false,
                             false,
@@ -381,9 +390,9 @@ public class MCL_Display extends JFrame{
                     start(config1D);
                 }
                 if (twoDimensionalControls.isShowing()) {
-                    mapkey = Configuration.ConfigTwoD.DEFAULT.getMapKey();
+                    mapKey = Configuration.ConfigTwoD.DEFAULT.getMapKey();
                     Configuration config2D = new Configuration.ConfigTwoD(
-                            mapkey,
+                            mapKey,
                             false,
                             true,
                             false,
@@ -401,9 +410,9 @@ public class MCL_Display extends JFrame{
                     start(config2D);
                 }
                 if (twoDimensionalWithCam.isShowing()) {
-                    mapkey = Configuration.ConfigCamera.DEFAULT.getMapKey();
+                    mapKey = Configuration.ConfigCamera.DEFAULT.getMapKey();
                     Configuration configWithCam = new Configuration.ConfigCamera(
-                            mapkey,
+                            mapKey,
                             false,
                             true,
                             true,
