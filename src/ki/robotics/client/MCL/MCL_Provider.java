@@ -207,7 +207,7 @@ public class MCL_Provider {
                 double sizeDeviation = Math.abs(botSignatureQuery.getWidthOfLargestBlock() - particleSignatureQuery.getWidthOfLargestBlock());
                 double angleRelatedWeight = deviationToWeight(angleDeviation, botSignatureQuery.getxCenterOfLargestBlock());
                 double sizeRelatedWeight = deviationToWeight(sizeDeviation, botSignatureQuery.getWidthOfLargestBlock());
-                return 1.0 / (angleRelatedWeight + sizeRelatedWeight);
+                deviation += 1.0 / (angleRelatedWeight + sizeRelatedWeight);
             }
             return deviation;
         }
@@ -405,7 +405,10 @@ public class MCL_Provider {
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {
-            float d = (float)Math.abs(r.nextGaussian());
+            float d = (float) r.nextGaussian();
+            while (d < -1  ||  d > 1) {
+                d = (float) r.nextGaussian();
+            }
             p.botTravelForward(distance * (1 +(d/10)));
             //p.botTravelForward(distance);
         }
