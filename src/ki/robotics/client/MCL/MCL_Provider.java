@@ -129,11 +129,15 @@ public class MCL_Provider {
      * @return          The absolute weight of the particle.
      */
     private double calculateBotParticleDeviation(SensorModel bot, MCLParticle particle) {
-        int seeingColorScale = 1;
+
+        /*
+        Factor the weight from uss scans get multiplied with, depending on how much the particles view deviates from the bots camera view. Between 1 and 3.
+         */
+        double seeingColorScale = 1;
         if (configuration.isWithCamera() ){
-            seeingColorScale = (calculatedCameraSupportedDeviation(bot, particle) > 0 ) ? 3 : 1;
-            //TODO: Scale the factor depening on how much the particle deviates from the real bot
-        }
+            double camDeviation = calculatedCameraSupportedDeviation(bot, particle);
+            seeingColorScale = ( camDeviation > 0 ) ? camDeviation*4+1 : 1;
+          }
 
         //0 is left, 1 is center, 2 is right
         float[] botDistances = bot.getAllDistances();
