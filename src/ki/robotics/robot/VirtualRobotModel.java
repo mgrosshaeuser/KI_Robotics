@@ -3,6 +3,8 @@ package ki.robotics.robot;
 import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
+import java.awt.geom.Point2D;
+
 
 public abstract class VirtualRobotModel implements Robot {
     Pose pose;
@@ -74,13 +76,13 @@ public abstract class VirtualRobotModel implements Robot {
 
     @Override
     public int measureColor() {
-        return map.getColorAtPosition(Math.round(pose.getX()), Math.round(pose.getY()));
+        return map.getFloorColorAt(new Point2D.Double(pose.getX(), pose.getY()));
     }
 
 
     @Override
     public double measureDistance() {
-        return map.getDistanceToObstacle(pose.getX(), pose.getY(), 360 - pose.getHeading() - sensorHeadPosition);
+        return map.getDistanceToNearestObstacle(new Point2D.Double(pose.getX(), pose.getY()), 360 - pose.getHeading() - sensorHeadPosition);
     }
 
 

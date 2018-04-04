@@ -6,9 +6,9 @@ import ki.robotics.utility.map.MapProvider;
 import java.util.ArrayList;
 
 /**
- * Represents the user-selections from the client-ui.
+ * Represents the user-selections from the client-ui for all components 1-D, global localization and
+ * local localization have in common.
  *
- * @version 1.0 01/02/18
  */
 public abstract class Configuration {
     private final String mapKey;
@@ -27,10 +27,14 @@ public abstract class Configuration {
      * @param mapKey                A key, identifying a map provided by the MapProvider
      * @param isOneDimensional      Marks the operating range as one-dimensional.
      * @param isTwoDimensional      Marks the operating range as two-dimensional.
+     * @param isWithCamera          Marks the operating range as two-dimensional with camera usage.
      * @param stepSize              Distance to robot moves with every travel-instruction.
      * @param numberOfParticles     Number of particles for the monte-carlo-localization.
+     * @param stopWhenDone          Option to automatically stop the localization when all particles
+     *                              are within an acceptable tolerance.
+     * @param acceptableTolerance   An acceptable spreading (in cm) of the particle coordinates.
      */
-    public Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
+    Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
                          int stepSize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance) {
         this.mapKey = mapKey;
         this.isOneDimensional = isOneDimensional;
@@ -72,8 +76,13 @@ public abstract class Configuration {
 
 
 
-
+    /**
+     *  Represents the user-selections from the client-ui for all components relevant only for 1-D.
+     */
     public static class ConfigOneD extends Configuration{
+        /**
+         * The default configuration for 1-D
+         */
         public static final ConfigOneD DEFAULT = new ConfigOneD(
                 MapProvider.MAP_KEY_HOUSES,
                 true,
@@ -95,17 +104,22 @@ public abstract class Configuration {
          * @param mapKey            A key, identifying a map provided by the MapProvider
          * @param isOneDimensional  Marks the operating range as one-dimensional.
          * @param isTwoDimensional  Marks the operating range as two-dimensional.
+         * @param isWithCamera          Marks the operating range as two-dimensional with camera usage.
          * @param stepsize          Distance to robot moves with every travel-instruction.
          * @param numberOfParticles Number of particles for the monte-carlo-localization.
+         * @param stopWhenDone          Option to automatically stop the localization when all particles
+         *                              are within an acceptable tolerance.
+         * @param acceptableTolerance   An acceptable spreading (in cm) of the particle coordinates.
          * @param startFromLeft     Bot starts from the left (true) or from the right (false)
          */
-        public ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
+        ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
                           int stepsize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance,
                           boolean startFromLeft) {
             super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone, acceptableTolerance);
             this.startFromLeft = startFromLeft;
             this.measureDistanceToLeft = startFromLeft;
         }
+
 
         public void flipDirection() {
             this.measureDistanceToLeft = !measureDistanceToLeft;
@@ -119,6 +133,12 @@ public abstract class Configuration {
             return !startFromLeft;
         }
 
+
+        /**
+         * Returns an ArrayList with all sensor-related instructions to be performed after each movement.
+         *
+         * @return     All sensor-instructions to be performed.
+         */
         @Override
         public ArrayList<String> getSensingInstructions() {
             ArrayList<String> instr = new ArrayList<>();

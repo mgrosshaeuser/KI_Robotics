@@ -66,8 +66,8 @@ public abstract class MapPanel extends JPanel{
         if (map == null) {
             return;
         }
-        int maxX = map.getRequiredMinWidth();
-        int maxY = map.getRequiredMinHeight();
+        int maxX = map.getMinWidthForMapDisplay();
+        int maxY = map.getMinHeightForMapDisplay();
 
         double width = this.getVisibleRect().getWidth();
         double height = this.getVisibleRect().getHeight();

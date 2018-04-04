@@ -1,55 +1,101 @@
 package ki.robotics.utility.map;
 
+import ki.robotics.utility.map.mapElements.Circle;
+import ki.robotics.utility.map.mapElements.Rectangle;
+import ki.robotics.utility.map.mapElements.Line;
 import ki.robotics.utility.pixyCam.PixyCam;
-import ki.robotics.utility.svg.SVGParser;
-import ki.robotics.utility.svg.svg_Circle;
-import ki.robotics.utility.svg.svg_Line;
-import ki.robotics.utility.svg.svg_Rectangle;
 
 import java.awt.*;
-import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
-import java.io.*;
-import java.lang.reflect.Array;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 
-
 /**
- * Map-Representation including methods for parsing the map from an SVG-File, painting the map within a
- * graphical context and calculating distances within the map.
- *
- * @version 1.2, 12/28/17
+ * Representation of a map.
  */
 public class Map {
-
     private static final double EPSILON = 0.00001;
 
-    private ArrayList<Wall> map;
-    private ArrayList<FloorTile> floor;
-    private ArrayList<Landmark> landmarks;
-    private final SVGParser svgParser;
+    private double width;
+    private double height;
 
-    private final Polygon boundaries;
+    private Polygon operatingRange;
+
+    private ArrayList<Line> walls;
+    private ArrayList<Rectangle> floorTiles;
+    private ArrayList<Circle> landmarks;
+
 
 
     /**
-     * Constructor
+     * Constructs and initializes a Map with the specified walls, floor-tiles and landmarks.
      *
-     * @param file  The SVG-File containing the information about walls.
+     * @param walls the walls of the newly constructed Map
+     * @param floorTiles the floor-tiles of the newly constructed Map
+     * @param landmarks the landmarks of the newly constructed Map
      */
-    public Map(File file, Polygon boundaries) {
-        this.boundaries = boundaries;
-        this.svgParser = new SVGParser(file);
-        loadMapElements();
+    Map(ArrayList<Line> walls, ArrayList<Rectangle> floorTiles, ArrayList<Circle> landmarks) {
+        this.walls = walls;
+        this.floorTiles = floorTiles;
+        this.landmarks = landmarks;
+        updateLandmarkWallAreaOccupancy();
     }
 
 
 
+    /**
+     * One-time setting of the map-width. If the width of this Map is already set, an
+     * UnsupportedOperationException is thrown.
+     *
+     * @param width the width of this Map
+     * @exception UnsupportedOperationException in case the width is already set
+     */
+    void setWidth(double width) throws UnsupportedOperationException{
+        if (this.width == 0) {
+            this.width = width;
+        } else {
+            throw new UnsupportedOperationException("Illegal Modification of Map-Property (Width)");
+        }
+    }
 
 
-    public Polygon getMapBoundaries() {
-        return boundaries;
+
+    /**
+     * One-time setting of the map-height. If the height of this Map is already set, an
+     * UnsupportedOperationException is thrown.
+     *
+     * @param height the height of this Map
+     * @exception UnsupportedOperationException in case the height is already set
+     */
+    void setHeight(double height) {
+        if (this.height == 0) {
+            this.height = height;
+        } else {
+            throw new UnsupportedOperationException("Illegal Modification of Map-Property (Height)");
+        }
+    }
+
+
+
+    /**
+     * Returns the operating-range within this Map as polygon.
+     *
+     * @return the operating range as polygon
+     */
+    public Polygon getOperatingRange() {
+        return operatingRange;
+    }
+
+
+
+    /**
+     * Sets the operating-range within this Map as polygon.
+     *
+     * @param operatingRange the operating-range within this Map
+     */
+    void setOperatingRange(Polygon operatingRange) {
+        this.operatingRange = operatingRange;
     }
 
 
@@ -58,81 +104,22 @@ public class Map {
 
 
     /**
-     * Transforms svg-elements (lines, rectangles) into map-elements (walls and floor-tiles).
-     */
-    private void loadMapElements() {
-        ArrayList<svg_Line> lines = svgParser.getLines();
-        this.map = new ArrayList<>();
-        for (svg_Line l : lines) {
-            map.add(new Wall(l));
-        }
-
-        ArrayList<svg_Rectangle> rectangles = svgParser.getRectangles();
-        this.floor = new ArrayList<>();
-        for (svg_Rectangle r : rectangles) {
-            floor.add(new FloorTile(r));
-        }
-
-        ArrayList<svg_Circle> circles = svgParser.getCircles();
-        this.landmarks = new ArrayList<>();
-        for (svg_Circle c : circles) {
-            Landmark landmark = new Landmark(c);
-            for (Wall w : map) {
-                Line2D.Double wall = w.getAsLine2D();
-                if (wall.intersects(landmark.getBound())) {
-                    double slopeOfWall = calculateSlope(wall);
-                    double diameterOfLandmark = landmark.getBound().getWidth() / 2;
-                    double landmarkX = landmark.getCenter().getX();
-                    double landmarkY = landmark.getCenter().getY();
-                    if (Math.abs(slopeOfWall) > EPSILON) {
-                        // Parallel x-Axis
-                        if (wall.y1 < wall.y2) {
-                            Point2D.Double upperRim = new Point2D.Double(wall.getX1(), landmarkY - diameterOfLandmark);
-                            Point2D.Double lowerRim = new Point2D.Double(wall.x2, landmarkY +  diameterOfLandmark);
-                            landmark.setOccupiedWallSpace(upperRim, lowerRim);
-                        } else {
-                            Point2D.Double upperRim = new Point2D.Double(wall.getX1(), landmarkY + diameterOfLandmark);
-                            Point2D.Double lowerRim = new Point2D.Double(wall.x2, landmarkY -  diameterOfLandmark);
-                            landmark.setOccupiedWallSpace(upperRim, lowerRim);
-                        }
-                    } else {
-                        // Parallel y-Axis
-                        if (wall.x1 < wall.x2) {
-                            Point2D.Double leftRim = new Point2D.Double(landmarkX - diameterOfLandmark, wall.y1);
-                            Point2D.Double rightRim = new Point2D.Double(landmarkX + diameterOfLandmark, wall.y1);
-                            landmark.setOccupiedWallSpace(leftRim, rightRim);
-                        } else {
-                            Point2D.Double leftRim = new Point2D.Double(landmarkX + diameterOfLandmark, wall.y1);
-                            Point2D.Double rightRim = new Point2D.Double(landmarkX - diameterOfLandmark, wall.y1);
-                            landmark.setOccupiedWallSpace(leftRim, rightRim);
-                        }
-                    }
-                }
-            }
-
-            landmarks.add(landmark);
-        }
-    }
-
-
-
-    /**
-     * Paints the map within a graphical-context (e.g. on a JPanel).
+     * Paints the walls within a graphical-context (e.g. on a JPanel).
      *
      * @param g             The graphical context.
-     * @param scaleFactor   Scale Factor for resizing the map according to the window-dimensions.
-     * @param xOffset       X-Axis-Offset for horizontal centering of the map.
-     * @param yOffset       Y-Axis-Offset for vertical centering of the map.
+     * @param scaleFactor   Scale Factor for resizing the walls according to the window-dimensions.
+     * @param xOffset       X-Axis-Offset for horizontal centering of the walls.
+     * @param yOffset       Y-Axis-Offset for vertical centering of the walls.
      */
     public void paint(Graphics g, int scaleFactor, int xOffset, int yOffset) {
         Graphics2D g2d = (Graphics2D) g;
-        for (FloorTile f : floor) {
+        for (Rectangle f : floorTiles) {
             f.paint(g2d, scaleFactor, xOffset, yOffset);
         }
-        for (Landmark l : landmarks) {
+        for (Circle l : landmarks) {
             l.paint(g2d, scaleFactor, xOffset, yOffset);
         }
-        for (Wall w : map) {
+        for (Line w : walls) {
             w.paint(g2d, scaleFactor, xOffset, yOffset);
         }
     }
@@ -140,38 +127,39 @@ public class Map {
 
 
     /**
-     * Returns the minimum required width needed to display the map.
+     * Returns the minimum width, required to display the walls.
      *
-     * @return  Minimum width for displaying the map.
+     * @return  Minimum width for displaying the walls.
      */
-    public int getRequiredMinWidth() {
-        return (int) Math.ceil(svgParser.graphicWidth);
+    public int getMinWidthForMapDisplay() {
+        return (int) Math.ceil(width);
     }
 
 
 
     /**
-     * Returns the minimum required height needed to display the map.
+     * Returns the minimum height, required to display the walls.
      *
-     * @return  Minimum height for displaying the map.
+     * @return  Minimum height for displaying the walls.
      */
-    public int getRequiredMinHeight() {
-        return  (int) Math.ceil(svgParser.graphicHeight);
+    public int getMinHeightForMapDisplay() {
+        return  (int) Math.ceil(height);
     }
 
 
 
     /**
-     * Returns the floor-color at a given point in the map.
+     * Returns the color of the floor-tile at the specified observation-spot or -1 in case there is no
+     * floor-tile at the specified spot.
      *
-     * @param x     x-Coordinate of the point in question.
-     * @param y     y-Coordinate of the point in question.
-     * @return      The floor-color at point (x,y)
+     * @param observationSpot the specified observation-point
+     * @return the color at the specified spot
      */
-    public int getColorAtPosition(int x, int y) {
-        for (FloorTile f : floor) {
-            if (f.containsPoint(x, y)) {
-                return f.getColor();
+    public int getFloorColorAt(Point2D observationSpot) {
+        for (Rectangle f : floorTiles) {
+            Rectangle2D bounds = f.getBounds2D();
+            if (bounds.contains(observationSpot)) {
+                return f.getFill();
             }
         }
         return -1;
@@ -180,37 +168,39 @@ public class Map {
 
 
     /**
-     * Finds the closest obstacle (e.g. wall) from given observation-coordinates (e.g. the location of
-     * the robot) and an angle (e.g. the direction in which the distance-sensor points).
+     * Returns the distance to the nearest obstacle from a specified position in a specified direction.
      *
-     * @param originX         X-Coordinate of the observer.
-     * @param originY         Y-Coordinate of the observer.
-     * @param angle     Direction of view.
-     * @return          Distance to the closest obstacle.
+     * @param position the specified origin of the distance-measurement
+     * @param viewingDirection the specified direction of measurement
+     * @return the distance to the nearest obstacle
      */
-    public double getDistanceToObstacle(float originX, float originY, float angle) {
-        // Maximum distance possible within the map-boundaries.
-        double maxLineLength = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
-        Line2D.Double sensorBeam = makeLine(new Point2D.Double(originX, originY), angle, maxLineLength);
-
-
-        double nearestObstacle = Double.MAX_VALUE;
-        for (Wall w : map) {
-            Line2D wall = new Line2D.Double(w.getStart(), w.getEnd());
-
-            if (sensorBeam.intersectsLine(wall)) {
-                Point2D intersectionPoint = getIntersectionPoint(wall, sensorBeam);
-                if (wall.ptSegDist(intersectionPoint) < EPSILON) {
-                    double distance = sensorBeam.getP1().distance(intersectionPoint);
-                    nearestObstacle = distance < nearestObstacle ? distance : nearestObstacle;
+    public double getDistanceToNearestObstacle(Point2D position, double viewingDirection) {
+        Line sensorBeam = getLongestPossibleLineInMap(position, viewingDirection);
+        double distanceToNearestObstacle = Double.MAX_VALUE;
+        for (Line wall : walls) {
+            try {
+                Point2D intersectionPoint = wall.getIntersectionPointWith(sensorBeam);
+                boolean intersectionPointIsWithinWallBoundaries = wall.ptSegDist(intersectionPoint) < EPSILON;
+                if (intersectionPointIsWithinWallBoundaries) {
+                    double distance = position.distance(intersectionPoint);
+                    boolean currentObstacleIsCloserThanAnyOtherYet = distance < distanceToNearestObstacle;
+                    if (currentObstacleIsCloserThanAnyOtherYet) {
+                        distanceToNearestObstacle = distance;
+                    }
                 }
+            } catch (UnsupportedOperationException e) {
+                // Exception is thrown if lines do not intersect. This is an implicit 'continue' for the loop.
             }
         }
-        return nearestObstacle;
+        return distanceToNearestObstacle;
     }
 
 
 
+
+
+
+    //TODO Refactor.
     public int[] getGeneralCameraQuery(float x, float y, float angle) {
         int numberOfAvailableSignatures = 7;
         int byteHoldingSignatureSizeInformation = 3;
@@ -234,57 +224,61 @@ public class Map {
     }
 
 
+    //TODO Implement.
     public int getCameraAngleQuery(float x, float y, float angle) {
         return 0;
     }
 
+    //TODO Implement.
+    public int[] getCameraColorCodeQuery(float x, float y, float angle, int coloCode) {
+        return new int[]{0,0,0,0,0,0};
+    }
 
+
+    //TODO REFACTOR!!!
     public int[] getCameraSignatureQuery(float x, float y, float angle, int signature) {
         double imageFullAngle = 75;
         double imageHalfAngle = imageFullAngle / 2;
         int pixelInFullAngle = 255;
         String signatureString = "M" + signature;
         Point2D.Double origin = new Point2D.Double(x, y);
-        // Maximum distance possible within the map-boundaries.
-        double maxLineLength = Math.sqrt(Math.pow(svgParser.graphicHeight, 2) + Math.pow(svgParser.graphicWidth,2));
-        Line2D.Double cameraCenterOfFocus = makeLine(origin, angle, maxLineLength);
+        Line cameraCenterOfFocus = getLongestPossibleLineInMap(origin, angle);
 
         landmark_loop:
-        for (Landmark l : landmarks) {
-            if (! l.getId().equals(signatureString)) {
+        for (Circle landmark : landmarks) {
+            if (! landmark.getId().equals(signatureString)) {
                 continue;
             }
-            Line2D.Double landmarkVector = new Line2D.Double(x, y, l.getCenter().x, l.getCenter().y);
-            double angleToSensorBeam = angleBetween2Lines(landmarkVector, cameraCenterOfFocus);
-            if (angleToSensorBeam >= imageHalfAngle) {
+            Line landmarkVector = new Line (new Point2D.Double(x, y), new Point2D.Double(landmark.getCenterX(), landmark.getCenterY()));
+            double angleToCameraCenterOfFocus = landmarkVector.getAngleTo(cameraCenterOfFocus);
+            if (angleToCameraCenterOfFocus >= imageHalfAngle) {
                 continue;
             }
 
-            for (Wall w : map) {
-                Line2D.Double wall = new Line2D.Double(w.getStart(), w.getEnd());
+            for (Line wall : walls) {
                 if (wall.intersectsLine(landmarkVector)) {
                     continue landmark_loop;
                 }
             }
 
-            Line2D.Double cameraLeftOuterRim = makeLine(origin, angle - imageHalfAngle, maxLineLength);
-            Line2D.Double cameraRightOuterRim = makeLine(origin, angle + imageHalfAngle, maxLineLength);
-            double angleToLeftOuterRim = angleBetween2Lines(cameraLeftOuterRim, landmarkVector);
-            double angleToRightOuterRim = angleBetween2Lines(cameraRightOuterRim, landmarkVector);
+            Line cameraLeftOuterRim = getLongestPossibleLineInMap(origin, angle - imageHalfAngle);
+            Line cameraRightOuterRim = getLongestPossibleLineInMap(origin, angle + imageHalfAngle);
+            double angleToLeftOuterRim = landmarkVector.getAngleTo(cameraLeftOuterRim);
+            double angleToRightOuterRim = landmarkVector.getAngleTo(cameraRightOuterRim);
 
-            angleToSensorBeam = (angleToLeftOuterRim < angleToRightOuterRim) ? angleToSensorBeam : -angleToSensorBeam;
-            int xCoordinateOfLandmarkCenter = PixyCam.angleDegreeToPixel(angleToSensorBeam);
+            angleToCameraCenterOfFocus = (angleToLeftOuterRim < angleToRightOuterRim) ? angleToCameraCenterOfFocus : -angleToCameraCenterOfFocus;
+            int xCoordinateOfLandmarkCenter = PixyCam.angleDegreeToPixel(angleToCameraCenterOfFocus);
 
-            Line2D.Double toWallP1 = new Line2D.Double(origin, l.getOccupiedWallSpace().getP1());
-            Line2D.Double toWallP2 = new Line2D.Double(origin, l.getOccupiedWallSpace().getP2());
-            double perceivedAngle = angleBetween2Lines(toWallP1, toWallP2);
-            double angleBetweenSensorBeamAndP1 = angleBetween2Lines(cameraCenterOfFocus, toWallP1);
-            double angleBetweenSensorBeamAndP2 = angleBetween2Lines(cameraCenterOfFocus, toWallP2);
-            if (angleBetweenSensorBeamAndP1 > imageHalfAngle) {
-                perceivedAngle -= (angleBetweenSensorBeamAndP1 - imageHalfAngle);
+            Line toWallP1 = new Line(origin, landmark.getOccupiedWallArea().getP1());
+            Line toWallP2 = new Line(origin, landmark.getOccupiedWallArea().getP2());
+            double perceivedAngle = toWallP1.getAngleTo(toWallP2);
+            double angleBetweenCameraCenterOfFocusAndP1 = cameraCenterOfFocus.getAngleTo(toWallP1);
+            double angleBetweenCameraCenterOfFocusAndP2 = cameraCenterOfFocus.getAngleTo(toWallP2);
+            if (angleBetweenCameraCenterOfFocusAndP1 > imageHalfAngle) {
+                perceivedAngle -= (angleBetweenCameraCenterOfFocusAndP1 - imageHalfAngle);
             }
-            if (angleBetweenSensorBeamAndP2 > imageHalfAngle) {
-                perceivedAngle -= (angleBetweenSensorBeamAndP2 - imageHalfAngle);
+            if (angleBetweenCameraCenterOfFocusAndP2 > imageHalfAngle) {
+                perceivedAngle -= (angleBetweenCameraCenterOfFocusAndP2 - imageHalfAngle);
             }
 
             int absoluteWidth = (int) Math.round(perceivedAngle / imageFullAngle * pixelInFullAngle);
@@ -294,87 +288,97 @@ public class Map {
         return new int[]{0,0,0,0,0};
     }
 
-    public int[] getCameraColorCodeQuery(float x, float y, float angle, int coloCode) {
-        return new int[]{0,0,0,0,0,0};
+
+
+    /**
+     * Returns the longest possible Line in this Map, extending from the specified position in the specified direction.
+     *
+     * @param position the origin of the newly constructed Line
+     * @param viewingDirection the direction of the newly constructed Line
+     * @return the newly constructed Line
+     */
+    Line getLongestPossibleLineInMap(Point2D position, double viewingDirection) {
+        double maxPossibleDistanceInMap = Math.sqrt(Math.pow(height, 2) + Math.pow(width, 2));
+        return new Line(position, viewingDirection, maxPossibleDistanceInMap);
     }
 
 
 
     /**
-     * Finds the point of intersection between two given lines.
-     * ATTENTION: This Method does not perform a pre-check whether the lines intersect at all!
-     *
-     * @param wall      A line that, in the given context, represents a wall of the map.
-     * @param beam      A line that, in the given context, represents a sensor-beam from the robot.
-     * @return          The point of intersection between the two lines.
+     * Checks for intersections of walls and landmarks.
+     * For each intersection updateWallAreaOccupancyForLandmarkAndWallCombination is called to update
+     * landmarks regarding their occupancy of wall-area.
      */
-    private Point2D getIntersectionPoint(Line2D wall, Line2D beam) {
-        double mWall = calculateSlope(wall);
-        double mBeam = calculateSlope(beam);
-
-        double bWall = wall.getY1() - mWall * wall.getX1();
-        double bBeam = beam.getY1() - mBeam * beam.getX1();
-
-        double x, y;
-
-        if (Math.abs(mWall- Double.MAX_VALUE) < EPSILON) {
-            x = wall.getX1();
-            y = mBeam * x + bBeam;
-        } else if (Math.abs(mBeam - Double.MAX_VALUE) < EPSILON) {
-            x = beam.getX1();
-            y = mWall * x + bWall;
-        } else {
-            x = -(bWall - bBeam) / (mWall - mBeam);
-            y = mWall * x + bWall;
+    void updateLandmarkWallAreaOccupancy() {
+        for (Circle landmark : landmarks) {
+            for (Line wall : walls) {
+                if (wall.intersects(landmark.getBounds())) {
+                    updateWallAreaOccupancyForLandmarkAndWallCombination(landmark, wall);
+                }
+            }
         }
-
-        return new Point2D.Double(x,y);
     }
 
 
 
     /**
-     * Returns the slope of the given line or Double.MAX_VALUE if the line is parallel to the y-axis
-     * (which means slope approaching infinity).
+     * Provides distinct handling of intersection depending on the orientation of the wall.
      *
-     * @return  The slope of the given line or Double.NaN
+     * @param landmark the landmark intersecting with the wall
+     * @param wall the wall intersecting with the landmark
      */
-    private double calculateSlope(Line2D line) {
-        if (Math.abs(line.getX1() - line.getX2()) < EPSILON) {
-            return Double.MAX_VALUE;
+    void updateWallAreaOccupancyForLandmarkAndWallCombination(Circle landmark, Line wall) {
+        boolean wallIsParallelToAxisOfAbscissae = Math.abs(wall.getSlope() - Double.MAX_VALUE) < EPSILON ;
+        if (wallIsParallelToAxisOfAbscissae) {
+            updateWallAreaOccupancyForLandmarksOnWallsParallelToAxisOfAbscissae(landmark, wall);
         } else {
-            return (line.getY2() - line.getY1()) / (line.getX2() - line.getX1());
+            updateWallAreaOccupancyForLandmarksOnWallsParallelToAxisOfOrdinates(landmark, wall);
         }
     }
 
-    private double angleBetween2Lines(Line2D line1, Line2D line2) {
-        double line1abs = calculateLengthOfLine(line1);
-        double line2abs = calculateLengthOfLine(line2);
-        double vectorProduct = calculateVectorProductOfTwoLine(line1, line2);
-        double angleInRadians = Math.acos(vectorProduct / (line1abs * line2abs));
-        return Math.toDegrees(angleInRadians);
+
+
+    /**
+     * Handles landmark-wall-intersection on walls parallel to the axis of abscissae.
+     *
+     * @param landmark the landmark intersecting with the wall
+     * @param wall the wall intersecting with the landmark
+     */
+    void updateWallAreaOccupancyForLandmarksOnWallsParallelToAxisOfAbscissae(Circle landmark, Line wall) {
+        double radiusOfLandmark = landmark.getDiameter() / 2;
+        double landmarkY = landmark.getCenterY();
+        boolean wallRunsFromSouthToNorth = wall.getY1() < wall.getY2();
+        if (wallRunsFromSouthToNorth) {
+            Point2D.Double upperRim = new Point2D.Double(wall.getX1(), landmarkY - radiusOfLandmark);
+            Point2D.Double lowerRim = new Point2D.Double(wall.getX2(), landmarkY +  radiusOfLandmark);
+            landmark.setOccupiedWallArea(upperRim, lowerRim);
+        } else {
+            Point2D.Double upperRim = new Point2D.Double(wall.getX1(), landmarkY + radiusOfLandmark);
+            Point2D.Double lowerRim = new Point2D.Double(wall.getX2(), landmarkY -  radiusOfLandmark);
+            landmark.setOccupiedWallArea(upperRim, lowerRim);
+        }
     }
 
-    private double calculateLengthOfLine(Line2D line) {
-        double lineDX = line.getX2()-line.getX1();
-        double lineDY = line.getY2()-line.getY1();
-        return Math.sqrt(Math.pow(lineDX, 2) + Math.pow(lineDY, 2));
-    }
 
-    private double calculateVectorProductOfTwoLine(Line2D line1, Line2D line2) {
-        double line1DX = line1.getX2()-line1.getX1();
-        double line1DY = line1.getY2()-line1.getY1();
-        double line2DX = line2.getX2()-line2.getX1();
-        double line2DY = line2.getY2()-line2.getY1();
-        return (line1DX * line2DX) + (line1DY * line2DY);
-    }
 
-    private Line2D.Double makeLine(Point2D origin, double angle, double length) {
-        return new Line2D.Double(
-                origin.getX(),
-                origin.getY(),
-                Math.round(Math.cos(Math.toRadians(angle)) * length) + origin.getX(),
-                Math.round(Math.sin(Math.toRadians(angle)) * length) + origin.getY()
-        );
+    /**
+     * Handles landmark-wall-intersection on walls parallel to the axis of ordinates.
+     *
+     * @param landmark the landmark intersecting with the wall
+     * @param wall the wall intersecting with the landmark
+     */
+    void updateWallAreaOccupancyForLandmarksOnWallsParallelToAxisOfOrdinates(Circle landmark, Line wall) {
+        double radiusOfLandmark = landmark.getDiameter() / 2;
+        double landmarkX = landmark.getCenterX();
+        boolean wallRunsFromWestToEast = wall.getX1() < wall.getX2();
+        if (wallRunsFromWestToEast) {
+            Point2D.Double leftRim = new Point2D.Double(landmarkX - radiusOfLandmark, wall.getY1());
+            Point2D.Double rightRim = new Point2D.Double(landmarkX + radiusOfLandmark, wall.getY1());
+            landmark.setOccupiedWallArea(leftRim, rightRim);
+        } else {
+            Point2D.Double leftRim = new Point2D.Double(landmarkX + radiusOfLandmark, wall.getY1());
+            Point2D.Double rightRim = new Point2D.Double(landmarkX - radiusOfLandmark, wall.getY1());
+            landmark.setOccupiedWallArea(leftRim, rightRim);
+        }
     }
 }

@@ -86,7 +86,7 @@ public class MCL_Provider {
      * @return              A random particle.
      */
     private MCLParticle createRandomParticle(int fixedX, int fixedY, int fixedHeading) {
-        Polygon boundaries = map.getMapBoundaries();
+        Polygon boundaries = map.getOperatingRange();
         Rectangle limits = boundaries.getBounds();
         double xOffset = limits.getX();
         double yOffset = limits.getY();

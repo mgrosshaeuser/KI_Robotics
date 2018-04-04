@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+
+<suite name="Robotics" verbose="1" >
+    <test name="Full" >
+        <classes>
+            <class name="ki.robotics.client.MCL.MCL_ProviderTest" />
+
+            <class name="ki.robotics.utility.map.MapTest" />
+            <class name="ki.robotics.utility.map.SVGParserTest" />
+            <class name="ki.robotics.utility.map.mapElements.LineTest" />
+        </classes>
+    </test>
+</suite>

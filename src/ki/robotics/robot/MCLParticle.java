@@ -160,7 +160,7 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
     public boolean isOutOfBounds() {
         float xPos = this.pose.getX();
         float yPos = this.pose.getY();
-        Polygon boundaries = this.map.getMapBoundaries();
+        Polygon boundaries = this.map.getOperatingRange();
 
         return !boundaries.contains(xPos, yPos);
     }
