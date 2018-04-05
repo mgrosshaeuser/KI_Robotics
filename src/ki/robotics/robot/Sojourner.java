@@ -1,7 +1,7 @@
 package ki.robotics.robot;
 
-import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.server.Main;
+import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import ki.robotics.utility.pixyCam.PixyCam;
 import lejos.hardware.Sound;
@@ -19,7 +19,6 @@ import lejos.robotics.localization.PoseProvider;
 import lejos.robotics.navigation.MovePilot;
 import lejos.robotics.navigation.Pose;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -256,7 +255,7 @@ public class Sojourner implements Robot {
     }
 
     @Override
-    public boolean handleUnsupportedInstruction(Instruction instruction) {
+    public boolean handleUnsupportedInstruction(Message instruction) {
 
         return true;
     }

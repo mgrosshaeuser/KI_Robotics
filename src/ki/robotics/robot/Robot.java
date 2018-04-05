@@ -1,6 +1,6 @@
 package ki.robotics.robot;
 
-import ki.robotics.utility.crisp.Instruction;
+import ki.robotics.utility.crisp.Message;
 import lejos.robotics.navigation.Pose;
 
 
@@ -26,6 +26,6 @@ public interface Robot {
     int cameraAngleQuery();
     boolean shutdown();
     boolean disconnect();
-    boolean handleUnsupportedInstruction(Instruction instruction);
+    boolean handleUnsupportedInstruction(Message instruction);
     boolean setStayOnWhiteLine(boolean stayOnWhiteLine);
 }

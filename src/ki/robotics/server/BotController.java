@@ -1,10 +1,9 @@
 package ki.robotics.server;
 
-import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.robot.Robot;
 import ki.robotics.robot.RoverSimulation;
 import ki.robotics.robot.Sojourner;
-import ki.robotics.utility.crisp.InstructionSetTranscoder;
+import ki.robotics.utility.crisp.Message;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -19,8 +18,7 @@ import static ki.robotics.utility.crisp.CRISP.*;
  */
 class BotController {
     private PrintWriter out;
-    private ArrayList<Instruction> jobQueue;
-    private InstructionSetTranscoder transcoder;
+    private ArrayList<Message> jobQueue;
     private final Robot robot;
 
 
@@ -35,7 +33,6 @@ class BotController {
     public BotController(boolean isSimulation, BotServer botServer) {
         this.out = null;
         this.jobQueue = new ArrayList<>();
-        this.transcoder = new InstructionSetTranscoder();
         this.robot = isSimulation ? new RoverSimulation(botServer) : Sojourner.getInstance();
     }
 
@@ -48,7 +45,6 @@ class BotController {
     public void registerOutputStream(PrintWriter out) {
         this.out = out;
         this.jobQueue = new ArrayList<>();
-        this.transcoder = new InstructionSetTranscoder();
     }
 
 
@@ -63,12 +59,12 @@ class BotController {
      * @return                      boolean value, used to tell the server to close or keep the connection.
      */
     public boolean handleRequest(String instructionSequence) {
-        ArrayList<Instruction> commands= transcoder.decodeRequest(instructionSequence);
-        jobQueue.addAll(commands);
+        ArrayList<Message> instructions = Message.decodeTransmission(instructionSequence);
+        jobQueue.addAll(instructions);
         boolean stayConnected = true;
 
         while (stayConnected  &&  ! jobQueue.isEmpty()) {
-            Instruction instruction = jobQueue.remove(0);
+            Message instruction = jobQueue.remove(0);
             stayConnected = processInstruction(instruction);
         }
 
@@ -86,10 +82,10 @@ class BotController {
      * @return              The status resulting from the processing of the Instruction; Decision about
      *                      keeping or terminating the connection.
      */
-    private boolean processInstruction(Instruction instruction) {
+    private boolean processInstruction(Message instruction) {
         boolean status;
 
-        switch (instruction.getInstructionGroup()) {
+        switch (instruction.getMessageGroup()) {
             case BOT_INSTRUCTION:
                 status = processBotInstruction(instruction);
                 break;
@@ -114,36 +110,41 @@ class BotController {
      * @param instruction   Instruction to be performed.
      * @return              A status.
      */
-    private boolean processBotInstruction(Instruction instruction) {
+    private boolean processBotInstruction(Message instruction) {
         switch (instruction.getMnemonic()) {
             case BOT_RETURN_POSE:
                 //TODO Implementation
                 return true;
             case BOT_LINE_FOLLOWING_ENABLED:
-                out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_ENABLED));
+                out.println(new Message<>(BOT_LINE_FOLLOWING_ENABLED));
                 return robot.setStayOnWhiteLine(true);
             case BOT_LINE_FOLLOWING_DISABLED:
-                out.println(new Instruction(BOT_INSTRUCTION, BOT_LINE_FOLLOWING_DISABLED));
+                out.println(new Message<>(BOT_LINE_FOLLOWING_DISABLED));
                 robot.setStayOnWhiteLine(false);
                 return true;
         }
 
-        double parameter = ((Instruction.SingleFloatInstruction)instruction).getParameter();
+        double parameter;
+        try {
+            parameter = (double) instruction.getParameter();
+        } catch (ClassCastException e) {
+            parameter = (int) instruction.getParameter();
+        }
         switch (instruction.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
                 double travelledForward = robot.botTravelForward(parameter);
                 if (travelledForward < -8) { //bumper
-                    out.println(new Instruction(BOT_INSTRUCTION, BOT_U_TURN));
-                    out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), -travelledForward ));
+                    out.println(new Message<>(BOT_U_TURN));
+                    out.println(new Message<>(instruction.getMnemonic(), -travelledForward ));
                 }else if (travelledForward < 0 ) {
-                    out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
+                    out.println(new Message<>(instruction.getMnemonic(), travelledForward));
                 } else {
-                    out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION, instruction.getMnemonic(), travelledForward));
+                    out.println(new Message<>(instruction.getMnemonic(), travelledForward));
                 }
                 return true;
             case BOT_TRAVEL_BACKWARD:
                 double travelledBackward = robot.botTravelBackward(parameter);
-                out.println(new Instruction.SingleFloatInstruction(BOT_INSTRUCTION,instruction.getMnemonic(), travelledBackward));
+                out.println(new Message<>(instruction.getMnemonic(), travelledBackward));
                 return true;
             case BOT_TURN_LEFT:
                 out.println(instruction);
@@ -152,7 +153,7 @@ class BotController {
                 out.println(instruction);
                 return robot.botTurnRight(parameter);
             default:
-                out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
+                out.println(new Message<>(UNSUPPORTED_INSTRUCTION));
                 return true;
         }
     }
@@ -165,34 +166,31 @@ class BotController {
      * @param instruction   Instruction to be performed.
      * @return              A status.
      */
-    private boolean processSensorInstruction(Instruction instruction) {
+    private boolean processSensorInstruction(Message instruction) {
         switch (instruction.getMnemonic()) {
             case SENSOR_TURN_LEFT:
                 out.println(instruction);
-                return robot.sensorHeadTurnLeft(((Instruction.SingleIntInstruction)instruction).getParameter());
+                return robot.sensorHeadTurnLeft((double)instruction.getParameter());
             case SENSOR_TURN_RIGHT:
                 out.println(instruction);
-                return robot.sensorHeadTurnRight(((Instruction.SingleIntInstruction)instruction).getParameter());
+                return robot.sensorHeadTurnRight((double)instruction.getParameter());
             case SENSOR_RESET:
                 out.println(instruction);
                 return robot.sensorHeadReset();
             case SENSOR_MEASURE_COLOR:
                 int color = robot.measureColor();
-                out.println(new Instruction.SingleIntInstruction(SENSOR_INSTRUCTION, SENSOR_MEASURE_COLOR, color));
+                out.println(new Message<>(SENSOR_MEASURE_COLOR, color));
                 return true;
             case SENSOR_SINGLE_DISTANCE_SCAN:
                 double distance = robot.measureDistance();
-                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, SENSOR_SINGLE_DISTANCE_SCAN, distance));
+                out.println(new Message<>(SENSOR_SINGLE_DISTANCE_SCAN, distance));
                 return true;
             case SENSOR_THREE_WAY_SCAN:
                 double[] tws = robot.ultrasonicThreeWayScan();
-                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_LEFT, tws[0]));
-                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_CENTER, tws[1]));
-                out.println(new Instruction.SingleFloatInstruction(SENSOR_INSTRUCTION, THREE_WAY_SCAN_RIGHT, tws[2]));
-                out.println(SENSOR_THREE_WAY_SCAN);
+                out.println(new Message<>(SENSOR_THREE_WAY_SCAN, tws[0], tws[1], tws[2]));
                 return true;
             default:
-                out.println(new Instruction(OTHER_INSTRUCTION, UNSUPPORTED_INSTRUCTION));
+                out.println(new Message<>(UNSUPPORTED_INSTRUCTION));
                 return true;
         }
     }
@@ -205,33 +203,32 @@ class BotController {
      * @param instruction   Instruction to be performed.
      * @return              A status.
      */
-    private boolean processCameraInstruction(Instruction instruction) {
+    private boolean processCameraInstruction(Message instruction) {
         switch (instruction.getMnemonic()) {
             case CAMERA_GENERAL_QUERY:
-                out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_GENERAL_QUERY, robot.cameraGeneralQuery()));
+                out.println(new Message<>(CAMERA_GENERAL_QUERY, robot.cameraGeneralQuery()));
                 return  true;
             case CAMERA_SINGLE_SIGNATURE_QUERY:
-                int signature = ((Instruction.MultiIntInstruction)instruction).getParameters()[0];
-                int[] singleSignatureResult = robot.cameraSignatureQuery(signature);
-                out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_SIGNATURE_BASE + signature, singleSignatureResult));
+                int[] singleSignatureResult = robot.cameraSignatureQuery((int)instruction.getParameter());
+                out.println(new Message<>(CAMERA_SINGLE_SIGNATURE_QUERY, singleSignatureResult));
                 return true;
             case CAMERA_ALL_SIGNATURES_QUERY:
                 int[][] allSignatures = robot.cameraAllSignaturesQuery();
-                for (int i = 0  ;  i < allSignatures.length  ;  i++) {
-                    out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_SIGNATURE_BASE + (i+1), allSignatures[i]));
+                for (int[] signature : allSignatures) {
+                    out.println(new Message<>(CAMERA_SINGLE_SIGNATURE_QUERY, signature));
                 }
                 return true;
             case CAMERA_COLOR_CODE_QUERY:
-                int colorCode = ((Instruction.MultiIntInstruction)instruction).getParameters()[0];
+                int colorCode = (int)instruction.getParameter();
                 int[] colorCodeResponse = robot.cameraColorCodeQuery(colorCode);
                 int[] colorCodeResult = new int[colorCodeResponse.length + 1];
                 colorCodeResult[0] = colorCode;
                 System.arraycopy(colorCodeResponse, 0, colorCodeResult, 1, colorCodeResponse.length);
-                out.println(new Instruction.MultiIntInstruction(CAMERA_INSTRUCTION, CAMERA_COLOR_CODE_QUERY, colorCodeResult));
+                out.println(new Message<>(CAMERA_COLOR_CODE_QUERY, colorCodeResult));
                 return true;
             case CAMERA_ANGLE_QUERY:
                 int angleResult = robot.cameraAngleQuery();
-                out.println(new Instruction.SingleIntInstruction(CAMERA_INSTRUCTION, CAMERA_ANGLE_QUERY, angleResult));
+                out.println(new Message<>(CAMERA_ANGLE_QUERY, angleResult));
                 return true;
         }
         return true;
@@ -245,7 +242,7 @@ class BotController {
      * @param instruction   Instruction to be performed.
      * @return              A status.
      */
-    private boolean processOtherInstruction(Instruction instruction) {
+    private boolean processOtherInstruction(Message instruction) {
         switch(instruction.getMnemonic()) {
             case SHUTDOWN:
                 out.println(DISCONNECT);

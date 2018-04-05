@@ -12,11 +12,11 @@ import ki.robotics.utility.pixyCam.DTOSignatureQuery;
  */
 public class SensorModel {
 
-    private float distanceToLeft;
-    private float distanceToCenter;
-    private float distanceToRight;
+    private double distanceToLeft;
+    private double distanceToCenter;
+    private double distanceToRight;
     private int color;
-    private float sensorHeadPosition;
+    private double sensorHeadPosition;
 
     private DTOGeneralQuery generalQuery;
     private DTOAngleQuery angleQuery;
@@ -31,31 +31,31 @@ public class SensorModel {
     private DTOSignatureQuery signatureQuery7;
 
 
-    public float[] getAllDistances() {
-        return new float[]{distanceToLeft, distanceToCenter, distanceToRight};
+    public double[] getAllDistances() {
+        return new double[]{distanceToLeft, distanceToCenter, distanceToRight};
     }
 
-    public float getDistanceToLeft() {
+    public double getDistanceToLeft() {
         return distanceToLeft;
     }
 
-    public void setDistanceToLeft(float distanceToLeft) {
+    public void setDistanceToLeft(double distanceToLeft) {
         this.distanceToLeft = distanceToLeft;
     }
 
-    public float getDistanceToCenter() {
+    public double getDistanceToCenter() {
         return distanceToCenter;
     }
 
-    public void setDistanceToCenter(float distanceToCenter) {
+    public void setDistanceToCenter(double distanceToCenter) {
         this.distanceToCenter = distanceToCenter;
     }
 
-    public float getDistanceToRight() {
+    public double getDistanceToRight() {
         return distanceToRight;
     }
 
-    public void setDistanceToRight(float distanceToRight) {
+    public void setDistanceToRight(double distanceToRight) {
         this.distanceToRight = distanceToRight;
     }
 
@@ -67,11 +67,11 @@ public class SensorModel {
         this.color = color;
     }
 
-    public float getSensorHeadPosition() {
+    public double getSensorHeadPosition() {
         return sensorHeadPosition;
     }
 
-    public void setSensorHeadPosition(float sensorHeadPosition) {
+    public void setSensorHeadPosition(double sensorHeadPosition) {
         this.sensorHeadPosition = sensorHeadPosition%360;
     }
 
@@ -106,63 +106,61 @@ public class SensorModel {
         return unspecifiedSignatureQuery;
     }
 
-    public void setUnspecifiedSignatureQuery(DTOSignatureQuery unspecifiedSignatureQuery) {
-        this.unspecifiedSignatureQuery = unspecifiedSignatureQuery;
+    public void setSignatureQuery(DTOSignatureQuery signatureQuery) {
+        switch (signatureQuery.getSignature()) {
+            case 1:
+                this.signatureQuery1 = signatureQuery;
+                break;
+            case 2:
+                this.signatureQuery2 = signatureQuery;
+                break;
+            case 3:
+                this.signatureQuery3 = signatureQuery;
+                break;
+            case 4:
+                this.signatureQuery4 = signatureQuery;
+                break;
+            case 5:
+                this.signatureQuery5 = signatureQuery;
+                break;
+            case 6:
+                this.signatureQuery6 = signatureQuery;
+                break;
+            case 7:
+                this.signatureQuery7 = signatureQuery;
+                break;
+            default:
+                this.unspecifiedSignatureQuery = signatureQuery;
+                break;
+
+        }
     }
 
     public DTOSignatureQuery getSignatureQuery1() {
         return signatureQuery1;
     }
 
-    public void setSignatureQuery1(DTOSignatureQuery signatureQuery1) {
-        this.signatureQuery1 = signatureQuery1;
-    }
-
     public DTOSignatureQuery getSignatureQuery2() {
         return signatureQuery2;
-    }
-
-    public void setSignatureQuery2(DTOSignatureQuery signatureQuery2) {
-        this.signatureQuery2 = signatureQuery2;
     }
 
     public DTOSignatureQuery getSignatureQuery3() {
         return signatureQuery3;
     }
 
-    public void setSignatureQuery3(DTOSignatureQuery signatureQuery3) {
-        this.signatureQuery3 = signatureQuery3;
-    }
-
     public DTOSignatureQuery getSignatureQuery4() {
         return signatureQuery4;
-    }
-
-    public void setSignatureQuery4(DTOSignatureQuery signatureQuery4) {
-        this.signatureQuery4 = signatureQuery4;
     }
 
     public DTOSignatureQuery getSignatureQuery5() {
         return signatureQuery5;
     }
 
-    public void setSignatureQuery5(DTOSignatureQuery signatureQuery5) {
-        this.signatureQuery5 = signatureQuery5;
-    }
-
     public DTOSignatureQuery getSignatureQuery6() {
         return signatureQuery6;
     }
 
-    public void setSignatureQuery6(DTOSignatureQuery signatureQuery6) {
-        this.signatureQuery6 = signatureQuery6;
-    }
-
     public DTOSignatureQuery getSignatureQuery7() {
         return signatureQuery7;
-    }
-
-    public void setSignatureQuery7(DTOSignatureQuery signatureQuery7) {
-        this.signatureQuery7 = signatureQuery7;
     }
 }

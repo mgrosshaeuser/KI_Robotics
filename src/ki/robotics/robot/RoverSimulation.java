@@ -3,7 +3,7 @@ package ki.robotics.robot;
 import ki.robotics.common.ExtJPanel;
 import ki.robotics.common.MapPanel;
 import ki.robotics.server.BotServer;
-import ki.robotics.utility.crisp.Instruction;
+import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
@@ -143,7 +143,7 @@ public class RoverSimulation extends VirtualRobotModel {
     }
 
     @Override
-    public boolean handleUnsupportedInstruction(Instruction instruction) {
+    public boolean handleUnsupportedInstruction(Message instruction) {
         System.out.println("Unknows Instruction: >>" + instruction.getMnemonic());
         return true;
     }
