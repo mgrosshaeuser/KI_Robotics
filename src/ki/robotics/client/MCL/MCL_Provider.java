@@ -140,7 +140,7 @@ public class MCL_Provider {
           }
 
         //0 is left, 1 is center, 2 is right
-        float[] botDistances = bot.getAllDistances();
+        double[] botDistances = bot.getAllDistances();
         double[] particleDistances = particle.ultrasonicThreeWayScan();
 
         double leftDeviation, centerDeviation, rightDeviation;
@@ -240,7 +240,7 @@ public class MCL_Provider {
 
 
     private double calculateProbability(SensorModel bot, MCLParticle particle) {
-        float[] botDistances = bot.getAllDistances();
+        double[] botDistances = bot.getAllDistances();
         double[] particleDistances = particle.ultrasonicThreeWayScan();
 
         double meanLeft = particleDistances[0];
@@ -407,7 +407,7 @@ public class MCL_Provider {
      *
      * @param distance  The distance to translate each particle.
      */
-    public void translateParticle(float distance) {
+    public void translateParticle(double distance) {
         resample();
         Random r = new Random();
         for (MCLParticle p : particles) {

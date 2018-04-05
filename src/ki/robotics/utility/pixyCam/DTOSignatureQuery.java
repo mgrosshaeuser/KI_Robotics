@@ -1,6 +1,14 @@
 package ki.robotics.utility.pixyCam;
 
 public class DTOSignatureQuery {
+    private static final int SIGNATURE = 0;
+    private static final int NUMBER_OF_MATCHING_BLOCKS = 1;
+    private static final int X_CENTER_OF_LARGEST_BLOCK = 2;
+    private static final int Y_CENTER_OF_LARGEST_BLOCK = 3;
+    private static final int WIDTH_OF_LARGEST_BLOCK = 4;
+    private static final int HEIGHT_OF_LARGEST_BLOCK = 5;
+
+    private final int signature;
     private final int numberOfMatchingBlocks;
     private final int xCenterOfLargestBlock;
     private final int yCenterOfLargestBlock;
@@ -9,30 +17,43 @@ public class DTOSignatureQuery {
 
 
     public DTOSignatureQuery(byte[] camResponse) {
-        numberOfMatchingBlocks = camResponse[0];
-        xCenterOfLargestBlock = camResponse[1];
-        yCenterOfLargestBlock = camResponse[2];
-        widthOfLargestBlock = camResponse[3];
-        heightOfLargestBlock = camResponse[4];
+        signature = camResponse[SIGNATURE];
+        numberOfMatchingBlocks = camResponse[NUMBER_OF_MATCHING_BLOCKS];
+        xCenterOfLargestBlock = camResponse[X_CENTER_OF_LARGEST_BLOCK];
+        yCenterOfLargestBlock = camResponse[Y_CENTER_OF_LARGEST_BLOCK];
+        widthOfLargestBlock = camResponse[WIDTH_OF_LARGEST_BLOCK];
+        heightOfLargestBlock = camResponse[HEIGHT_OF_LARGEST_BLOCK];
     }
 
     public DTOSignatureQuery(String botRawTransmission) {
         String[] values = botRawTransmission.trim().split(" ");
-        numberOfMatchingBlocks = Integer.parseInt(values[0]);
-        xCenterOfLargestBlock = Integer.parseInt(values[1]);
-        yCenterOfLargestBlock = Integer.parseInt(values[2]);
-        widthOfLargestBlock = Integer.parseInt(values[3]);
-        heightOfLargestBlock = Integer.parseInt(values[4]);
+        signature = Integer.parseInt(values[SIGNATURE]);
+        numberOfMatchingBlocks = Integer.parseInt(values[NUMBER_OF_MATCHING_BLOCKS]);
+        xCenterOfLargestBlock = Integer.parseInt(values[X_CENTER_OF_LARGEST_BLOCK]);
+        yCenterOfLargestBlock = Integer.parseInt(values[Y_CENTER_OF_LARGEST_BLOCK]);
+        widthOfLargestBlock = Integer.parseInt(values[WIDTH_OF_LARGEST_BLOCK]);
+        heightOfLargestBlock = Integer.parseInt(values[HEIGHT_OF_LARGEST_BLOCK]);
     }
 
     public DTOSignatureQuery(int[] botTransmission) {
-        numberOfMatchingBlocks = botTransmission[0];
-        xCenterOfLargestBlock = botTransmission[1];
-        yCenterOfLargestBlock = botTransmission[2];
-        widthOfLargestBlock = botTransmission[3];
-        heightOfLargestBlock = botTransmission[4];
+        signature = botTransmission[SIGNATURE];
+        numberOfMatchingBlocks = botTransmission[NUMBER_OF_MATCHING_BLOCKS];
+        xCenterOfLargestBlock = botTransmission[X_CENTER_OF_LARGEST_BLOCK];
+        yCenterOfLargestBlock = botTransmission[Y_CENTER_OF_LARGEST_BLOCK];
+        widthOfLargestBlock = botTransmission[WIDTH_OF_LARGEST_BLOCK];
+        heightOfLargestBlock = botTransmission[HEIGHT_OF_LARGEST_BLOCK];
     }
 
+    public DTOSignatureQuery(Object[] botTransmission) {
+        signature = (int)botTransmission[SIGNATURE];
+        numberOfMatchingBlocks = (int)botTransmission[NUMBER_OF_MATCHING_BLOCKS];
+        xCenterOfLargestBlock = (int)botTransmission[X_CENTER_OF_LARGEST_BLOCK];
+        yCenterOfLargestBlock = (int)botTransmission[Y_CENTER_OF_LARGEST_BLOCK];
+        widthOfLargestBlock = (int)botTransmission[WIDTH_OF_LARGEST_BLOCK];
+        heightOfLargestBlock = (int)botTransmission[HEIGHT_OF_LARGEST_BLOCK];
+    }
+
+    public int getSignature() { return signature; }
 
     public int getNumberOfMatchingBlocks() {
         return numberOfMatchingBlocks;
@@ -57,6 +78,7 @@ public class DTOSignatureQuery {
 
     public int[] getAllParameters() {
         return new int[] {
+                signature,
                 numberOfMatchingBlocks,
                 xCenterOfLargestBlock,
                 yCenterOfLargestBlock,
@@ -67,12 +89,13 @@ public class DTOSignatureQuery {
 
     @Override
     public String toString() {
-        String query = "";
-        query += numberOfMatchingBlocks + " ";
-        query += xCenterOfLargestBlock + " ";
-        query += yCenterOfLargestBlock + " ";
-        query += widthOfLargestBlock + " ";
-        query += heightOfLargestBlock;
-        return query;
+        StringBuilder sb = new StringBuilder();
+        sb.append(signature).append(" ");
+        sb.append(numberOfMatchingBlocks).append(" ");
+        sb.append(xCenterOfLargestBlock).append(" ");
+        sb.append(yCenterOfLargestBlock).append(" ");
+        sb.append(widthOfLargestBlock).append(" ");
+        sb.append(heightOfLargestBlock);
+        return sb.toString();
     }
 }

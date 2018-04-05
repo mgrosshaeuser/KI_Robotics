@@ -11,7 +11,6 @@ public class CRISP {
     public static final char OTHER_INSTRUCTION =    'O';
 
 
-
     //Instruction-Set. Commonly used as confirmatory status-codes as well.
     public static final String BOT_TRAVEL_FORWARD =             "BTRF";
     public static final String BOT_TRAVEL_BACKWARD =            "BTRB";
@@ -38,23 +37,7 @@ public class CRISP {
     public static final String DISCONNECT =                     "DCNT";
 
     //Supplementary status codes.
-    public static final String BOT_POSE_X =                     "BPSX";
-    public static final String BOT_POSE_Y =                     "BPSY";
-    public static final String BOT_POSE_HEADING =               "BPSH";
     public static final String BOT_U_TURN =                     "BUTN";
-
-    public static final String THREE_WAY_SCAN_LEFT =            "STWL";
-    public static final String THREE_WAY_SCAN_CENTER =          "STWC";
-    public static final String THREE_WAY_SCAN_RIGHT =           "STWR";
-
-    public static final String CAMERA_SIGNATURE_BASE =          "CSG";
-    public static final String CAMERA_SIGNATURE_1 =             "CSG1";
-    public static final String CAMERA_SIGNATURE_2 =             "CSG2";
-    public static final String CAMERA_SIGNATURE_3 =             "CSG3";
-    public static final String CAMERA_SIGNATURE_4 =             "CSG4";
-    public static final String CAMERA_SIGNATURE_5 =             "CSG5";
-    public static final String CAMERA_SIGNATURE_6 =             "CSG6";
-    public static final String CAMERA_SIGNATURE_7 =             "CSG7";
 
     public static final String UNSUPPORTED_INSTRUCTION =        "IERR";
     public static final String END_OF_INSTRUCTION_SEQUENCE =    "EOSQ";

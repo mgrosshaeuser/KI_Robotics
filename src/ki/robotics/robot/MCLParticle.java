@@ -1,6 +1,6 @@
 package ki.robotics.robot;
 
-import ki.robotics.utility.crisp.Instruction;
+import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
@@ -87,7 +87,7 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
     }
 
     @Override
-    public boolean handleUnsupportedInstruction(Instruction instruction) {
+    public boolean handleUnsupportedInstruction(Message instruction) {
         return true;
     }
 

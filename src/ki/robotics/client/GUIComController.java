@@ -4,9 +4,8 @@ import ki.robotics.client.MCL.Configuration;
 import ki.robotics.client.MCL.MCL_Display;
 import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.client.MCL.SensorModel;
-import ki.robotics.utility.crisp.Instruction;
 import ki.robotics.utility.crisp.InstructionSequence;
-import ki.robotics.utility.crisp.InstructionSetTranscoder;
+import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
 import ki.robotics.utility.pixyCam.DTOColorCodeQuery;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
@@ -24,7 +23,6 @@ import static ki.robotics.utility.crisp.CRISP.*;
 public class GUIComController implements ComController {
     private final MCL_Display window;
     private MCL_Provider mclProvider;
-    private final InstructionSetTranscoder transcoder;
     private final SensorModel roverModel;
     private Configuration configuration;
     private Thread t;
@@ -36,7 +34,6 @@ public class GUIComController implements ComController {
      */
     public GUIComController() {
         this.window = new MCL_Display(this);
-        this.transcoder = new InstructionSetTranscoder();
         this.roverModel = new SensorModel();
     }
 
@@ -184,27 +181,29 @@ public class GUIComController implements ComController {
      */
     @Override
     public void handleResponse(String botResponse) {
-        Instruction response = transcoder.decodeInstruction(botResponse);
-        switch (response.getInstructionGroup()) {
-            case BOT_INSTRUCTION:
-                handleBotResponse(response);
-                break;
-            case SENSOR_INSTRUCTION:
-                handleSensorResponse(response);
-                break;
-            case CAMERA_INSTRUCTION:
-                handleCameraResponse(response);
-                break;
-            default:
-                handleOtherResponse(response);
-                break;
-        }
-        if (configuration.stopWhenDone()  && ! configuration.isWithCamera()  &&  mclProvider.isLocalizationDone()) {
-            mclProvider.badParticlesFinalKill();
+        ArrayList<Message> responses = Message.decodeTransmission(botResponse);
+        for (Message response : responses) {
+            switch (response.getMessageGroup()) {
+                case BOT_INSTRUCTION:
+                    handleBotResponse(response);
+                    break;
+                case SENSOR_INSTRUCTION:
+                    handleSensorResponse(response);
+                    break;
+                case CAMERA_INSTRUCTION:
+                    handleCameraResponse(response);
+                    break;
+                default:
+                    handleOtherResponse(response);
+                    break;
+            }
+            if (configuration.stopWhenDone() && !configuration.isWithCamera() && mclProvider.isLocalizationDone()) {
+                mclProvider.badParticlesFinalKill();
+                window.repaint();
+                stop();
+            }
             window.repaint();
-            stop();
         }
-        window.repaint();
     }
 
 
@@ -213,7 +212,7 @@ public class GUIComController implements ComController {
      *
      * @param response   The instruction-response.
      */
-    private void handleBotResponse(Instruction response) {
+    private void handleBotResponse(Message response) {
         // Robot-responses without parameter.
         switch (response.getMnemonic()) {
             case BOT_RETURN_POSE:
@@ -229,19 +228,18 @@ public class GUIComController implements ComController {
         }
 
         // Robot-responses with one floating-point parameter
-        double parameter = ((Instruction.SingleFloatInstruction)response).getParameter();
         switch (response.getMnemonic()) {
             case BOT_TRAVEL_FORWARD:
-                mclProvider.translateParticle((float)parameter);
+                mclProvider.translateParticle((double)response.getParameter());
                 return;
             case BOT_TRAVEL_BACKWARD:
-                mclProvider.translateParticle((float)(-parameter));
+                mclProvider.translateParticle((double)response.getParameter() * -1);
                 return;
             case BOT_TURN_LEFT:
-                mclProvider.turnFull((int) Math.abs(parameter));
+                mclProvider.turnFull(Math.abs((int)response.getParameter()));
                 return;
             case BOT_TURN_RIGHT:
-                mclProvider.turnFull((int) Math.abs(parameter) * -1);
+                mclProvider.turnFull(Math.abs((int)response.getParameter()) * -1);
                 return;
         }
     }
@@ -252,33 +250,21 @@ public class GUIComController implements ComController {
      *
      * @param response  The instruction-response.
      */
-    private void handleSensorResponse(Instruction response) {
+    private void handleSensorResponse(Message response) {
         switch (response.getMnemonic()) {
             case SENSOR_TURN_LEFT:
-                int leftAngle = ((Instruction.SingleIntInstruction)response).getParameter();
-                roverModel.setSensorHeadPosition(leftAngle);
+                roverModel.setSensorHeadPosition((int)response.getParameter());
                 break;
             case SENSOR_TURN_RIGHT:
-                int rightAngle = ((Instruction.SingleIntInstruction)response).getParameter();
-                roverModel.setSensorHeadPosition(-rightAngle);
+                roverModel.setSensorHeadPosition((int)response.getParameter() * -1);
                 break;
             case SENSOR_MEASURE_COLOR:
-                int color = ((Instruction.SingleIntInstruction)response).getParameter();
-                roverModel.setColor(color);
-                break;
-            case THREE_WAY_SCAN_LEFT:
-                double distanceLeft = ((Instruction.SingleFloatInstruction)response).getParameter();
-                roverModel.setDistanceToLeft((float) distanceLeft);
-                break;
-            case THREE_WAY_SCAN_CENTER:
-                double distanceCenter = ((Instruction.SingleFloatInstruction)response).getParameter();
-                roverModel.setDistanceToCenter((float) distanceCenter);
-                break;
-            case THREE_WAY_SCAN_RIGHT:
-                double distanceRight = ((Instruction.SingleFloatInstruction)response).getParameter();
-                roverModel.setDistanceToRight((float) distanceRight);
+                roverModel.setColor((int)response.getParameter());
                 break;
             case SENSOR_THREE_WAY_SCAN:
+                roverModel.setDistanceToLeft((double) response.getParameters()[0]);
+                roverModel.setDistanceToCenter((double) response.getParameters()[1]);
+                roverModel.setDistanceToRight((double) response.getParameters()[2]);
                 mclProvider.recalculateParticleWeight(roverModel);
                 break;
             case SENSOR_RESET:
@@ -297,51 +283,19 @@ public class GUIComController implements ComController {
      *
      * @param response  The instruction-response.
      */
-    private  void handleCameraResponse(Instruction response) {
+    private  void handleCameraResponse(Message response) {
         switch (response.getMnemonic()) {
             case CAMERA_GENERAL_QUERY:
-                int[] generalQuery = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setGeneralQuery(new DTOGeneralQuery(generalQuery));
+                roverModel.setGeneralQuery(new DTOGeneralQuery(response.getParameters()));
                 break;
             case CAMERA_ANGLE_QUERY:
-                int angleQuery = ((Instruction.SingleIntInstruction)response).getParameter();
-                roverModel.setAngleQuery(new DTOAngleQuery(angleQuery));
+                roverModel.setAngleQuery(new DTOAngleQuery((int) response.getParameter()));
                 break;
             case CAMERA_COLOR_CODE_QUERY:
-                int[] colorCodeQuery = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setColorCodeQuery(new DTOColorCodeQuery(colorCodeQuery));
+                roverModel.setColorCodeQuery(new DTOColorCodeQuery(response.getParameters()));
                 break;
             case CAMERA_SINGLE_SIGNATURE_QUERY:
-                int [] signatureQuery = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setUnspecifiedSignatureQuery(new DTOSignatureQuery(signatureQuery));
-                break;
-            case CAMERA_SIGNATURE_1:
-                int [] signatureQuery1 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery1(new DTOSignatureQuery(signatureQuery1));
-                break;
-            case CAMERA_SIGNATURE_2:
-                int [] signatureQuery2 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery2(new DTOSignatureQuery(signatureQuery2));
-                break;
-            case CAMERA_SIGNATURE_3:
-                int [] signatureQuery3 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery3(new DTOSignatureQuery(signatureQuery3));
-                break;
-            case CAMERA_SIGNATURE_4:
-                int [] signatureQuery4 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery4(new DTOSignatureQuery(signatureQuery4));
-                break;
-            case CAMERA_SIGNATURE_5:
-                int [] signatureQuery5 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery5(new DTOSignatureQuery(signatureQuery5));
-                break;
-            case CAMERA_SIGNATURE_6:
-                int [] signatureQuery6 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery6(new DTOSignatureQuery(signatureQuery6));
-                break;
-            case CAMERA_SIGNATURE_7:
-                int [] signatureQuery7 = ((Instruction.MultiIntInstruction)response).getParameters();
-                roverModel.setSignatureQuery7(new DTOSignatureQuery(signatureQuery7));
+                roverModel.setSignatureQuery(new DTOSignatureQuery(response.getParameters()));
                 break;
         }
         if (mclProvider.isLocalizationDone()) {
@@ -355,7 +309,7 @@ public class GUIComController implements ComController {
      *
      * @param response  The instruction-response.
      */
-    private void handleOtherResponse(Instruction response) {
+    private void handleOtherResponse(Message response) {
         switch (response.getMnemonic()) {
             case END_OF_INSTRUCTION_SEQUENCE:
                 break;
@@ -367,14 +321,15 @@ public class GUIComController implements ComController {
      * Updates the sensor-model for left, front or right distance from a single distance measurement, depending
      * on the current orientation of the sensor-head.
      *
-     * @param instruction   The instruction-response.
+     * @param response   The instruction-response.
      */
-    private void measureDistance1D(Instruction instruction) {
-        float angle = roverModel.getSensorHeadPosition();
+    private void measureDistance1D(Message response) {
+        double angle = roverModel.getSensorHeadPosition();
         boolean measurementLeft = angle > 45;
         boolean measurementRight = angle < -45;
 
-        double param = ((Instruction.SingleFloatInstruction)instruction).getParameter();
+        double param = (double)response.getParameters()[0];
+//        double param = ((Instruction.SingleFloatInstruction)instruction).getParameters();
 
         if (measurementLeft) {
             roverModel.setDistanceToLeft((float) param);

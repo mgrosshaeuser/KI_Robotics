@@ -34,6 +34,14 @@ public class DTOGeneralQuery {
         heightOfLargestBlock = botTransmission[4];
     }
 
+    public DTOGeneralQuery(Object[] botTransmission) {
+        signatureOfLargestBlock = (int)botTransmission[0];
+        xCenterOfLargestBlock = (int)botTransmission[1];
+        yCenterOfLargestBlock = (int)botTransmission[2];
+        widthOfLargestBlock = (int)botTransmission[3];
+        heightOfLargestBlock = (int)botTransmission[4];
+    }
+
 
 
     public int getSignatureOfLargestBlock() {
@@ -69,12 +77,12 @@ public class DTOGeneralQuery {
 
     @Override
     public String toString() {
-        String query = "";
-        query += signatureOfLargestBlock + " ";
-        query += xCenterOfLargestBlock + " ";
-        query += yCenterOfLargestBlock + " ";
-        query += widthOfLargestBlock + " ";
-        query += heightOfLargestBlock;
-        return query;
+        StringBuilder sb = new StringBuilder();
+        sb.append(signatureOfLargestBlock).append(" ");
+        sb.append(xCenterOfLargestBlock).append(" ");
+        sb.append(yCenterOfLargestBlock).append(" ");
+        sb.append(widthOfLargestBlock).append(" ");
+        sb.append(heightOfLargestBlock);
+        return sb.toString();
     }
 }

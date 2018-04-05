@@ -40,6 +40,16 @@ public class DTOColorCodeQuery {
         angleOfLargestBlock = botTransmission[6];
     }
 
+    public DTOColorCodeQuery(Object[] botTransmission) {
+        colorCode = (int)botTransmission[0];
+        numberOfMatchingBlocks = (int)botTransmission[1];
+        xCenterOfLargestBlock = (int)botTransmission[2];
+        yCenterOfLargestBlock = (int)botTransmission[3];
+        widthOfLargestBlock = (int)botTransmission[4];
+        heightOfLargestBlock = (int)botTransmission[5];
+        angleOfLargestBlock = (int)botTransmission[6];
+    }
+
     public int getColorCode() { return colorCode; }
 
     public int getNumberOfMatchingBlocks() {
