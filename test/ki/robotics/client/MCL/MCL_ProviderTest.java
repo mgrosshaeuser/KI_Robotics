@@ -59,16 +59,14 @@ public class MCL_ProviderTest {
     public void testTranslateParticle() {
     }
 
-    @Test
-    public void testTurnFull(MCL_Provider mclP) {
-        int[] angles = new int[]{0, 90, 110, 360};
-        for (int turnAngle : angles) {
-            //test values
+    @Test(dataProvider = "getTurnFullProvider")
+    public void testTurnFull(MCL_Provider mclP, int[] anglesToTest) {
+
+        for (int turnAngle : anglesToTest) {
             int maxAngle = 360;
             int maxGauss = 10;
             int gaussRange = Math.round(turnAngle * (1 + (maxGauss / 540)));
 
-            //Testing
             for (int i = 0; i < mclP.getParticles().size(); i++) {
 
                 MCLParticle particle = mclP.getParticles().get(i);
@@ -83,8 +81,9 @@ public class MCL_ProviderTest {
         }
     }
 
-    @DataProvider(name = "getConfigurationProvider")
-    public Object[][] getConfigurationProvider() {
+    @DataProvider(name = "getTurnFullProvider")
+    public Object[][] getTurnFullProvider() {
+
         int step = 10; //via GUI in cm
         int numOfParticles = 1000; //via GUI
         int tolerance = 10; //via GUI in cm
@@ -106,6 +105,11 @@ public class MCL_ProviderTest {
         Map map = MapProvider.getInstance().getMap("Room");
         int[] limitations = MapProvider.getInstance().getMapLimitations(config2D.getMapKey());
 
-        return new Object[][] {{new MCL_Provider(map, config2D.getNumberOfParticles(), limitations, config2D) }, {new MCL_Provider(map, config2D.getNumberOfParticles(), limitations, config2D)},};
+
+        int[] anglesToTest = new int[]{0, 90, 170, 300, 360};
+
+        return new Object[][] {
+                {new MCL_Provider(map, config2D.getNumberOfParticles(), limitations, config2D), anglesToTest}
+        };
     }
 }
