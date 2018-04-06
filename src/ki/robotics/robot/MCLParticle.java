@@ -141,20 +141,14 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
 
 
     /**
-     * Using the Comparable-Interface to compare particles according to their weight.
+     * compare particles according to their weight.
      *
-     * @param o
-     * @return
+     * @param o particle to compare with
+     * @return comparison result by float object
      */
     @Override
     public int compareTo(MCLParticle o) {
-        if (this.weight < o.weight) {
-            return -1;
-        } else if (this.weight > o.weight) {
-            return 1;
-        } else {
-            return 0;
-        }
+        return Float.compare(this.weight, o.weight);
     }
 
     public boolean isOutOfBounds() {
