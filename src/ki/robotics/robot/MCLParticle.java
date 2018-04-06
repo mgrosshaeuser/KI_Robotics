@@ -63,7 +63,7 @@ public class MCLParticle extends VirtualRobotModel implements Comparable<MCLPart
         if (n < 0) {
             n += 360;
         }
-        pose.setHeading(n);
+        pose.setHeading(Math.abs(n));
     }
 
     /**
