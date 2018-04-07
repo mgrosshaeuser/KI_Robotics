@@ -1,6 +1,7 @@
 package ki.robotics.client;
 
 import ki.robotics.client.MCL.Configuration;
+
 import static ki.robotics.utility.crisp.CRISP.*;
 
 import java.util.Scanner;

@@ -1,7 +1,5 @@
 package ki.robotics.robot;
 
-import ki.robotics.client.MCL.Configuration;
-import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
@@ -132,6 +130,7 @@ public class MCLParticleTest {
         };
     }
 
+    /*
     @DataProvider(name = "getMCLProviderObjectProvider")
     public Object[][] getMCLProviderObjectProvider() {
 
@@ -160,4 +159,5 @@ public class MCLParticleTest {
                 {new MCL_Provider(map, config2D.getNumberOfParticles(), limitations, config2D)}
         };
     }
+    */
 }

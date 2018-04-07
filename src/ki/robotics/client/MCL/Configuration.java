@@ -1,356 +1,66 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.utility.crisp.CRISP;
-import ki.robotics.utility.map.MapProvider;
+import ki.robotics.client.MCL.MCL_Provider;
+import ki.robotics.utility.map.Map;
 
 import java.util.ArrayList;
 
-/**
- * Represents the user-selections from the client-ui for all components 1-D, global localization and
- * local localization have in common.
- *
- */
-public abstract class Configuration {
-    private final String mapKey;
-    private final boolean isOneDimensional;
-    private final boolean isTwoDimensional;
-    private final boolean isWithCamera;
-    private final int stepSize;
-    private final int numberOfParticles;
-    private final boolean stopWhenDone;
-    private final int acceptableTolerance;
+public interface Configuration {
+    MCL_Provider getMclProvider();
 
+    Map getMap();
 
-    /**
-     * Constructor
-     *
-     * @param mapKey                A key, identifying a map provided by the MapProvider
-     * @param isOneDimensional      Marks the operating range as one-dimensional.
-     * @param isTwoDimensional      Marks the operating range as two-dimensional.
-     * @param isWithCamera          Marks the operating range as two-dimensional with camera usage.
-     * @param stepSize              Distance to robot moves with every travel-instruction.
-     * @param numberOfParticles     Number of particles for the monte-carlo-localization.
-     * @param stopWhenDone          Option to automatically stop the localization when all particles
-     *                              are within an acceptable tolerance.
-     * @param acceptableTolerance   An acceptable spreading (in cm) of the particle coordinates.
-     */
-    Configuration(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                         int stepSize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance) {
-        this.mapKey = mapKey;
-        this.isOneDimensional = isOneDimensional;
-        this.isTwoDimensional = isTwoDimensional;
-        this.isWithCamera = isWithCamera;
-        this.stepSize = stepSize;
-        this.numberOfParticles = numberOfParticles;
-        this.stopWhenDone = stopWhenDone;
-        this.acceptableTolerance = acceptableTolerance;
-    }
+    String getMapKey();
 
-    public String getMapKey() {
-        return mapKey;
-    }
+    int getNumberOfParticles();
 
-    public boolean isOneDimensional() {
-        return isOneDimensional;
-    }
+    boolean isOneDimensional();
 
-    public boolean isTwoDimensional() {
-        return isTwoDimensional;
-    }
+    boolean isTwoDimensional();
 
-    public boolean isWithCamera() { return  isWithCamera; }
+    boolean isWithCamera();
 
-    public int getStepSize() {
-        return stepSize;
-    }
+    int getStepSize();
 
-    public int getNumberOfParticles() {
-        return numberOfParticles;
-    }
+    boolean isStopWhenDone();
 
-    public boolean stopWhenDone() { return stopWhenDone; }
+    int getAcceptableTolerance();
 
-    public int getAcceptableTolerance() { return  acceptableTolerance; }
+    boolean isStartFromLeft();
 
-    public abstract ArrayList<String> getSensingInstructions();
+    boolean isStartFromRight();
 
+    boolean isMeasureDistanceToLeft();
 
+    boolean isMeasureDistanceToRight();
 
-    /**
-     *  Represents the user-selections from the client-ui for all components relevant only for 1-D.
-     */
-    public static class ConfigOneD extends Configuration{
-        /**
-         * The default configuration for 1-D
-         */
-        public static final ConfigOneD DEFAULT = new ConfigOneD(
-                MapProvider.MAP_KEY_HOUSES,
-                true,
-                false,
-                false,
-                10,
-                1000,
-                true,
-                10,
-                true
-        );
+    void flipDirection();
 
-        private final boolean startFromLeft;
-        private boolean measureDistanceToLeft;
+    boolean isUseRightAngles();
 
-        /**
-         * Constructor
-         *
-         * @param mapKey            A key, identifying a map provided by the MapProvider
-         * @param isOneDimensional  Marks the operating range as one-dimensional.
-         * @param isTwoDimensional  Marks the operating range as two-dimensional.
-         * @param isWithCamera          Marks the operating range as two-dimensional with camera usage.
-         * @param stepsize          Distance to robot moves with every travel-instruction.
-         * @param numberOfParticles Number of particles for the monte-carlo-localization.
-         * @param stopWhenDone          Option to automatically stop the localization when all particles
-         *                              are within an acceptable tolerance.
-         * @param acceptableTolerance   An acceptable spreading (in cm) of the particle coordinates.
-         * @param startFromLeft     Bot starts from the left (true) or from the right (false)
-         */
-        ConfigOneD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                          int stepsize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance,
-                          boolean startFromLeft) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone, acceptableTolerance);
-            this.startFromLeft = startFromLeft;
-            this.measureDistanceToLeft = startFromLeft;
-        }
+    boolean isUseFreeAngles();
 
+    boolean isUseLeftSensor();
 
-        public void flipDirection() {
-            this.measureDistanceToLeft = !measureDistanceToLeft;
-        }
+    boolean isUseFrontSensor();
 
-        public boolean isStartFromLeft() {
-            return startFromLeft;
-        }
+    boolean isUseRightSensor();
 
-        public boolean isStartFromRight() {
-            return !startFromLeft;
-        }
+    boolean isUseGeneralQuery();
 
+    boolean isUseAngleQuery();
 
-        /**
-         * Returns an ArrayList with all sensor-related instructions to be performed after each movement.
-         *
-         * @return     All sensor-instructions to be performed.
-         */
-        @Override
-        public ArrayList<String> getSensingInstructions() {
-            ArrayList<String> instr = new ArrayList<>();
-            if (measureDistanceToLeft) {
-                instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-            } else {
-                instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);
-            }
-            return instr;
-        }
-    }
+    boolean isUseSignatureOne();
 
+    boolean isUseSignatureTwo();
 
+    boolean isUseSignatureThree();
 
+    boolean isUseSignatureFour();
 
+    boolean isUseSignatureFive();
 
-    public static class ConfigTwoD extends Configuration{
-        public static final ConfigTwoD DEFAULT = new ConfigTwoD(
-                MapProvider.MAP_KEY_ROOM,
-                false,
-                true,
-                false,
-                10,
-                2500,
-                true,
-                10,
-                true,
-                false,
-                true,
-                true,
-                true
-        );
+    boolean isUseSignatureSix();
 
-        private final boolean useRightAngles;
-        private final boolean useFreeAngles;
-        private final boolean useLeftSensor;
-        private final boolean useFrontSensor;
-        private final boolean useRightSensor;
-
-        /**
-         * Constructor
-         *
-         * @param mapKey            A key, identifying a map provided by the MapProvider
-         * @param isOneDimensional  Marks the operating range as one-dimensional.
-         * @param isTwoDimensional  Marks the operating range as two-dimensional.
-         * @param stepsize          Distance to robot moves with every travel-instruction.
-         * @param numberOfParticles Number of particles for the monte-carlo-localization.
-         */
-        public ConfigTwoD(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                          int stepsize, int numberOfParticles,  boolean stopWhenDone, int acceptableTolerance,
-                          boolean useRightAngles, boolean useFreeAngles, boolean useLeftSensor, boolean useFrontSensor,
-                          boolean useRightSensor) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepsize, numberOfParticles, stopWhenDone, acceptableTolerance);
-            this.useRightAngles = useRightAngles;
-            this.useFreeAngles = useFreeAngles;
-            this.useLeftSensor = useLeftSensor;
-            this.useFrontSensor = useFrontSensor;
-            this.useRightSensor = useRightSensor;
-        }
-
-        public boolean isUseRightAngles() {
-            return useRightAngles;
-        }
-
-        public boolean isUseFreeAngles() {
-            return useFreeAngles;
-        }
-
-        public boolean isUseLeftSensor() {
-            return useLeftSensor;
-        }
-
-        public boolean isUseFrontSensor() {
-            return useFrontSensor;
-        }
-
-        public boolean isUseRightSensor() {
-            return useRightSensor;
-        }
-
-
-        /**
-         * Returns a List of the sensor reading that have to be performed by the robot, according to the specifications
-         * made in the constructor.
-         *
-         * @return  List of sensor-related instructions to be executed.
-         */
-        public ArrayList<String> getSensingInstructions() {
-            ArrayList<String> instr = new ArrayList<>();
-            if (useRightSensor && useFrontSensor && useLeftSensor) {
-                instr.add(CRISP.SENSOR_THREE_WAY_SCAN);
-            } else {
-                if (useLeftSensor)  { instr.add(CRISP.SENSOR_TURN_LEFT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);  }
-                if (useFrontSensor) { instr.add(CRISP.SENSOR_RESET + ", " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN);         }
-                if (useRightSensor) { instr.add(CRISP.SENSOR_TURN_RIGHT + " 90, " + CRISP.SENSOR_SINGLE_DISTANCE_SCAN); }
-            }
-            return instr;
-        }
-    }
-
-
-
-
-
-
-    public static class ConfigCamera extends Configuration {
-        public static final ConfigCamera DEFAULT = new ConfigCamera(
-                MapProvider.MAP_KEY_MARKED_ROOM,
-                false,
-                true,
-                true,
-                10,
-                2500,
-                true,
-                4,
-                true,
-                false,
-                true,
-                true,
-                true,
-                true,
-                true,
-                false,
-                false
-        );
-
-        private final boolean useGeneralQuery;
-        private final boolean useAngleQuery;
-        private final boolean useSignatureOne;
-        private final boolean useSignatureTwo;
-        private final boolean useSignatureThree;
-        private final boolean useSignatureFour;
-        private final boolean useSignatureFive;
-        private final boolean useSignatureSix;
-        private final boolean useSignatureSeven;
-
-        /**
-         * Constructor
-         *
-         * @param mapKey            A key, identifying a map provided by the MapProvider
-         * @param isOneDimensional  Marks the operating range as one-dimensional.
-         * @param isTwoDimensional  Marks the operating range as two-dimensional.
-         * @param stepSize          Distance to robot moves with every travel-instruction.
-         * @param numberOfParticles Number of particles for the monte-carlo-localization.
-         */
-        public ConfigCamera(String mapKey, boolean isOneDimensional, boolean isTwoDimensional, boolean isWithCamera,
-                            int stepSize, int numberOfParticles, boolean stopWhenDone, int acceptableTolerance,
-                            boolean useGeneralQuery, boolean useAngleQuery, boolean useSignatureOne, boolean useSignatureTwo,
-                            boolean useSignatureThree, boolean useSignatureFour, boolean useSignatureFive,
-                            boolean useSignatureSix, boolean useSignatureSeven) {
-            super(mapKey, isOneDimensional, isTwoDimensional, isWithCamera, stepSize, numberOfParticles, stopWhenDone, acceptableTolerance);
-            this.useGeneralQuery = useGeneralQuery;
-            this.useAngleQuery = useAngleQuery;
-            this.useSignatureOne = useSignatureOne;
-            this.useSignatureTwo = useSignatureTwo;
-            this.useSignatureThree = useSignatureThree;
-            this.useSignatureFour = useSignatureFour;
-            this.useSignatureFive = useSignatureFive;
-            this.useSignatureSix = useSignatureSix;
-            this.useSignatureSeven = useSignatureSeven;
-        }
-
-        @Override
-        public ArrayList<String> getSensingInstructions() {
-            ArrayList<String> instructions = new ArrayList<>();
-            if (useGeneralQuery) { instructions.add(CRISP.CAMERA_GENERAL_QUERY);}
-            if (useGeneralQuery  &&  useAngleQuery) { instructions.add(CRISP.CAMERA_ANGLE_QUERY); }
-            if (useSignatureOne) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 1");}
-            if (useSignatureTwo) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 2");}
-            if (useSignatureThree) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 3");}
-            if (useSignatureFour) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 4");}
-            if (useSignatureFive) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 5");}
-            if (useSignatureSix) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 6");}
-            if (useSignatureSeven) {instructions.add(CRISP.CAMERA_SINGLE_SIGNATURE_QUERY + " 7");}
-            instructions.add(CRISP.SENSOR_THREE_WAY_SCAN);
-            return instructions;
-        }
-
-        public boolean isUseGeneralQuery() {
-            return useGeneralQuery;
-        }
-
-        public boolean isUseAngleQuery() {
-            return useAngleQuery;
-        }
-
-        public boolean isUseSignatureOne() {
-            return useSignatureOne;
-        }
-
-        public boolean isUseSignatureTwo() {
-            return useSignatureTwo;
-        }
-
-        public boolean isUseSignatureThree() {
-            return useSignatureThree;
-        }
-
-        public boolean isUseSignatureFour() {
-            return useSignatureFour;
-        }
-
-        public boolean isUseSignatureFive() {
-            return useSignatureFive;
-        }
-
-        public boolean isUseSignatureSix() {
-            return useSignatureSix;
-        }
-
-        public boolean isUseSignatureSeven() {
-            return useSignatureSeven;
-        }
-    }
+    boolean isUseSignatureSeven();
 }

@@ -1,7 +1,7 @@
 package ki.robotics.client;
 
+import ki.robotics.client.GUI.ClientGUI;
 import ki.robotics.client.MCL.Configuration;
-import ki.robotics.client.MCL.MCL_Display;
 import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.crisp.InstructionSequence;
@@ -21,7 +21,7 @@ import static ki.robotics.utility.crisp.CRISP.*;
  * @version 1.2, 01/02/18
  */
 public class GUIComController implements ComController {
-    private final MCL_Display window;
+    private ClientGUI window;
     private MCL_Provider mclProvider;
     private final SensorModel roverModel;
     private Configuration configuration;
@@ -33,7 +33,7 @@ public class GUIComController implements ComController {
      * Constructor.
      */
     public GUIComController() {
-        this.window = new MCL_Display(this);
+        this.window = new ClientGUI(this);
         this.roverModel = new SensorModel();
     }
 
@@ -45,7 +45,7 @@ public class GUIComController implements ComController {
      */
     @Override
     public void start(Configuration configuration) {
-        this.mclProvider = window.getMclProvider();
+        this.mclProvider = configuration.getMclProvider();
         this.configuration = configuration;
         t = new Thread(new Communicator(Main.HOST, Main.PORT, this));
         t.setDaemon(true);
@@ -73,10 +73,11 @@ public class GUIComController implements ComController {
     @Override
     public String getInitialRequest() {
         InstructionSequence sequence = new InstructionSequence();
+        InstructionSequence scans = provideSensingInstructionsFrom(configuration);
         if (configuration.isOneDimensional()) {
-            sequence.sensorReset().botEnableLineFollower().perform(configuration.getSensingInstructions());
+            sequence.sensorReset().botEnableLineFollower().append(scans);
         } else {
-            sequence.sensorReset().botDisableLineFollower().perform(configuration.getSensingInstructions());
+            sequence.sensorReset().botDisableLineFollower().append(scans);
         }
         return sequence.toString();
     }
@@ -92,7 +93,6 @@ public class GUIComController implements ComController {
     public String getNextRequest() {
         int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
 
-        InstructionSequence sequence = new InstructionSequence();
         if (configuration.isOneDimensional()) {
             return getNextInstructionSequenceForOneDimension().toString();
         } else {
@@ -112,8 +112,7 @@ public class GUIComController implements ComController {
      */
     private InstructionSequence getNextInstructionSequenceForOneDimension() {
         int stepSize = configuration.getStepSize();
-        ArrayList<String > scans = configuration.getSensingInstructions();
-        return new InstructionSequence().botTravelForward(stepSize).perform(scans);
+        return new InstructionSequence().botTravelForward(stepSize).append(provideSensingInstructionsFrom(configuration));
     }
 
 
@@ -124,19 +123,19 @@ public class GUIComController implements ComController {
      */
     private InstructionSequence getNextRequestForTwoDimensions(int bumper) {
         int stepSize = configuration.getStepSize();
-        ArrayList<String > scans = configuration.getSensingInstructions();
+        InstructionSequence scans = provideSensingInstructionsFrom(configuration);
         double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
 
         int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
 
         if(center > bumper + randomNumberSoBoDoesntStutterInFrontOfWall){
-            return new InstructionSequence().botTravelForward(stepSize).perform(scans);
+            return new InstructionSequence().botTravelForward(stepSize).append(scans);
         }else if(right > left  &&  right > bumper){
-            return new InstructionSequence().botTurnRight(90).botTravelForward(stepSize).perform(scans);
+            return new InstructionSequence().botTurnRight().botTravelForward(stepSize).append(scans);
         }else if (left > right  &&  left > bumper){
-            return new InstructionSequence().botTurnLeft(90).botTravelForward(stepSize).perform(scans);
+            return new InstructionSequence().botTurnLeft().botTravelForward(stepSize).append(scans);
         } else {
-            return new InstructionSequence().botTurnRight(180).botTravelForward(stepSize).perform(scans);
+            return new InstructionSequence().botTurnRight(180).botTravelForward(stepSize).append(scans);
         }
     }
 
@@ -154,21 +153,19 @@ public class GUIComController implements ComController {
         }
 
         int stepSize = configuration.getStepSize();
-        ArrayList<String > scans = configuration.getSensingInstructions();
+        InstructionSequence scans = provideSensingInstructionsFrom(configuration);
         double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
 
         int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
 
-        InstructionSequence n = new InstructionSequence().perform(scans);
-
         if(center > bumper + randomNumberSoBoDoesntStutterInFrontOfWall){
-            return new InstructionSequence().botTravelForward(stepSize).append(n);
+            return new InstructionSequence().botTravelForward(stepSize).append(scans);
         }else if(right > left  &&  right > bumper){
-            return new InstructionSequence().botTurnRight(90).botTravelForward(stepSize).append(n);
+            return new InstructionSequence().botTurnRight(90).botTravelForward(stepSize).append(scans);
         }else if (left > right  &&  left > bumper){
-            return new InstructionSequence().botTurnLeft(90).botTravelForward(stepSize).append(n);
+            return new InstructionSequence().botTurnLeft(90).botTravelForward(stepSize).append(scans);
         } else {
-            return new InstructionSequence().botTurnLeft(180).botTravelForward(stepSize).append(n);
+            return new InstructionSequence().botTurnLeft(180).botTravelForward(stepSize).append(scans);
         }
     }
 
@@ -197,7 +194,7 @@ public class GUIComController implements ComController {
                     handleOtherResponse(response);
                     break;
             }
-            if (configuration.stopWhenDone() && !configuration.isWithCamera() && mclProvider.isLocalizationDone()) {
+            if (configuration.isStopWhenDone() && !configuration.isWithCamera() && mclProvider.isLocalizationDone()) {
                 mclProvider.badParticlesFinalKill();
                 window.repaint();
                 stop();
@@ -221,7 +218,7 @@ public class GUIComController implements ComController {
             case BOT_LINE_FOLLOWING_DISABLED:
                 break;
             case BOT_U_TURN:
-                ((Configuration.ConfigOneD)configuration).flipDirection();
+                configuration.flipDirection();
                 mclProvider.turnFull(180);
                 break;
             case BOT_TRAVEL_FORWARD:
@@ -248,10 +245,10 @@ public class GUIComController implements ComController {
     private void handleSensorResponse(Message response) {
         switch (response.getMnemonic()) {
             case SENSOR_TURN_LEFT:
-                roverModel.setSensorHeadPosition((int)response.getParameter());
+                roverModel.setSensorHeadPosition((double)response.getParameter());
                 break;
             case SENSOR_TURN_RIGHT:
-                roverModel.setSensorHeadPosition((int)response.getParameter() * -1);
+                roverModel.setSensorHeadPosition((double)response.getParameter() * -1);
                 break;
             case SENSOR_MEASURE_COLOR:
                 roverModel.setColor((int)response.getParameter());
@@ -332,5 +329,45 @@ public class GUIComController implements ComController {
         } else {
             roverModel.setDistanceToCenter((float)param);
         }
+    }
+
+
+    
+    private InstructionSequence provideSensingInstructionsFrom(Configuration configuration) {
+        InstructionSequence sequence = new InstructionSequence();
+
+        if (configuration.isOneDimensional()) {
+            if (configuration.isMeasureDistanceToLeft()) {
+                sequence.sensorTurnLeft();
+            } else {
+                sequence.sensorTurnRight();
+            }
+            sequence.measureSingleDistance();
+        }
+
+        if (configuration.isTwoDimensional()) {
+            if (configuration.isUseLeftSensor()  &&  configuration.isUseFrontSensor()  &&  configuration.isUseRightSensor()) {
+                sequence.measureAllDistances();
+            } else {
+                if (configuration.isUseLeftSensor()) { sequence.sensorTurnLeft().measureSingleDistance(); }
+                if (configuration.isUseFrontSensor()) { sequence.sensorReset().measureSingleDistance(); }
+                if (configuration.isUseRightSensor()) { sequence.sensorTurnRight().measureSingleDistance(); }
+            }
+        }
+
+        if (configuration.isWithCamera()) {
+            if (configuration.isUseGeneralQuery()) {sequence.cameraGeneralQuery(); }
+            if (configuration.isUseGeneralQuery()  &&  configuration.isUseAngleQuery()) { sequence.camAngleQuery(); }
+            if (configuration.isUseSignatureOne()) { sequence.camQuerySignature(1); }
+            if (configuration.isUseSignatureTwo()) { sequence.camQuerySignature(2); }
+            if (configuration.isUseSignatureThree()) { sequence.camQuerySignature(3); }
+            if (configuration.isUseSignatureFour()) { sequence.camQuerySignature(4); }
+            if (configuration.isUseSignatureFive()) { sequence.camQuerySignature(5); }
+            if (configuration.isUseSignatureSix()) { sequence.camQuerySignature(6); }
+            if (configuration.isUseSignatureSeven()) { sequence.camQuerySignature(7); }
+            sequence.measureAllDistances();
+        }
+
+        return sequence;
     }
 }
