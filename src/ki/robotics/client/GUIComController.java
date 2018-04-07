@@ -213,34 +213,29 @@ public class GUIComController implements ComController {
      * @param response   The instruction-response.
      */
     private void handleBotResponse(Message response) {
-        // Robot-responses without parameter.
         switch (response.getMnemonic()) {
             case BOT_RETURN_POSE:
-                return;
+                break;
             case BOT_LINE_FOLLOWING_ENABLED:
-                return;
+                break;
             case BOT_LINE_FOLLOWING_DISABLED:
-                return;
+                break;
             case BOT_U_TURN:
                 ((Configuration.ConfigOneD)configuration).flipDirection();
                 mclProvider.turnFull(180);
-                return;
-        }
-
-        // Robot-responses with one floating-point parameter
-        switch (response.getMnemonic()) {
+                break;
             case BOT_TRAVEL_FORWARD:
                 mclProvider.translateParticle((double)response.getParameter());
-                return;
+                break;
             case BOT_TRAVEL_BACKWARD:
                 mclProvider.translateParticle((double)response.getParameter() * -1);
-                return;
+                break;
             case BOT_TURN_LEFT:
-                mclProvider.turnFull(Math.abs((int)response.getParameter()));
-                return;
+                mclProvider.turnFull(Math.abs((double)response.getParameter()));
+                break;
             case BOT_TURN_RIGHT:
-                mclProvider.turnFull(Math.abs((int)response.getParameter()) * -1);
-                return;
+                mclProvider.turnFull(Math.abs((double)response.getParameter()) * -1);
+                break;
         }
     }
 
@@ -329,7 +324,6 @@ public class GUIComController implements ComController {
         boolean measurementRight = angle < -45;
 
         double param = (double)response.getParameters()[0];
-//        double param = ((Instruction.SingleFloatInstruction)instruction).getParameters();
 
         if (measurementLeft) {
             roverModel.setDistanceToLeft((float) param);

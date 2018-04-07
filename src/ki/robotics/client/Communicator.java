@@ -14,7 +14,6 @@ import static ki.robotics.utility.crisp.CRISP.END_OF_INSTRUCTION_SEQUENCE;
 /**
  * Communication-Instance for the client-side.
  *
- * @version 1.2, 01/02/18
  */
 final class Communicator implements Runnable{
 
@@ -49,42 +48,58 @@ final class Communicator implements Runnable{
     @Override
     public void run() {
         try {
-            Socket socket = new Socket(host, port);
-            socket.setKeepAlive(true);
-            socket.setSoTimeout(TRANSMISSION_TIMEOUT);
-            socket.setTcpNoDelay(true);
-
-            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            Socket socket = createSocket(host, port);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-
-            String request = ComController.getInitialRequest();
-            String response;
-
-            do {
-                out.println(request);
-                do {
-                    response = in.readLine();
-                    if (response == null) {
-                        continue;
-                    }
-                     ComController.handleResponse(response);
-                    if (response.contains(END_OF_INSTRUCTION_SEQUENCE)) {
-                        break;
-                    }
-                } while (true);
-                request = ComController.getNextRequest();
-            } while ( running && !request.equals(DISCONNECT));
-
-            out.println(DISCONNECT);
-            out.close();
-            in.close();
-            socket.close();
-            running = true;
+            PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+            handleOngoingCommunication(in, out);
+            tearDownConnection(socket, in, out);
         } catch (SocketTimeoutException ignored) {
 
         } catch (IOException e1) {
             e1.printStackTrace();
         }
+    }
+
+
+
+    private Socket createSocket(String host, int port) throws IOException {
+        Socket socket = new Socket(host, port);
+        socket.setKeepAlive(true);
+        socket.setSoTimeout(TRANSMISSION_TIMEOUT);
+        socket.setTcpNoDelay(true);
+        return socket;
+    }
+
+
+
+    private void handleOngoingCommunication(BufferedReader in, PrintWriter out) throws IOException {
+        String request = ComController.getInitialRequest();
+        String response;
+
+        do {
+            out.println(request);
+            do {
+                response = in.readLine();
+                if (response == null) {
+                    continue;
+                }
+                ComController.handleResponse(response);
+                if (response.contains(END_OF_INSTRUCTION_SEQUENCE)) {
+                    break;
+                }
+            } while (true);
+            request = ComController.getNextRequest();
+        } while ( running && !request.equals(DISCONNECT));
+    }
+
+
+
+    private void tearDownConnection(Socket socket, BufferedReader in, PrintWriter out) throws IOException{
+        out.println(DISCONNECT);
+        out.close();
+        in.close();
+        socket.close();
+        running = true;
     }
 
 }

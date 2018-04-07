@@ -24,21 +24,21 @@ public class InstructionSequence {
     }
 
 
-    public InstructionSequence botTravelForward(int distance) {
+    public InstructionSequence botTravelForward(double distance) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TRAVEL_FORWARD).append(" ").append(distance);
         return this;
     }
 
 
-    public InstructionSequence botTravelBackward(int distance) {
+    public InstructionSequence botTravelBackward(double distance) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TRAVEL_BACKWARD).append(" ").append(distance);
         return this;
     }
 
 
-    public InstructionSequence botTurnLeft(int angle) {
+    public InstructionSequence botTurnLeft(double angle) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TURN_LEFT).append(" ").append(angle);
         return this;
@@ -49,7 +49,7 @@ public class InstructionSequence {
     }
 
 
-    public InstructionSequence botTurnRight(int angle) {
+    public InstructionSequence botTurnRight(double angle) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TURN_RIGHT).append(" ").append(angle);
         return this;
@@ -74,7 +74,7 @@ public class InstructionSequence {
     }
 
 
-    public InstructionSequence sensorTurnLeft(int degree) {
+    public InstructionSequence sensorTurnLeft(double degree) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_TURN_LEFT).append(" ").append(degree);
         return this;
@@ -85,7 +85,7 @@ public class InstructionSequence {
     }
 
 
-    public InstructionSequence sensorTurnRight(int degree) {
+    public InstructionSequence sensorTurnRight(double degree) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_TURN_RIGHT).append(" ").append(degree);
         return this;

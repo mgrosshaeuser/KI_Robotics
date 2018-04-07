@@ -19,6 +19,9 @@ public class BotServer {
     private static final int TIMEOUT = 0;
 
     private final int port;
+    private ServerSocket server;
+    private Socket client;
+
     private final BotController controller;
 
     private boolean stayOnline;
@@ -28,7 +31,7 @@ public class BotServer {
     /**
      * Constructor.
      *
-     * @param port          The port to open for incomming connection-requests.
+     * @param port          The port to open for incoming connection-requests.
      * @param isSimulation  Boolean value to decide whether to use a physical or simulated robot.
      */
     public BotServer(int port, boolean isSimulation) {
@@ -47,30 +50,14 @@ public class BotServer {
 		while (stayOnline) {
             stayConnected = true;
             try {
-                ServerSocket server = new ServerSocket(port);
-                Socket client = server.accept();
-                client.setKeepAlive(true);
-                client.setSoTimeout(TIMEOUT);
-                client.setTcpNoDelay(true);
+                createSockets(port);
 
                 PrintWriter out = new PrintWriter(client.getOutputStream(), true);
                 BufferedReader in = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 controller.registerOutputStream(out);
 
-                String request;
-
-                do {
-                    request = in.readLine();
-                    if (request == null) {
-                        continue;
-                    }
-                    stayConnected = controller.handleRequest(request);
-                } while (stayConnected);
-
-                out.close();
-                in.close();
-                client.close();
-                server.close();
+                handleOngoingCommunication(in);
+                tearDownConnection(in, out);
             } catch (SocketTimeoutException ignored) {
 
             } catch (IOException e1) {
@@ -79,6 +66,33 @@ public class BotServer {
         }
 	}
 
+
+	private void createSockets(int port) throws IOException {
+        server = new ServerSocket(port);
+        client = server.accept();
+        client.setKeepAlive(true);
+        client.setSoTimeout(TIMEOUT);
+        client.setTcpNoDelay(true);
+    }
+
+    private void handleOngoingCommunication(BufferedReader in) throws IOException {
+        String request;
+        do {
+            request = in.readLine();
+            if (request == null) {
+                continue;
+            }
+            controller.handleRequest(request);
+        } while (stayConnected);
+    }
+
+    private void tearDownConnection(BufferedReader in, PrintWriter out) throws IOException {
+        controller.registerOutputStream(null);
+        out.close();
+        in.close();
+        client.close();
+        server.close();
+    }
 
 
     /**

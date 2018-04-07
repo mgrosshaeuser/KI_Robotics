@@ -24,19 +24,15 @@ public class RoverSimulation extends VirtualRobotModel {
     private static final String DEFAULT_SELECTED_MAP = MapProvider.MAP_KEY_HOUSES;
     private static final int ANIMATION_INTER_FRAME_TIME = 50;
 
-    private final BotServer botServer;
     private final SimulationDisplay window;
 
     /**
      * Constructor.
-     *
-     * @param botServer     An instance of the BotServer for communication.
      */
-    public RoverSimulation(BotServer botServer) {
+    public RoverSimulation() {
         this.pose = new Pose();
         this.pose.setLocation(10,10);
         this.pose.setHeading(0);
-        this.botServer = botServer;
         this.map = MapProvider.getInstance().getMap(DEFAULT_SELECTED_MAP);
         this.window = new SimulationDisplay(map);
         window.repaint();

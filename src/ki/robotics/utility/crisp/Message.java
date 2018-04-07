@@ -29,7 +29,6 @@ public class Message<T> {
     }
 
     private static Message decodeMessage(String message) {
-        Message<Number> m;
         String[] elements = message.split(" ");
         String mnemonic = elements[0];
         try {
@@ -65,26 +64,25 @@ public class Message<T> {
         return parameters;
     }
 
-    public T getParameter() { return parameters[0]; }
+    public T getParameter() {
+        if (parameters == null) {
+            throw new IndexOutOfBoundsException();
+        }
+        return parameters[0];
+    }
 
     private char identifyMessageGroup(String mnemonic) {
-        char first = mnemonic.charAt(0);
-        char messageGroup;
-        switch (first) {
-            case 'B':
-                messageGroup = 'B';
-                break;
-            case 'S':
-                messageGroup = 'S';
-                break;
-            case 'C':
-                messageGroup = 'C';
-                break;
+        char firstLetter = Character.toUpperCase(mnemonic.charAt(0));
+        switch (firstLetter) {
+            case CRISP.BOT_INSTRUCTION:
+                return CRISP.BOT_INSTRUCTION;
+            case CRISP.SENSOR_INSTRUCTION:
+                return CRISP.SENSOR_INSTRUCTION;
+            case CRISP.CAMERA_INSTRUCTION:
+                return CRISP.CAMERA_INSTRUCTION;
             default:
-                messageGroup = 'O';
-                break;
+                return CRISP.OTHER_INSTRUCTION;
         }
-        return messageGroup;
     }
 
 

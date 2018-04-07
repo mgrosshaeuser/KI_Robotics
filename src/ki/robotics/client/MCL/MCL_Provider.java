@@ -426,12 +426,12 @@ public class MCL_Provider {
      *
      * @param degrees   The degrees to turn.
      */
-    public void turnFull(int degrees){
+    public void turnFull(double degrees){
         Random r = new Random();
         for (MCLParticle p : particles) {
             double d = r.nextGaussian();
-            degrees = configuration.isTwoDimensional() ? (int) Math.round(degrees * (1+(d/540))) : degrees;
-            p.turnFull(degrees);
+            degrees = configuration.isTwoDimensional() ? (int) Math.round(degrees * (1+(d/540))) : (int) Math.round(degrees);
+            p.turnFull((int)degrees);
         }
     }
 }
