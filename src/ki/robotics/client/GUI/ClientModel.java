@@ -5,7 +5,7 @@ import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 
-public class ClientGUIModel implements Configuration {
+public class ClientModel implements Configuration {
     private static final String ONE_DIMENSION_MAP_KEY = MapProvider.MAP_KEY_HOUSES;
     private static final String TWO_DIMENSION_MAP_KEY = MapProvider.MAP_KEY_ROOM;
     private static final String TWO_DIMENSION_WITH_CAM_MAP_KEY = MapProvider.MAP_KEY_MARKED_ROOM;
@@ -53,7 +53,7 @@ public class ClientGUIModel implements Configuration {
 
 
 
-    public void createMclProvider() {
+    void createMclProvider() {
         this.mclProvider = new MCL_Provider(map, numberOfParticles, new int[]{-1,-1,-1}, this);
     }
 
@@ -70,11 +70,6 @@ public class ClientGUIModel implements Configuration {
         return map;
     }
 
-    public void loadMap(String mapKey) {
-        this.mapKey = mapKey;
-        this.map = mapProvider.getMap(mapKey);
-    }
-
     @Override
     public String getMapKey() {
         return this.mapKey;
@@ -85,13 +80,7 @@ public class ClientGUIModel implements Configuration {
         return numberOfParticles;
     }
 
-    public void setNumberOfParticles(int numberOfParticles) {
-        if (numberOfParticles > 100000  ||  numberOfParticles < 0) {
-            throw new UnsupportedOperationException("Invalid number of particles.");
-        } else {
-            this.numberOfParticles = numberOfParticles;
-        }
-    }
+    void setNumberOfParticles(int numberOfParticles) { this.numberOfParticles = numberOfParticles; }
 
 
 
@@ -102,7 +91,7 @@ public class ClientGUIModel implements Configuration {
         return isOneDimensional;
     }
 
-    public void setOneDimensional() {
+    void setOneDimensional() {
         isOneDimensional = true;
         isTwoDimensional = false;
         isWithCamera = false;
@@ -116,7 +105,7 @@ public class ClientGUIModel implements Configuration {
         return isTwoDimensional;
     }
 
-    public void setTwoDimensional() {
+    void setTwoDimensional() {
         isTwoDimensional = true;
         isOneDimensional = false;
         isWithCamera = false;
@@ -130,7 +119,7 @@ public class ClientGUIModel implements Configuration {
         return isWithCamera;
     }
 
-    public void setWithCamera() {
+    void setWithCamera() {
         isWithCamera = true;
         isOneDimensional = false;
         isTwoDimensional = false;
@@ -147,7 +136,7 @@ public class ClientGUIModel implements Configuration {
         return stepSize;
     }
 
-    public void setStepSize(int stepSize) {
+    void setStepSize(int stepSize) {
         this.stepSize = stepSize;
     }
 
@@ -156,7 +145,7 @@ public class ClientGUIModel implements Configuration {
         return stopWhenDone;
     }
 
-    public void setStopWhenDone(boolean stopWhenDone) {
+    void setStopWhenDone(boolean stopWhenDone) {
         this.stopWhenDone = stopWhenDone;
     }
 
@@ -165,7 +154,7 @@ public class ClientGUIModel implements Configuration {
         return acceptableTolerance;
     }
 
-    public void setAcceptableTolerance(int acceptableTolerance) {
+    void setAcceptableTolerance(int acceptableTolerance) {
         this.acceptableTolerance = acceptableTolerance;
     }
 
@@ -176,7 +165,7 @@ public class ClientGUIModel implements Configuration {
         return startFromLeft;
     }
 
-    public void setStartFromLeft() {
+    void setStartFromLeft() {
         this.startFromLeft = true;
         this.measureDistanceToLeft = true;
     }
@@ -184,7 +173,7 @@ public class ClientGUIModel implements Configuration {
     @Override
     public boolean isStartFromRight() { return !startFromLeft; }
 
-    public void setStartFromRight() {
+    void setStartFromRight() {
         this.startFromLeft = false;
         this.measureDistanceToLeft = false;
     }
@@ -208,7 +197,7 @@ public class ClientGUIModel implements Configuration {
         return useRightAngles;
     }
 
-    public void setUseRightAngles() {
+    void setUseRightAngles() {
         this.useRightAngles = true;
         this.useFreeAngles = false;
     }
@@ -218,17 +207,18 @@ public class ClientGUIModel implements Configuration {
         return useFreeAngles;
     }
 
-    public void setUseFreeAngles() {
+    void setUseFreeAngles() {
         this.useFreeAngles = true;
         this.useRightAngles = false;
     }
+
 
     @Override
     public boolean isUseLeftSensor() {
         return useLeftSensor;
     }
 
-    public void setUseLeftSensor(boolean useLeftSensor) {
+    void setUseLeftSensor(boolean useLeftSensor) {
         this.useLeftSensor = useLeftSensor;
     }
 
@@ -237,7 +227,7 @@ public class ClientGUIModel implements Configuration {
         return useFrontSensor;
     }
 
-    public void setUseFrontSensor(boolean useFrontSensor) {
+    void setUseFrontSensor(boolean useFrontSensor) {
         this.useFrontSensor = useFrontSensor;
     }
 
@@ -246,16 +236,19 @@ public class ClientGUIModel implements Configuration {
         return useRightSensor;
     }
 
-    public void setUseRightSensor(boolean useRightSensor) {
+    void setUseRightSensor(boolean useRightSensor) {
         this.useRightSensor = useRightSensor;
     }
+
+
+
 
     @Override
     public boolean isUseGeneralQuery() {
         return useGeneralQuery;
     }
 
-    public void setUseGeneralQuery(boolean useGeneralQuery) {
+    void setUseGeneralQuery(boolean useGeneralQuery) {
         this.useGeneralQuery = useGeneralQuery;
     }
 
@@ -264,7 +257,7 @@ public class ClientGUIModel implements Configuration {
         return useAngleQuery;
     }
 
-    public void setUseAngleQuery(boolean useAngleQuery) {
+    void setUseAngleQuery(boolean useAngleQuery) {
         this.useAngleQuery = useAngleQuery;
     }
 
@@ -273,7 +266,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureOne;
     }
 
-    public void setUseSignatureOne(boolean useSignatureOne) {
+    void setUseSignatureOne(boolean useSignatureOne) {
         this.useSignatureOne = useSignatureOne;
     }
 
@@ -282,7 +275,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureTwo;
     }
 
-    public void setUseSignatureTwo(boolean useSignatureTwo) {
+    void setUseSignatureTwo(boolean useSignatureTwo) {
         this.useSignatureTwo = useSignatureTwo;
     }
 
@@ -291,7 +284,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureThree;
     }
 
-    public void setUseSignatureThree(boolean useSignatureThree) {
+    void setUseSignatureThree(boolean useSignatureThree) {
         this.useSignatureThree = useSignatureThree;
     }
 
@@ -300,7 +293,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureFour;
     }
 
-    public void setUseSignatureFour(boolean useSignatureFour) {
+    void setUseSignatureFour(boolean useSignatureFour) {
         this.useSignatureFour = useSignatureFour;
     }
 
@@ -309,7 +302,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureFive;
     }
 
-    public void setUseSignatureFive(boolean useSignatureFive) {
+    void setUseSignatureFive(boolean useSignatureFive) {
         this.useSignatureFive = useSignatureFive;
     }
 
@@ -318,7 +311,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureSix;
     }
 
-    public void setUseSignatureSix(boolean useSignatureSix) {
+    void setUseSignatureSix(boolean useSignatureSix) {
         this.useSignatureSix = useSignatureSix;
     }
 
@@ -327,7 +320,7 @@ public class ClientGUIModel implements Configuration {
         return useSignatureSeven;
     }
 
-    public void setUseSignatureSeven(boolean useSignatureSeven) {
+    void setUseSignatureSeven(boolean useSignatureSeven) {
         this.useSignatureSeven = useSignatureSeven;
     }
 }

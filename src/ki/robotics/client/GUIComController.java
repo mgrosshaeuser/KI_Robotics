@@ -1,6 +1,6 @@
 package ki.robotics.client;
 
-import ki.robotics.client.GUI.ClientGUI;
+import ki.robotics.client.GUI.ClientView;
 import ki.robotics.client.MCL.Configuration;
 import ki.robotics.client.MCL.MCL_Provider;
 import ki.robotics.client.MCL.SensorModel;
@@ -21,7 +21,7 @@ import static ki.robotics.utility.crisp.CRISP.*;
  * @version 1.2, 01/02/18
  */
 public class GUIComController implements ComController {
-    private ClientGUI window;
+    private ClientView window;
     private MCL_Provider mclProvider;
     private final SensorModel roverModel;
     private Configuration configuration;
@@ -32,8 +32,8 @@ public class GUIComController implements ComController {
     /**
      * Constructor.
      */
-    public GUIComController() {
-        this.window = new ClientGUI(this);
+    GUIComController() {
+        this.window = new ClientView(this);
         this.roverModel = new SensorModel();
     }
 
