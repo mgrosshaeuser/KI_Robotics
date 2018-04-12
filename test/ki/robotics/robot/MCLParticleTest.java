@@ -25,11 +25,6 @@ public class MCLParticleTest {
         Assert.assertEquals(result, expectedResult);
     }
 
-    @Test
-    public void testIsOutOfBounds() {
-
-    }
-
     @DataProvider(name = "getTurnFullProvider")
     public Object[][] getTurnFullProvider() {
         Map map = MapProvider.getInstance().getMap("Room");
@@ -129,35 +124,4 @@ public class MCLParticleTest {
                 {new MCLParticle(null, null, 0.1F), new MCLParticle(null, null, 0.1F), 0},
         };
     }
-
-    /*
-    @DataProvider(name = "getMCLProviderObjectProvider")
-    public Object[][] getMCLProviderObjectProvider() {
-
-        int step = 10; //via GUI in cm
-        int numOfParticles = 1000; //via GUI
-        int tolerance = 10; //via GUI in cm
-        String mapKey = Configuration.ConfigTwoD.DEFAULT.getMapKey();
-        Configuration config2D = new Configuration.ConfigTwoD(
-                mapKey,
-                false,
-                true,
-                false,
-                step,
-                numOfParticles,
-                true,
-                tolerance,
-                true,
-                true,
-                true,
-                true,
-                true);
-        Map map = MapProvider.getInstance().getMap("Room");
-        int[] limitations = MapProvider.getInstance().getMapLimitations(config2D.getMapKey());
-
-        return new Object[][] {
-                {new MCL_Provider(map, config2D.getNumberOfParticles(), limitations, config2D)}
-        };
-    }
-    */
 }
