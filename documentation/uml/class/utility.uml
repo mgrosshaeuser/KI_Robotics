@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>ki.robotics.utility</OriginalElement>
+  <nodes>
+    <node x="814.4680871212121" y="730.5">ki.robotics.utility.map.mapElements.Line</node>
+    <node x="0.0" y="795.5">ki.robotics.utility.map.mapElements.Rectangle</node>
+    <node x="596.9520833333333" y="2536.0">ki.robotics.utility.map.MapProvider</node>
+    <node x="909.1979166666665" y="2060.0">ki.robotics.utility.map.SVGParser</node>
+    <node x="912.375" y="169.5">ki.robotics.utility.pixyCam.DTOAngleQuery</node>
+    <node x="376.19346590909083" y="1289.0">ki.robotics.utility.map.Map</node>
+    <node x="1984.4680871212122" y="799.0">ki.robotics.utility.crisp.InstructionSequence</node>
+    <node x="2418.468087121212" y="786.0">ki.robotics.utility.crisp.ResponseSequence</node>
+    <node x="576.375" y="0.0">ki.robotics.utility.pixyCam.DTOSignatureQuery</node>
+    <node x="1567.4680871212122" y="1032.5">ki.robotics.utility.crisp.Message</node>
+    <node x="2009.9680871212122" y="0.0">ki.robotics.utility.crisp.CRISP</node>
+    <node x="381.00000000000006" y="575.0">ki.robotics.utility.pixyCam.PixyCam</node>
+    <node x="1164.4680871212122" y="743.5">ki.robotics.utility.map.mapElements.Circle</node>
+    <node x="281.37500000000006" y="65.5">ki.robotics.utility.pixyCam.DTOColorCodeQuery</node>
+    <node x="2.375" y="78.0">ki.robotics.utility.pixyCam.DTOGeneralQuery</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ki.robotics.utility.map.Map" target="ki.robotics.utility.pixyCam.PixyCam">
+      <point x="-129.9375" y="-330.5" />
+      <point x="592.7559659090908" y="1269.0" />
+      <point x="571.5" y="1269.0" />
+      <point x="0.0" y="317.0" />
+    </edge>
+    <edge source="ki.robotics.utility.map.MapProvider" target="ki.robotics.utility.map.Map">
+      <point x="-124.875" y="-187.5" />
+      <point x="638.5770833333333" y="2516.0" />
+      <point x="565.7562500000001" y="2516.0" />
+      <point x="565.7562500000001" y="2040.0" />
+      <point x="445.49346590909084" y="2040.0" />
+      <point x="-277.2" y="330.5" />
+    </edge>
+    <edge source="ki.robotics.utility.crisp.InstructionSequence" target="ki.robotics.utility.crisp.CRISP">
+      <point x="0.0" y="-368.5" />
+      <point x="0.0" y="368.0" />
+    </edge>
+    <edge source="ki.robotics.utility.map.SVGParser" target="ki.robotics.utility.map.mapElements.Circle">
+      <point x="122.20833333333326" y="-213.0" />
+      <point x="1240.9062499999998" y="2020.0" />
+      <point x="1398.8602272727271" y="2020.0" />
+      <point x="1398.8602272727271" y="1269.0" />
+      <point x="1343.4680871212122" y="1269.0" />
+      <point x="0.0" y="148.5" />
+    </edge>
+    <edge source="ki.robotics.utility.map.SVGParser" target="ki.robotics.utility.map.mapElements.Line">
+      <point x="52.375" y="-213.0" />
+      <point x="1171.0729166666665" y="2040.0" />
+      <point x="1158.5483901515152" y="2040.0" />
+      <point x="1158.5483901515152" y="1239.0" />
+      <point x="1061.9680871212122" y="1239.0" />
+      <point x="82.5" y="161.5" />
+    </edge>
+    <edge source="ki.robotics.utility.pixyCam.PixyCam" target="ki.robotics.utility.pixyCam.DTOGeneralQuery">
+      <point x="-166.6875" y="-317.0" />
+      <point x="404.81250000000006" y="555.0" />
+      <point x="67.125" y="555.0" />
+      <point x="-64.75" y="174.5" />
+    </edge>
+    <edge source="ki.robotics.utility.pixyCam.PixyCam" target="ki.robotics.utility.pixyCam.DTOColorCodeQuery">
+      <point x="-23.8125" y="-317.0" />
+      <point x="547.6875" y="525.0" />
+      <point x="487.62500000000006" y="525.0" />
+      <point x="68.75" y="187.0" />
+    </edge>
+    <edge source="ki.robotics.utility.pixyCam.PixyCam" target="ki.robotics.utility.pixyCam.DTOSignatureQuery">
+      <point x="71.4375" y="-317.0" />
+      <point x="642.9375" y="535.0" />
+      <point x="813.375" y="535.0" />
+      <point x="79.0" y="252.5" />
+    </edge>
+    <edge source="ki.robotics.utility.map.MapProvider" target="ki.robotics.utility.map.SVGParser">
+      <point x="124.875" y="-187.5" />
+      <point x="888.3270833333333" y="2516.0" />
+      <point x="1223.4479166666665" y="2516.0" />
+      <point x="104.75" y="213.0" />
+    </edge>
+    <edge source="ki.robotics.utility.crisp.Message" target="ki.robotics.utility.crisp.CRISP">
+      <point x="0.0" y="-135.0" />
+      <point x="1765.9680871212122" y="761.0" />
+      <point x="2070.468087121212" y="761.0" />
+      <point x="-121.0" y="368.0" />
+    </edge>
+    <edge source="ki.robotics.utility.map.SVGParser" target="ki.robotics.utility.map.mapElements.Rectangle">
+      <point x="-122.20833333333326" y="-213.0" />
+      <point x="996.4895833333333" y="2010.0" />
+      <point x="170.99933712121208" y="2010.0" />
+      <point x="170.99933712121208" y="1269.0" />
+      <point x="180.5" y="1269.0" />
+      <point x="0.0" y="96.5" />
+    </edge>
+    <edge source="ki.robotics.utility.crisp.ResponseSequence" target="ki.robotics.utility.crisp.CRISP">
+      <point x="0.0" y="-381.5" />
+      <point x="2616.468087121212" y="761.0" />
+      <point x="2312.468087121212" y="761.0" />
+      <point x="121.0" y="368.0" />
+    </edge>
+    <edge source="ki.robotics.utility.map.Map" target="ki.robotics.utility.map.mapElements.Line">
+      <point x="129.9375" y="-330.5" />
+      <point x="852.6309659090908" y="1249.0" />
+      <point x="951.9680871212121" y="1249.0" />
+      <point x="-27.5" y="161.5" />
+    </edge>
+    <edge source="ki.robotics.utility.map.SVGParser" target="ki.robotics.utility.map.Map">
+      <point x="-87.29166666666652" y="-213.0" />
+      <point x="1031.40625" y="2000.0" />
+      <point x="722.6934659090908" y="2000.0" />
+      <point x="0.0" y="330.5" />
+    </edge>
+    <edge source="ki.robotics.utility.map.Map" target="ki.robotics.utility.map.mapElements.Circle">
+      <point x="303.1875" y="-330.5" />
+      <point x="1025.8809659090907" y="1269.0" />
+      <point x="1271.868087121212" y="1269.0" />
+      <point x="-71.6" y="148.5" />
+    </edge>
+    <edge source="ki.robotics.utility.pixyCam.PixyCam" target="ki.robotics.utility.pixyCam.DTOAngleQuery">
+      <point x="166.6875" y="-317.0" />
+      <point x="738.1875" y="555.0" />
+      <point x="1132.125" y="555.0" />
+      <point x="73.25" y="83.0" />
+    </edge>
+    <edge source="ki.robotics.utility.map.Map" target="ki.robotics.utility.map.mapElements.Rectangle">
+      <point x="-216.5625" y="-330.5" />
+      <point x="506.13096590909083" y="1259.0" />
+      <point x="324.9000000000001" y="1259.0" />
+      <point x="144.4000000000001" y="96.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="715.0" y="467.0" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
