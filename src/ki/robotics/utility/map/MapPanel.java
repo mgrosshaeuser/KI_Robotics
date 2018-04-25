@@ -1,6 +1,4 @@
-package ki.robotics.common;
-
-import ki.robotics.utility.map.Map;
+package ki.robotics.utility.map;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,14 +13,12 @@ public abstract class MapPanel extends JPanel{
     private int xOffset = 0;
     private int yOffset = 0;
     private boolean isModifiable;
-    private final JFrame parent;
     private Map map;
 
     /**
      * Constructor.
      */
-    protected MapPanel(JFrame parent, Map map) {
-        this.parent = parent;
+    protected MapPanel(Map map) {
         this.map = map;
         this.isModifiable = true;
 
@@ -34,8 +30,8 @@ public abstract class MapPanel extends JPanel{
     }
 
     public int getScaleFactor() {   return scaleFactor; }
-    public int getxOffset()     {   return xOffset;     }
-    public int getyOffset()     {   return yOffset;     }
+    public int getXOffset()     {   return xOffset;     }
+    public int getYOffset()     {   return yOffset;     }
 
     public boolean isModifiable() { return isModifiable; }
     public void setModifiable(boolean modifiable) { isModifiable = modifiable;  }

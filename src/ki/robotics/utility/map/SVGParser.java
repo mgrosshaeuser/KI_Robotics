@@ -23,12 +23,12 @@ import java.util.ArrayList;
 /**
  *
  */
-public class SVGParser {
+class SVGParser {
     private final ArrayList<Circle> circles = new ArrayList<>();
     private final ArrayList<Line> lines = new ArrayList<>();
     private final ArrayList<Rectangle> rectangles = new ArrayList<>();
 
-    private Map map;
+    private MapImpl map;
 
 
 
@@ -48,13 +48,13 @@ public class SVGParser {
             parseNodes(documentRoot.getChildNodes());
         }
 
-        map = new Map(lines, rectangles, circles);
+        map = new MapImpl(lines, rectangles, circles);
         map.setHeight(mapHeight);
         map.setWidth(mapWidth);
     }
 
 
-    Map getMap() {
+    MapImpl getMap() {
         return this.map;
     }
 
@@ -66,7 +66,7 @@ public class SVGParser {
      * @param file the specified SVG-file
      * @return the DocumentElement of the specified file.
      */
-    Element getDocumentRoot(File file) {
+    private Element getDocumentRoot(File file) {
         try {
             DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = builderFactory.newDocumentBuilder();
@@ -87,7 +87,7 @@ public class SVGParser {
      *
      * @param list the specified NodeList
      */
-    void parseNodes(NodeList list) {
+    private void parseNodes(NodeList list) {
         for (int i = 0  ;  i < list.getLength()  ;  i++) {
             Node node = list.item(i);
             switch (node.getNodeName()) {
@@ -116,7 +116,7 @@ public class SVGParser {
      * @param node the specified Node
      * @return a Line-representation of the specified Node
      */
-    Line parseLine(Node node) {
+    private Line parseLine(Node node) {
         Element lineElement = (Element) node;
         double startX = parseFloatingPointAttribute("x1", lineElement);
         double startY = parseFloatingPointAttribute("y1", lineElement);
@@ -137,7 +137,7 @@ public class SVGParser {
      * @param node the specified Node
      * @return a Circle-representation of the specified Node
      */
-    Circle parseCircle(Node node) {
+    private Circle parseCircle(Node node) {
         Element circleElement = (Element) node;
         double centerX = parseFloatingPointAttribute("cx", circleElement);
         double centerY = parseFloatingPointAttribute("cy", circleElement);
@@ -158,7 +158,7 @@ public class SVGParser {
      * @param node the specified Node
      * @return a Rectangle-representation of the specified Node
      */
-    Rectangle parseRectangle(Node node) {
+    private Rectangle parseRectangle(Node node) {
         Element rectangleElement = (Element) node;
         double x = parseFloatingPointAttribute("x", rectangleElement);
         double y = parseFloatingPointAttribute("y", rectangleElement);
@@ -178,7 +178,7 @@ public class SVGParser {
      * @param element the specified Element
      * @return the stroke color of the specified Element.
      */
-    int getStrokeColorOf(Element element) {
+    private int getStrokeColorOf(Element element) {
         return parseColorAttribute("stroke", element);
     }
 
@@ -190,7 +190,7 @@ public class SVGParser {
      * @param element the specified Element
      * @return the fill color of the specified Element.
      */
-    int getFillColorOf(Element element) {
+    private int getFillColorOf(Element element) {
         return parseColorAttribute("fill", element);
     }
 
@@ -203,7 +203,7 @@ public class SVGParser {
      * @param element the specified Element
      * @return the color as integer
      */
-    int parseColorAttribute(String attribute, Element element) {
+    private int parseColorAttribute(String attribute, Element element) {
         String value = element.getAttribute(attribute);
         try {
             return Integer.parseInt(value.substring(1), 16);
@@ -221,7 +221,7 @@ public class SVGParser {
      * @param element the specified Element
      * @return the attribute-value in double precision
      */
-    double parseFloatingPointAttribute(String attribute, Element element) {
+    private double parseFloatingPointAttribute(String attribute, Element element) {
         try {
             return Double.parseDouble(element.getAttribute(attribute));
         } catch (NumberFormatException e) {

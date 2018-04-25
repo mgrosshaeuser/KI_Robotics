@@ -1,5 +1,6 @@
-package ki.robotics.robot;
+package ki.robotics.server.robot;
 
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;

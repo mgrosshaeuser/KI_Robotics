@@ -1,8 +1,8 @@
-package ki.robotics.robot;
+package ki.robotics.server.robot.virtualRobots;
 
-import ki.robotics.common.ExtJPanel;
-import ki.robotics.common.MapPanel;
-import ki.robotics.server.BotServer;
+import ki.robotics.server.robot.RobotImplVirtualRobot;
+import ki.robotics.utility.gui.ExtJPanel;
+import ki.robotics.utility.map.MapPanel;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
@@ -15,12 +15,12 @@ import java.awt.*;
 import java.awt.event.*;
 
 /**
- * Implementation of the Robot-Interface through the VirtualRobotModel-class.
+ * Implementation of the Robot-Interface through the RobotImplVirtualRobot-class.
  * Simulates and displays a robot.
  *
  * @version 1.0 01/02/18
  */
-public class RoverSimulation extends VirtualRobotModel {
+public class RoverSimulation extends RobotImplVirtualRobot {
     private static final String DEFAULT_SELECTED_MAP = MapProvider.MAP_KEY_HOUSES;
     private static final int ANIMATION_INTER_FRAME_TIME = 50;
 
@@ -46,7 +46,7 @@ public class RoverSimulation extends VirtualRobotModel {
      * @param dy    Translation-distance along the y-axis.
      */
     @Override
-    void translate(float dx, float dy) {
+    protected void translate(float dx, float dy) {
         float distance = (float) Math.sqrt(Math.pow(dx,2) + Math.pow(dy,2));
         float xStep = dx / distance;
         float yStep = dy / distance;
@@ -64,7 +64,7 @@ public class RoverSimulation extends VirtualRobotModel {
      * @param degrees   Degrees to turn the heading.
      */
     @Override
-    void turnFull(int degrees) {
+    protected void turnFull(int degrees) {
         if (degrees > 0) {
             for (int i = 0  ;  i < degrees  ;  i++) {
                 pose.setHeading((Math.round(pose.getHeading() + 1)) % 360);
@@ -98,7 +98,7 @@ public class RoverSimulation extends VirtualRobotModel {
      * @param position  The new position of the sensor-head.
      */
     @Override
-    void turnSensor(int position) {
+    protected void turnSensor(int position) {
         if (position > sensorHeadPosition) {
             while ( position > sensorHeadPosition) {
                 sensorHeadPosition++;
@@ -323,7 +323,7 @@ public class RoverSimulation extends VirtualRobotModel {
          * @param map       The map in use.
          */
         MapOverlay(SimulationDisplay parent, Map map) {
-            super(parent, map);
+            super(map);
 
             this.rover = new Rover(this);
             this.grabFocus();
@@ -331,7 +331,7 @@ public class RoverSimulation extends VirtualRobotModel {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     super.mouseClicked(e);
-                    Rectangle botOutline = rover.getBounds(getScaleFactor(), getxOffset(), getyOffset());
+                    Rectangle botOutline = rover.getBounds(getScaleFactor(), getXOffset(), getYOffset());
                     if (isModifiable()) {
                         new CoordinateInput((MapOverlay)e.getSource());
                         repaint();
@@ -342,9 +342,9 @@ public class RoverSimulation extends VirtualRobotModel {
                @Override
                public void mouseDragged(MouseEvent e) {
                    super.mouseDragged(e);
-                   if (isModifiable() &&  rover.getBounds(getScaleFactor(), getxOffset(), getyOffset()).contains(e.getX(), e.getY())) {
-                       int xTemp = (e.getX() - getxOffset()) / getScaleFactor();
-                       int yTemp = (e.getY() - getyOffset()) / getScaleFactor();
+                   if (isModifiable() &&  rover.getBounds(getScaleFactor(), getXOffset(), getYOffset()).contains(e.getX(), e.getY())) {
+                       int xTemp = (e.getX() - getXOffset()) / getScaleFactor();
+                       int yTemp = (e.getY() - getYOffset()) / getScaleFactor();
                        pose.setLocation(xTemp, yTemp);
                        repaint();
                    }
@@ -503,8 +503,8 @@ public class RoverSimulation extends VirtualRobotModel {
             Graphics2D g2d = (Graphics2D) g;
 
             int scaleFactor = window.getScaleFactor();
-            int xOffset = window.getxOffset();
-            int yOffset = window.getyOffset();
+            int xOffset = window.getXOffset();
+            int yOffset = window.getYOffset();
 
             if (pose != null) {
                 paintSensorHead(g2d, scaleFactor, xOffset, yOffset);
@@ -553,7 +553,7 @@ public class RoverSimulation extends VirtualRobotModel {
             g2d.fillArc(botX, botY, botDia, botDia, startAngle, arcAngle );
 
             g2d.setColor(Color.BLACK);
-            g2d.drawString("Sojourner:",10,20);
+            g2d.drawString("RobotImplSojourner:",10,20);
             g2d.drawString("X: " + String.valueOf(pose.getX()), 10,40);
             g2d.drawString("Y: " + String.valueOf(pose.getY()), 10,55);
             g2d.drawString("H: " + String.valueOf(pose.getHeading()), 10, 70);

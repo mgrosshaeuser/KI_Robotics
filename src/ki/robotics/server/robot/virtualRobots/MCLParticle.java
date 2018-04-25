@@ -1,5 +1,6 @@
-package ki.robotics.robot;
+package ki.robotics.server.robot.virtualRobots;
 
+import ki.robotics.server.robot.RobotImplVirtualRobot;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
@@ -7,12 +8,12 @@ import lejos.robotics.navigation.Pose;
 import java.awt.*;
 
 /**
- * Implementation of the Robot-Interface through the VirtualRobotModel abstract-class.
+ * Implementation of the Robot-Interface through the RobotImplVirtualRobot abstract-class.
  * Represents a MCL-Particle in a way that it can be addressed as a robot (which it represents conceptually).
  *
  * @version 1.0 01/02/18
  */
-public class MCLParticle extends VirtualRobotModel implements Comparable<MCLParticle> {
+public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCLParticle> {
     private float weight;
 
     /**

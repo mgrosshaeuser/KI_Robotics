@@ -2,10 +2,10 @@ package ki.robotics.client.GUI;
 
 import ki.robotics.client.ComController;
 import ki.robotics.client.MCL.MCL_Provider;
-import ki.robotics.common.ExtButtonGroup;
-import ki.robotics.common.ExtJPanel;
-import ki.robotics.common.MapPanel;
-import ki.robotics.robot.MCLParticle;
+import ki.robotics.utility.gui.ExtButtonGroup;
+import ki.robotics.utility.gui.ExtJPanel;
+import ki.robotics.utility.map.MapPanel;
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import lejos.robotics.navigation.Pose;
 
 import javax.swing.*;
@@ -56,7 +56,7 @@ public class ClientView extends JFrame {
     public ClientView(ComController comController) {
         this.guiModel = new ClientModel();
         this.guiController = new ClientController(guiModel, this, comController);
-        this.mapPanel = new ClientMapPanel(this, guiModel);
+        this.mapPanel = new ClientMapPanel(guiModel);
         createWindow();
     }
 
@@ -259,8 +259,8 @@ public class ClientView extends JFrame {
         private ClientModel model;
 
 
-        ClientMapPanel(ClientView parent, ClientModel model) {
-            super(parent, model.getMap());
+        ClientMapPanel( ClientModel model) {
+            super(model.getMap());
             this.model = model;
         }
 
@@ -278,7 +278,7 @@ public class ClientView extends JFrame {
             if (particles != null) {
                 float medianWeight = mclProvider.getMedianParticleWeight();
                 for (MCLParticle p : particles) {
-                    p.paint(g, PARTICLE_DIAMETER, getScaleFactor(), getxOffset(), getyOffset(), medianWeight);
+                    p.paint(g, PARTICLE_DIAMETER, getScaleFactor(), getXOffset(), getYOffset(), medianWeight);
                 }
             }
             Pose p = mclProvider.getEstimatedBotPose();
@@ -288,8 +288,8 @@ public class ClientView extends JFrame {
             int acceptableTolerance = mclProvider.getAcceptableTolerance();
             radius = radius < acceptableTolerance ? acceptableTolerance : radius;
             g.drawOval(
-                    (Math.round(p.getX())-radius) * getScaleFactor() + getxOffset(),
-                    (Math.round(p.getY())-radius) * getScaleFactor() + getyOffset(),
+                    (Math.round(p.getX())-radius) * getScaleFactor() + getXOffset(),
+                    (Math.round(p.getY())-radius) * getScaleFactor() + getYOffset(),
                     radius * 2 * getScaleFactor(),
                     radius * 2 * getScaleFactor());
             g.drawString("Deviation: " + String.valueOf(radius),10,40);

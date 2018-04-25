@@ -1,4 +1,4 @@
-package ki.robotics.common;
+package ki.robotics.utility.gui;
 
 import javax.swing.*;
 

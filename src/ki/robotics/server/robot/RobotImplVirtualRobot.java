@@ -1,16 +1,17 @@
-package ki.robotics.robot;
+package ki.robotics.server.robot;
 
+import ki.robotics.server.Robot;
 import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.geom.Point2D;
 
 
-public abstract class VirtualRobotModel implements Robot {
-    Pose pose;
-    int sensorHeadPosition = 0;
-    private final float bumper = 5f;
-    Map map;
+public abstract class RobotImplVirtualRobot implements Robot {
+    protected Pose pose;
+    protected int sensorHeadPosition = 0;
+    protected final float bumper = 5f;
+    protected Map map;
 
 
     @Override
@@ -142,9 +143,9 @@ public abstract class VirtualRobotModel implements Robot {
 
     public void setSensorHeadPosition(int position) { this.sensorHeadPosition = position; }
 
-    abstract void translate(float dx, float dy);
-    abstract void turnFull(int degrees);
-    abstract void turnSensor(int position);
+    protected abstract void translate(float dx, float dy);
+    protected abstract void turnFull(int degrees);
+    protected abstract void turnSensor(int position);
     public boolean setStayOnWhiteLine(boolean stayOnWhiteLine) { return false; }
 
 }

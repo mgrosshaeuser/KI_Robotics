@@ -1,6 +1,7 @@
-package ki.robotics.robot;
+package ki.robotics.server.robot;
 
 import ki.robotics.server.Main;
+import ki.robotics.server.Robot;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import ki.robotics.utility.pixyCam.PixyCam;
@@ -27,9 +28,9 @@ import java.util.List;
 /**
  * Singleton for accessing the hardware of a Lego-EV3-Robot.
  */
-public class Sojourner implements Robot {
+public class RobotImplSojourner implements Robot {
 
-    private static final Sojourner INSTANCE = new Sojourner();
+    private static final RobotImplSojourner INSTANCE = new RobotImplSojourner();
 
     private final MovePilot pilot;
     private final EV3UltrasonicSensor uss;
@@ -53,7 +54,7 @@ public class Sojourner implements Robot {
     /**
      * Constructor.
      */
-    private Sojourner() {
+    private RobotImplSojourner() {
         pilot = configureMovePilot();
         uss = new EV3UltrasonicSensor(SensorPort.S4);
         cls = new EV3ColorSensor(SensorPort.S1);
@@ -96,7 +97,7 @@ public class Sojourner implements Robot {
      *
      * @return returns singleton-instance.
      */
-    public static Sojourner getInstance() {
+    public static RobotImplSojourner getInstance() {
         return INSTANCE;
     }
 
@@ -267,7 +268,7 @@ public class Sojourner implements Robot {
     }
 
     /**
-     * lets Sojourner end up on the line with its axis
+     * lets RobotImplSojourner end up on the line with its axis
      */
     private boolean getBackToWhiteLine() {
         int endCorrection = 5;
@@ -285,7 +286,7 @@ public class Sojourner implements Robot {
     }
 
     /**
-     * lets Sojourner end up on the line with its sensor
+     * lets RobotImplSojourner end up on the line with its sensor
      */
     private LineReturnCode alignColorSensor() {
 

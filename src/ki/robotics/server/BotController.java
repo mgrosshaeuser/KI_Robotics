@@ -1,8 +1,7 @@
 package ki.robotics.server;
 
-import ki.robotics.robot.Robot;
-import ki.robotics.robot.RoverSimulation;
-import ki.robotics.robot.Sojourner;
+import ki.robotics.server.robot.virtualRobots.RoverSimulation;
+import ki.robotics.server.robot.RobotImplSojourner;
 import ki.robotics.utility.crisp.Message;
 
 import java.io.PrintWriter;
@@ -22,7 +21,7 @@ class BotController {
     public BotController(boolean isSimulation, BotServer server) {
         this.server = server;
         this.out = null;
-        this.robot = isSimulation ? new RoverSimulation() : Sojourner.getInstance();
+        this.robot = isSimulation ? new RoverSimulation() : RobotImplSojourner.getInstance();
     }
 
 

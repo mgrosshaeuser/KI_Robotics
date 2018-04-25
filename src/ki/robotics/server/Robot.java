@@ -1,4 +1,4 @@
-package ki.robotics.robot;
+package ki.robotics.server;
 
 import ki.robotics.utility.crisp.Message;
 import lejos.robotics.navigation.Pose;

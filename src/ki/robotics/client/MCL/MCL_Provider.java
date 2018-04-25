@@ -1,7 +1,7 @@
 package ki.robotics.client.MCL;
 
 import ki.robotics.utility.map.Map;
-import ki.robotics.robot.MCLParticle;
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import lejos.robotics.navigation.Pose;
