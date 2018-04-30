@@ -15,6 +15,7 @@ import java.awt.*;
  */
 public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCLParticle> {
     private float weight;
+    private Color color;
 
     /**
      * Constructor.
@@ -23,10 +24,11 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
      * @param map       The map.
      * @param weight    The weight of the new particle.
      */
-    public MCLParticle(Pose pose, Map map, float weight) {
+    public MCLParticle(Pose pose, Map map, float weight, Color color) {
         this.pose = pose;
         this.map = map;
         this.weight = weight;
+        this.color = color;
     }
 
     /**
@@ -39,8 +41,16 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
         this.map = particle.map;
         this.sensorHeadPosition = particle.sensorHeadPosition;
         this.weight = 0;
+        this.color = particle.getColor();
     }
 
+    public Color getColor() {
+        return this.color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
 
     /**
      * Translates a particle over given distances in x- and y-direction.
@@ -115,13 +125,7 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
     public void paint(Graphics g, int diameter, int scaleFactor, int xOffset, int yOffset, double medianWeight) {
         Graphics2D g2d = (Graphics2D) g;
 
-        if (weight < (0.75 * medianWeight)) {
-            g2d.setColor(new Color(150,0,100));
-        } else if (weight >= (0.75 * medianWeight)  &&  weight < (1.25 * medianWeight)) {
-            g2d.setColor(new Color(150,150,100));
-        } else {
-            g2d.setColor(new Color(0,150,100));
-        }
+        g2d.setColor(this.color);
         g2d.fillOval(
                 Math.round(this.pose.getX() - (diameter / 2)) * scaleFactor + xOffset,
                 Math.round(this.pose.getY() - (diameter / 2)) * scaleFactor + yOffset,

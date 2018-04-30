@@ -10,6 +10,8 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.awt.*;
+
 public class MCL_ProviderTest {
 
 
@@ -44,7 +46,7 @@ public class MCL_ProviderTest {
 
         Pose pose = new Pose();
         pose.setLocation(82.0F, 145.0F);
-        MCLParticle mclParticle = new MCLParticle(pose, null, 1.0F);
+        MCLParticle mclParticle = new MCLParticle(pose, null, 1.0F, Color.BLACK);
 
         return new Object[][] {
                 {mclProvider, bot}

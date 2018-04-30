@@ -37,10 +37,10 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length >= 1 && args[0].equals("terminal")) {
-            ComController comController = new TerminalComController();
+            ComController comController = new ComControllerImplTerminal();
             comController.start(null);
         } else {
-            ComController comController = new GUIComController();
+            ComController comController = new ComControllerImplGUI();
         }
     }
 }

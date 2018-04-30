@@ -20,19 +20,19 @@ import static ki.robotics.utility.crisp.CRISP.*;
  *
  * @version 1.2, 01/02/18
  */
-public class GUIComController implements ComController {
+public class ComControllerImplGUI implements ComController {
     private ClientView window;
     private MCL_Provider mclProvider;
     private final SensorModel roverModel;
     private Configuration configuration;
-    private Thread t;
+    private Thread communicationThread;
 
 
 
     /**
      * Constructor.
      */
-    GUIComController() {
+    ComControllerImplGUI() {
         this.window = new ClientView(this);
         this.roverModel = new SensorModel();
     }
@@ -47,9 +47,9 @@ public class GUIComController implements ComController {
     public void start(Configuration configuration) {
         this.mclProvider = configuration.getMclProvider();
         this.configuration = configuration;
-        t = new Thread(new Communicator(Main.HOST, Main.PORT, this));
-        t.setDaemon(true);
-        t.start();
+        communicationThread = new Thread(new Communicator(Main.HOST, Main.PORT, this));
+        communicationThread.setDaemon(true);
+        communicationThread.start();
     }
 
 
@@ -58,9 +58,9 @@ public class GUIComController implements ComController {
      */
     @Override
     public void stop() {
-        if (t != null) {
+        if (communicationThread != null) {
             Communicator.running = false;
-            t= null;
+            communicationThread = null;
         }
     }
 

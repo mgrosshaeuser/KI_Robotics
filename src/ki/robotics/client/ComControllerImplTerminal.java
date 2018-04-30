@@ -6,7 +6,7 @@ import static ki.robotics.utility.crisp.CRISP.*;
 
 import java.util.Scanner;
 
-public class TerminalComController implements ComController{
+public class ComControllerImplTerminal implements ComController{
     private Thread t;
     @Override
     public void start(Configuration configuration) {

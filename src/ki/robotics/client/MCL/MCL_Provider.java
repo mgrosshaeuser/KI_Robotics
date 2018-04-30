@@ -16,6 +16,16 @@ import java.util.Random;
  * @version 1.0 01/02/18
  */
 public class MCL_Provider {
+    //private static final int[] RESAMPLING_WEIGHTS = new int[]{20,10,5,2,1};     // Best working with physical robot.
+    private static final int[] RESAMPLING_WEIGHTS = new int[]{81,27,9,3,1};   // Best working in Simulation.
+    private static final Color RESAMPLING_WHEEL_PARTICLE_INITIAL_COLOR = Color.GRAY;
+
+
+    private static double[] resamplingWheelFractions;
+    private static Color[] resamplingWheelColors;
+
+
+
     public static final int MCL_TOLERANCE_FOR_LOCAL_LOCALIZATION = 20;
 
     private final Map map;
@@ -28,6 +38,8 @@ public class MCL_Provider {
     private boolean localized;
 
     private ArrayList<MCLParticle> particles;
+
+    private ResamplingWheelVisual wheelVisual;
 
     /**
      * Constructor.
@@ -49,6 +61,40 @@ public class MCL_Provider {
         } else {
             this.acceptableTolerance = configuration.getAcceptableTolerance();
         }
+        resamplingWheelFractions = createResamplingWheelCategoryArray();
+        resamplingWheelColors = createResamplingWheelColorArray();
+        this.wheelVisual = new ResamplingWheelVisual(resamplingWheelFractions, resamplingWheelColors, particles);
+    }
+
+
+
+    private double[] createResamplingWheelCategoryArray() {
+        double d[] = new double[36];
+        int x=0;
+        for (int i = 0   ;   i < RESAMPLING_WEIGHTS.length   ;   i++) {
+            for (int j = i   ;   j < RESAMPLING_WEIGHTS.length   ;   j++) {
+                for (int k = j   ;   k < RESAMPLING_WEIGHTS.length   ;   k++) {
+                    int sum = RESAMPLING_WEIGHTS[i] + RESAMPLING_WEIGHTS[j] + RESAMPLING_WEIGHTS[k];
+                    d[x++] = 1/(double)sum;
+                }
+            }
+        }
+        return d;
+    }
+
+
+    private Color[] createResamplingWheelColorArray() {
+        Color c[] = new Color[35];
+        double max = 255;
+        double min = 0;
+        for (int i = 1   ;   i < c.length - 1   ;   i++) {
+            int newRed = (int) Math.round(max - (max / 35 * i));
+            int newGreen = (int) Math.round(min + (max / 35 * i));
+            c[i] = new Color(newRed, newGreen, 0);
+        }
+        c[0] = new Color(255,0,0);
+        c[34] = new Color(0,255,0);
+        return c;
     }
 
 
@@ -82,7 +128,7 @@ public class MCL_Provider {
      *
      * @param fixedX        A fixed x-value; -1 if free.
      * @param fixedY        A fixed y-value; -1 if free.
-     * @param fixedHeading  A fixed heading-balue; -1 if free.
+     * @param fixedHeading  A fixed heading-value; -1 if free.
      * @return              A random particle.
      */
     private MCLParticle createRandomParticle(int fixedX, int fixedY, int fixedHeading) {
@@ -98,7 +144,7 @@ public class MCL_Provider {
             int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
             int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 4) *90));
             if (boundaries.contains(x, y)) {
-                return new MCLParticle(new Pose(x, y, h), map, 1);
+                return new MCLParticle(new Pose(x, y, h), map, 1, RESAMPLING_WHEEL_PARTICLE_INITIAL_COLOR);
             }
         }
     }
@@ -111,13 +157,16 @@ public class MCL_Provider {
      */
     public void recalculateParticleWeight(SensorModel bot) {
         for (MCLParticle p : particles) {
-            if(p.isOutOfBounds()){
+            if (p.isOutOfBounds()) {
                 p.setWeight(0);
-            }else{
+                p.setColor(Color.BLACK);
+            } else {
                 double deviation = calculateBotParticleDeviation(bot, p);
-                p.setWeight((float)deviation);
+                p.setWeight((float) deviation);
+                p.setColor(weightToColor(deviation));
             }
-          }
+        }
+        wheelVisual.update(particles);
     }
 
     /**
@@ -223,43 +272,31 @@ public class MCL_Provider {
 
 
     private int deviationToWeight(double deviation, double referenceValue) {
-        //int[] weights = new int[]{20,10,5,2,1};     // Best working with physical robot.
-        int[] weights = new int[]{81,27,9,3,1};   // Best working in Simulation.
         if (deviation > 0.9 * referenceValue) {
-            return weights[0];
+            return RESAMPLING_WEIGHTS[0];
         } else if (deviation > 0.75 * referenceValue) {
-            return weights[1];
+            return RESAMPLING_WEIGHTS[1];
         } else if (deviation > 0.5 * referenceValue) {
-            return weights[2];
+            return RESAMPLING_WEIGHTS[2];
         } else if (deviation > 0.25 * referenceValue) {
-            return weights[3];
+            return RESAMPLING_WEIGHTS[3];
         } else {
-            return weights[4];
+            return RESAMPLING_WEIGHTS[4];
         }
     }
 
+    private Color weightToColor(double weight) {
 
-    private double calculateProbability(SensorModel bot, MCLParticle particle) {
-        double[] botDistances = bot.getAllDistances();
-        double[] particleDistances = particle.ultrasonicThreeWayScan();
+        double epsilon = 0.001;
 
-        double meanLeft = particleDistances[0];
-        double measuredLeft = botDistances[0];
-
-        double meanCenter = particleDistances[1];
-        double measuredCenter = botDistances[1];
-
-        double meanRight = particleDistances[2];
-        double measuredRight = botDistances[2];
-
-        double sigma = 3;
-
-        double pLeft = (1.0/(sigma * Math.sqrt(2.0 * Math.PI))) * Math.exp(-((Math.pow(measuredLeft - meanLeft, 2))/(2.0 * Math.pow(sigma, 2))));
-        double pCenter = (1.0/(sigma * Math.sqrt(2.0 * Math.PI))) * Math.exp(-((Math.pow(measuredCenter - meanCenter, 2))/(2.0 * Math.pow(sigma, 2))));
-        double pRight = (1.0/(sigma * Math.sqrt(2.0 * Math.PI))) * Math.exp(-((Math.pow(measuredRight - meanRight, 2))/(2.0 * Math.pow(sigma, 2))));
-
-        return (pLeft + pCenter + pRight) /3;
+        for (int i = 0; i < resamplingWheelFractions.length   ; i++) {
+            if (Math.abs(weight - resamplingWheelFractions[i]) < epsilon) {
+                return resamplingWheelColors[i];
+            }
+        }
+        return Color.CYAN;
     }
+
 
 
     /**
@@ -330,7 +367,7 @@ public class MCL_Provider {
 
     /**
      * Tries to guess the robot-position by calculating the arithmetic means of the x- and y-coordinates and
-     * the heading of the particles, while mcl is still running.
+     * the heading of the particles, while mcl is still ready.
      *
      * @return  The estimated Pose of the robot.
      */

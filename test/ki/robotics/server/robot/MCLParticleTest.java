@@ -8,6 +8,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.awt.*;
+
 public class MCLParticleTest {
 
     @Test
@@ -54,7 +56,7 @@ public class MCLParticleTest {
             for (int j = 0; j < headingsToTest.length; j++) {
                 Pose pose = new Pose();
                 pose.setHeading(headingsToTest[i]);
-                mclParticles[i][j] = new MCLParticle(pose, map, 1.0F);
+                mclParticles[i][j] = new MCLParticle(pose, map, 1.0F, Color.BLACK);
             }
         }
 
@@ -120,9 +122,9 @@ public class MCLParticleTest {
     @DataProvider(name = "getMCLParticlesProvider")
     public Object[][] getMCLParticlesProvider() {
         return new Object[][] {
-                {new MCLParticle(null, null, 0.1F), new MCLParticle(null, null, 0.2F), -1},
-                {new MCLParticle(null, null, 0.2F), new MCLParticle(null, null, 0.1F), 1},
-                {new MCLParticle(null, null, 0.1F), new MCLParticle(null, null, 0.1F), 0},
+                {new MCLParticle(null, null, 0.1F, Color.BLACK), new MCLParticle(null, null, 0.2F, Color.BLACK), -1},
+                {new MCLParticle(null, null, 0.2F, Color.BLACK), new MCLParticle(null, null, 0.1F, Color.BLACK), 1},
+                {new MCLParticle(null, null, 0.1F, Color.BLACK), new MCLParticle(null, null, 0.1F, Color.BLACK), 0},
         };
     }
 }
