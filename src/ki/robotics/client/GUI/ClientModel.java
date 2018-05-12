@@ -24,6 +24,9 @@ public class ClientModel implements Configuration {
     private boolean stopWhenDone = true;
     private int acceptableTolerance = 10;
 
+    private int userClickX;
+    private int userClickY;
+
 
     // Specific attributes for 1-D-movement.
     private boolean startFromLeft = true;
@@ -323,4 +326,12 @@ public class ClientModel implements Configuration {
     void setUseSignatureSeven(boolean useSignatureSeven) {
         this.useSignatureSeven = useSignatureSeven;
     }
+
+    int getUserClickX() { return userClickX; }
+
+    protected void setSelectedParticleX(int userClickX) { this.userClickX = userClickX; }
+
+    int getUserClickY() { return userClickY; }
+
+    protected void setSelectedParticleY(int userClickY) { this.userClickY = userClickY; }
 }

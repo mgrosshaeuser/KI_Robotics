@@ -19,6 +19,7 @@ public class ClientView extends JFrame {
     private ClientModel guiModel;
     private ClientController guiController;
 
+    private JPanel controlPanel;
     private ClientMapPanel mapPanel;
 
     private JRadioButton useRightAnglesWhenTurning = new JRadioButton("90° Angles");
@@ -60,19 +61,18 @@ public class ClientView extends JFrame {
         createWindow();
     }
 
-
+    JPanel getControlPanel() { return controlPanel; }
     ClientMapPanel getMapPanel() { return  mapPanel; }
-
-
 
     private void createWindow() {
         this.setTitle("Monte Carlo Localization");
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        JPanel controlPanel = createControlPanel();
+        controlPanel = createControlPanel();
         add(controlPanel, BorderLayout.PAGE_START);
         add(mapPanel, BorderLayout.CENTER);
+        addMouseListener(guiController.new setXYWhenClickOnMap());
         this.setVisible(true);
     }
 
@@ -299,6 +299,16 @@ public class ClientView extends JFrame {
             g.drawString("X: " + String.valueOf(Math.round(p.getX())),10,55);
             g.drawString("Y: " + String.valueOf(Math.round(p.getY())), 10,70);
             g.drawString("H: " + String.valueOf(Math.round(p.getHeading())), 10,85);
+        }
+
+        private void isMouseOver(Pose p) {
+            int xPose = (int) p.getX() * mapPanel.getScaleFactor() + mapPanel.getXOffset();
+            int yPose = (int) p.getY() * mapPanel.getScaleFactor();
+            int xClick = guiModel.getUserClickX();
+            int yClick = guiModel.getUserClickY();
+            System.out.println("Klick | X: " + xClick + " Y: " + yClick);
+            System.out.println("MapPanel | X: " + xPose + " Y: " + yPose);
+            System.out.println("\n########################### \n");
         }
     }
 

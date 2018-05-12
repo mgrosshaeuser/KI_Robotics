@@ -1,15 +1,16 @@
 package ki.robotics.client.GUI;
 
 import ki.robotics.client.ComController;
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
+import ki.robotics.utility.map.MapPanel;
 import ki.robotics.utility.map.MapProvider;
+import lejos.robotics.navigation.Pose;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
 
 class ClientController {
     private ClientModel guiModel;
@@ -40,6 +41,15 @@ class ClientController {
     private void stop() {
         comController.stop();
         guiView.repaint();
+    }
+
+    private void pause() {
+        guiView.repaint();
+        try {
+            wait(4000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -260,6 +270,80 @@ class ClientController {
         public void actionPerformed(ActionEvent e) {
             boolean selected = ((JCheckBox)e.getSource()).isSelected();
             guiModel.setStopWhenDone(selected);
+        }
+    }
+
+    public class setXYWhenClickOnMap implements MouseListener {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            if (guiModel.getMclProvider() != null) {
+                int menuBarYOffset = 35;
+                int controlPanelYOffset = guiView.getControlPanel().getHeight();
+                ArrayList<MCLParticle> mclParticles = guiModel.getMclProvider().getParticles();
+                int xClick = 0, yClick = 0;
+                int xParticle, yParticle;
+                MCLParticle mclParticle = mclParticles.get(0);
+                MapPanel mapPanel = guiView.getMapPanel();
+
+                for (MCLParticle currentMclP : mclParticles) {
+                    Pose pose = currentMclP.getPose();
+
+                    xParticle = (int) ((pose.getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+                    yParticle = (int) ((pose.getY() * mapPanel.getScaleFactor())
+                            + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
+
+                    int xPreviousParticle = (int) ((mclParticle.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+                    int yPreviousParticle = (int) ((mclParticle.getPose().getY() * mapPanel.getScaleFactor())
+                            + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
+
+                    xClick = e.getX();
+                    yClick = e.getY();
+
+                    int xDiff = Math.abs(xParticle - xClick);
+                    int yDiff = Math.abs(yParticle - yClick);
+                    int addedDiff = xDiff + yDiff;
+
+                    int xDiffPrevious = Math.abs(xPreviousParticle - xClick);
+                    int yDiffPrevious = Math.abs(yPreviousParticle - yClick);
+                    int addedDiffPrevious = xDiffPrevious + yDiffPrevious;
+
+
+                    if (addedDiff < addedDiffPrevious) {
+                        System.out.println("addedDiffClick: " + addedDiff);
+                        System.out.println("addedDiffPreviousParticle: " + addedDiffPrevious);
+                        mclParticle = currentMclP;
+                    }
+                }
+                xParticle = (int) ((mclParticle.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+                yParticle = (int) ((mclParticle.getPose().getY() * mapPanel.getScaleFactor())
+                        + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
+                System.out.println("Klick    | X: " + xClick +    " Y: " + yClick);
+                System.out.println("Partikel | X: " + xParticle + " Y: " + yParticle + " Farbe: " + mclParticle.getColor());
+                System.out.println("Partikelgewicht; " + mclParticle.getWeight());
+                System.out.println("\n########################### \n");
+                guiModel.setSelectedParticleX(xClick);
+                guiModel.setSelectedParticleY(yClick);
+            }
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
         }
     }
 }
