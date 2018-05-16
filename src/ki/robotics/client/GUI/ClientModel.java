@@ -24,8 +24,9 @@ public class ClientModel implements Configuration {
     private boolean stopWhenDone = true;
     private int acceptableTolerance = 10;
 
-    private int userClickX;
-    private int userClickY;
+    private int particleX = 0;
+    private int particleY = 0;
+    private double particleWeight = 0.0;
 
 
     // Specific attributes for 1-D-movement.
@@ -327,11 +328,17 @@ public class ClientModel implements Configuration {
         this.useSignatureSeven = useSignatureSeven;
     }
 
-    int getUserClickX() { return userClickX; }
+    int getParticleX() { return particleX; }
 
-    protected void setSelectedParticleX(int userClickX) { this.userClickX = userClickX; }
+    void setSelectedParticleX(int particleX) { this.particleX = particleX; }
 
-    int getUserClickY() { return userClickY; }
+    int getParticleY() { return particleY; }
 
-    protected void setSelectedParticleY(int userClickY) { this.userClickY = userClickY; }
+    void setSelectedParticleY(int particleY) { this.particleY = particleY; }
+
+    double getParticleWeight() { return particleWeight; }
+
+    void setSelectedParticleWeight(double particleWeight) { this.particleWeight = particleWeight; }
+
+
 }

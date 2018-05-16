@@ -28,6 +28,14 @@ public class ClientView extends JFrame {
     private JCheckBox measureDistanceAhead = new JCheckBox("Front sensor");
     private JCheckBox measureDistanceToRight = new JCheckBox("Right sensor");
 
+    private JLabel particleLabelInfo = new JLabel("Particle");
+    private JLabel particleLabelPoseX = new JLabel("X: ");
+    private JLabel particleLabelPoseY = new JLabel("Y: ");
+    private JLabel particleLabelWeight = new JLabel("W: ");
+    private JLabel particleValuePoseX = new JLabel();
+    private JLabel particleValuePoseY = new JLabel();
+    private JLabel particleValueWeight = new JLabel();
+
     private JRadioButton startFollowingLineFromLeft = new JRadioButton("Start from left");
     private JRadioButton startFollowingLineFromRight = new JRadioButton("Start from right");
 
@@ -63,6 +71,12 @@ public class ClientView extends JFrame {
 
     JPanel getControlPanel() { return controlPanel; }
     ClientMapPanel getMapPanel() { return  mapPanel; }
+
+    void refreshParticleInfo() {
+        particleValuePoseX.setText(String.valueOf(guiModel.getParticleX()));
+        particleValuePoseY.setText(String.valueOf(guiModel.getParticleY()));
+        particleValueWeight.setText(String.valueOf(Math.round(guiModel.getParticleWeight() * 10000000.0) / 10000000.0));
+    }
 
     private void createWindow() {
         this.setTitle("Monte Carlo Localization");
@@ -121,7 +135,8 @@ public class ClientView extends JFrame {
         ExtJPanel controls = new ExtJPanel();
         ExtJPanel movementLimitationControls = createMovementLimitationSelectionControls();
         ExtJPanel sensorSelectionControls = createSensorSelectionControls();
-        controls.addAll(movementLimitationControls, sensorSelectionControls);
+        ExtJPanel mouseClickParticleInfo = createMouseClickParticleInfo();
+        controls.addAll(movementLimitationControls, sensorSelectionControls, mouseClickParticleInfo);
         controls.addComponentListener(guiController.new TwoDimensionalControlSubPanelComponentListener());
         return controls;
     }
@@ -212,7 +227,24 @@ public class ClientView extends JFrame {
     }
 
 
+    private ExtJPanel createMouseClickParticleInfo() {
+        ExtJPanel labels = new ExtJPanel();
+        ExtJPanel values = new ExtJPanel();
+        ExtJPanel container = new ExtJPanel();
 
+        labels.setLayout(new GridLayout(3,1));
+        values.setLayout(new GridLayout(3,1));
+        container.setLayout(new BorderLayout());
+
+        labels.addAll(particleLabelPoseX, particleLabelPoseY, particleLabelWeight);
+        values.addAll(particleValuePoseX, particleValuePoseY, particleValueWeight);
+
+        container.add(particleLabelInfo, BorderLayout.PAGE_START);
+        container.add(labels, BorderLayout.LINE_START);
+        container.add(values, BorderLayout.CENTER);
+
+        return container;
+    }
 
 
     private ExtJPanel createCommonComponents() {
@@ -249,8 +281,6 @@ public class ClientView extends JFrame {
 
         return commonComponents;
     }
-
-
 
 
 
@@ -299,16 +329,6 @@ public class ClientView extends JFrame {
             g.drawString("X: " + String.valueOf(Math.round(p.getX())),10,55);
             g.drawString("Y: " + String.valueOf(Math.round(p.getY())), 10,70);
             g.drawString("H: " + String.valueOf(Math.round(p.getHeading())), 10,85);
-        }
-
-        private void isMouseOver(Pose p) {
-            int xPose = (int) p.getX() * mapPanel.getScaleFactor() + mapPanel.getXOffset();
-            int yPose = (int) p.getY() * mapPanel.getScaleFactor();
-            int xClick = guiModel.getUserClickX();
-            int yClick = guiModel.getUserClickY();
-            System.out.println("Klick | X: " + xClick + " Y: " + yClick);
-            System.out.println("MapPanel | X: " + xPose + " Y: " + yPose);
-            System.out.println("\n########################### \n");
         }
     }
 

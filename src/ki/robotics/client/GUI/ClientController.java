@@ -37,19 +37,63 @@ class ClientController {
     }
 
 
-
     private void stop() {
         comController.stop();
         guiView.repaint();
     }
 
-    private void pause() {
-        guiView.repaint();
-        try {
-            wait(4000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+
+    private void setParticleInfoInGUI(MouseEvent mouseEvent) {
+        if (guiModel.getMclProvider() != null) {
+            int menuBarYOffset = 35;
+            int controlPanelYOffset = guiView.getControlPanel().getHeight();
+            int heightOffset = menuBarYOffset + controlPanelYOffset;
+            ArrayList<MCLParticle> mclParticles = guiModel.getMclProvider().getParticles();
+            int xParticle, yParticle;
+            double particleWeight;
+            MCLParticle oldNearestMclP = mclParticles.get(0);
+            MapPanel mapPanel = guiView.getMapPanel();
+
+            for (MCLParticle mclPtoAnalyse : mclParticles) {
+                boolean newParticleIsCloser = isMclPtoAnalyseNearer(oldNearestMclP, mclPtoAnalyse, mouseEvent, heightOffset, mapPanel);
+
+                if (newParticleIsCloser) {
+                    oldNearestMclP = mclPtoAnalyse;
+                }
+            }
+            xParticle = (int) ((oldNearestMclP.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+            yParticle = (int) ((oldNearestMclP.getPose().getY() * mapPanel.getScaleFactor())
+                    + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
+            particleWeight = oldNearestMclP.getWeight();
+
+            guiModel.setSelectedParticleX(xParticle);
+            guiModel.setSelectedParticleY(yParticle);
+            guiModel.setSelectedParticleWeight(particleWeight);
+            guiView.refreshParticleInfo();
         }
+    }
+
+    private boolean isMclPtoAnalyseNearer(MCLParticle oldNearestMclP, MCLParticle mclPtoAnalyse, MouseEvent e, int heightOffset, MapPanel mapPanel) {
+        int xToAnalyse;
+        int yToAnalyse;
+        Pose pose = mclPtoAnalyse.getPose();
+
+        xToAnalyse = (int) ((pose.getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+        yToAnalyse = (int) ((pose.getY() * mapPanel.getScaleFactor())
+                + mapPanel.getYOffset() + heightOffset);
+
+        int xOldNearestMclP = (int) ((oldNearestMclP.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+        int yOldNearestMclP = (int) ((oldNearestMclP.getPose().getY() * mapPanel.getScaleFactor())
+                + mapPanel.getYOffset() + heightOffset);
+
+        int xDiffToAnalyse = Math.abs(xToAnalyse - e.getX());
+        int yDiffToAnalyse = Math.abs(yToAnalyse - e.getY());
+        int addedDiff = xDiffToAnalyse + yDiffToAnalyse;
+
+        int xDiffOldNearestMclP = Math.abs(xOldNearestMclP - e.getX());
+        int yDiffOldNearestMclP = Math.abs(yOldNearestMclP - e.getY());
+        int addedDiffPrevious = xDiffOldNearestMclP + yDiffOldNearestMclP;
+        return addedDiff < addedDiffPrevious;
     }
 
 
@@ -276,54 +320,7 @@ class ClientController {
     public class setXYWhenClickOnMap implements MouseListener {
         @Override
         public void mouseClicked(MouseEvent e) {
-            if (guiModel.getMclProvider() != null) {
-                int menuBarYOffset = 35;
-                int controlPanelYOffset = guiView.getControlPanel().getHeight();
-                ArrayList<MCLParticle> mclParticles = guiModel.getMclProvider().getParticles();
-                int xClick = 0, yClick = 0;
-                int xParticle, yParticle;
-                MCLParticle mclParticle = mclParticles.get(0);
-                MapPanel mapPanel = guiView.getMapPanel();
-
-                for (MCLParticle currentMclP : mclParticles) {
-                    Pose pose = currentMclP.getPose();
-
-                    xParticle = (int) ((pose.getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
-                    yParticle = (int) ((pose.getY() * mapPanel.getScaleFactor())
-                            + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
-
-                    int xPreviousParticle = (int) ((mclParticle.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
-                    int yPreviousParticle = (int) ((mclParticle.getPose().getY() * mapPanel.getScaleFactor())
-                            + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
-
-                    xClick = e.getX();
-                    yClick = e.getY();
-
-                    int xDiff = Math.abs(xParticle - xClick);
-                    int yDiff = Math.abs(yParticle - yClick);
-                    int addedDiff = xDiff + yDiff;
-
-                    int xDiffPrevious = Math.abs(xPreviousParticle - xClick);
-                    int yDiffPrevious = Math.abs(yPreviousParticle - yClick);
-                    int addedDiffPrevious = xDiffPrevious + yDiffPrevious;
-
-
-                    if (addedDiff < addedDiffPrevious) {
-                        System.out.println("addedDiffClick: " + addedDiff);
-                        System.out.println("addedDiffPreviousParticle: " + addedDiffPrevious);
-                        mclParticle = currentMclP;
-                    }
-                }
-                xParticle = (int) ((mclParticle.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
-                yParticle = (int) ((mclParticle.getPose().getY() * mapPanel.getScaleFactor())
-                        + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
-                System.out.println("Klick    | X: " + xClick +    " Y: " + yClick);
-                System.out.println("Partikel | X: " + xParticle + " Y: " + yParticle + " Farbe: " + mclParticle.getColor());
-                System.out.println("Partikelgewicht; " + mclParticle.getWeight());
-                System.out.println("\n########################### \n");
-                guiModel.setSelectedParticleX(xClick);
-                guiModel.setSelectedParticleY(yClick);
-            }
+            setParticleInfoInGUI(e);
         }
 
         @Override
