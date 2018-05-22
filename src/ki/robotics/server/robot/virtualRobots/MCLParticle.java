@@ -44,6 +44,16 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
         this.color = particle.getColor();
     }
 
+    /**
+     * Constructor
+     * @param
+     */
+    public MCLParticle(float x, float y, float heading, float weight, Color color){
+        this.pose = new Pose(x,y,heading);
+        this.weight = weight;
+        this.color = color;
+    }
+
     public Color getColor() {
         return this.color;
     }

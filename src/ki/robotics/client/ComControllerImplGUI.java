@@ -149,7 +149,9 @@ public class ComControllerImplGUI implements ComController {
         if (mclProvider.getEstimatedBotPoseDeviation() <= configuration.getAcceptableTolerance()) {
             mclProvider.badParticlesFinalKill();
             window.repaint();
+            mclProvider.saveParticlesToFile();
             return new InstructionSequence().disconnect();
+
         }
 
         int stepSize = configuration.getStepSize();
@@ -196,6 +198,7 @@ public class ComControllerImplGUI implements ComController {
             }
             if (configuration.isStopWhenDone() && !configuration.isWithCamera() && mclProvider.isLocalizationDone()) {
                 mclProvider.badParticlesFinalKill();
+                mclProvider.saveParticlesToFile();
                 window.repaint();
                 stop();
             }
