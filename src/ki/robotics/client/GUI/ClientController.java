@@ -1,15 +1,16 @@
 package ki.robotics.client.GUI;
 
 import ki.robotics.client.ComController;
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
+import ki.robotics.utility.map.MapPanel;
 import ki.robotics.utility.map.MapProvider;
+import lejos.robotics.navigation.Pose;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
 
 class ClientController {
     private ClientModel guiModel;
@@ -36,10 +37,63 @@ class ClientController {
     }
 
 
-
     private void stop() {
         comController.stop();
         guiView.repaint();
+    }
+
+
+    private void setParticleInfoInGUI(MouseEvent mouseEvent) {
+        if (guiModel.getMclProvider() != null) {
+            int menuBarYOffset = 35;
+            int controlPanelYOffset = guiView.getControlPanel().getHeight();
+            int heightOffset = menuBarYOffset + controlPanelYOffset;
+            ArrayList<MCLParticle> mclParticles = guiModel.getMclProvider().getParticles();
+            int xParticle, yParticle;
+            double particleWeight;
+            MCLParticle oldNearestMclP = mclParticles.get(0);
+            MapPanel mapPanel = guiView.getMapPanel();
+
+            for (MCLParticle mclPtoAnalyse : mclParticles) {
+                boolean newParticleIsCloser = isMclPtoAnalyseNearer(oldNearestMclP, mclPtoAnalyse, mouseEvent, heightOffset, mapPanel);
+
+                if (newParticleIsCloser) {
+                    oldNearestMclP = mclPtoAnalyse;
+                }
+            }
+            xParticle = (int) ((oldNearestMclP.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+            yParticle = (int) ((oldNearestMclP.getPose().getY() * mapPanel.getScaleFactor())
+                    + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
+            particleWeight = oldNearestMclP.getWeight();
+
+            guiModel.setSelectedParticleX(xParticle);
+            guiModel.setSelectedParticleY(yParticle);
+            guiModel.setSelectedParticleWeight(particleWeight);
+            guiView.refreshParticleInfo();
+        }
+    }
+
+    private boolean isMclPtoAnalyseNearer(MCLParticle oldNearestMclP, MCLParticle mclPtoAnalyse, MouseEvent e, int heightOffset, MapPanel mapPanel) {
+        int xToAnalyse;
+        int yToAnalyse;
+        Pose pose = mclPtoAnalyse.getPose();
+
+        xToAnalyse = (int) ((pose.getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+        yToAnalyse = (int) ((pose.getY() * mapPanel.getScaleFactor())
+                + mapPanel.getYOffset() + heightOffset);
+
+        int xOldNearestMclP = (int) ((oldNearestMclP.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
+        int yOldNearestMclP = (int) ((oldNearestMclP.getPose().getY() * mapPanel.getScaleFactor())
+                + mapPanel.getYOffset() + heightOffset);
+
+        int xDiffToAnalyse = Math.abs(xToAnalyse - e.getX());
+        int yDiffToAnalyse = Math.abs(yToAnalyse - e.getY());
+        int addedDiff = xDiffToAnalyse + yDiffToAnalyse;
+
+        int xDiffOldNearestMclP = Math.abs(xOldNearestMclP - e.getX());
+        int yDiffOldNearestMclP = Math.abs(yOldNearestMclP - e.getY());
+        int addedDiffPrevious = xDiffOldNearestMclP + yDiffOldNearestMclP;
+        return addedDiff < addedDiffPrevious;
     }
 
 
@@ -260,6 +314,33 @@ class ClientController {
         public void actionPerformed(ActionEvent e) {
             boolean selected = ((JCheckBox)e.getSource()).isSelected();
             guiModel.setStopWhenDone(selected);
+        }
+    }
+
+    public class setXYWhenClickOnMap implements MouseListener {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            setParticleInfoInGUI(e);
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+
         }
     }
 }
