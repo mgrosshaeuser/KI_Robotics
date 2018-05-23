@@ -2,6 +2,7 @@ package ki.robotics.client.GUI;
 
 import ki.robotics.client.MCL.Configuration;
 import ki.robotics.client.MCL.MCL_Provider;
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 
@@ -27,6 +28,7 @@ public class ClientModel implements Configuration {
     private int particleX = 0;
     private int particleY = 0;
     private double particleWeight = 0.0;
+    private MCLParticle selectedParticle;
 
 
     // Specific attributes for 1-D-movement.
@@ -328,6 +330,9 @@ public class ClientModel implements Configuration {
         this.useSignatureSeven = useSignatureSeven;
     }
 
+
+
+
     int getParticleX() { return particleX; }
 
     void setSelectedParticleX(int particleX) { this.particleX = particleX; }
@@ -341,4 +346,6 @@ public class ClientModel implements Configuration {
     void setSelectedParticleWeight(double particleWeight) { this.particleWeight = particleWeight; }
 
 
+    MCLParticle getSelectedParticle() { return selectedParticle; }
+    void setSelectedParticle(MCLParticle particle) { this.selectedParticle = particle; }
 }
