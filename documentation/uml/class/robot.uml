@@ -1,190 +1,67 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Diagram>
   <ID>JAVA</ID>
-  <OriginalElement>ki.robotics.robot</OriginalElement>
+  <OriginalElement>ki.robotics.server.robot</OriginalElement>
   <nodes>
-    <node x="442.8163978494624" y="3179.0">ki.robotics.robot.RoverSimulation</node>
-    <node x="1091.7212365591395" y="208.0">ki.robotics.robot.Sojourner.LineReturnCode</node>
-    <node x="0.0" y="2202.0">ki.robotics.robot.RoverSimulation.Rover</node>
-    <node x="1003.9712365591395" y="605.0">ki.robotics.robot.Sojourner</node>
-    <node x="640.3462365591395" y="0.0">ki.robotics.robot.Robot</node>
-    <node x="404.29166666666663" y="1948.0">ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput.EnterKeyListener</node>
-    <node x="576.3462365591395" y="852.5">ki.robotics.robot.VirtualRobotModel</node>
-    <node x="919.8462365591395" y="1804.0">ki.robotics.robot.MCLParticle</node>
-    <node x="435.4210573476703" y="2944.0">ki.robotics.robot.RoverSimulation.SimulationDisplay</node>
-    <node x="436.625" y="2254.0">ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput</node>
-    <node x="205.1379032258061" y="2646.0">ki.robotics.robot.RoverSimulation.MapOverlay</node>
-    <node x="584.8462365591395" y="2568.0">ki.robotics.robot.RoverSimulation.ControlPanel</node>
+    <node x="1102.25" y="713.0">ki.robotics.server.robot.virtualRobots.RoverSimulation</node>
+    <node x="1297.0" y="77.0">ki.robotics.server.robot.RobotImplVirtualRobot</node>
+    <node x="0.0" y="77.0">ki.robotics.server.robot.RobotImplSojourner</node>
+    <node x="271.5" y="1170.0">ki.robotics.server.robot.RobotImplSojourner.LineReturnCode</node>
   </nodes>
-  <notes />
+  <notes>
+    <note x="977.0" y="356.5">
+      <node>ki.robotics.server.robot.virtualRobots.RoverSimulation</node>
+      <value>Implementierung von Robot-Interface</value>
+      <edge>
+        <point x="-93.0" y="-161.0" />
+        <point x="1195.25" y="688.0" />
+        <point x="1127.0" y="688.0" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+    <note x="1347.5" y="0.0">
+      <node>ki.robotics.server.robot.RobotImplVirtualRobot</node>
+      <value>Bot | Simulation in GUI</value>
+      <edge>
+        <point x="0.0" y="-293.0" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+    <note x="140.0" y="0.0">
+      <node>ki.robotics.server.robot.RobotImplSojourner</node>
+      <value>Bot | EV3</value>
+      <edge>
+        <point x="0.0" y="-521.5" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+    <note x="392.0" y="585.0">
+      <node>ki.robotics.server.robot.RobotImplSojourner.LineReturnCode</node>
+      <value>1D-Konfiguration. Bot soll sich am Ende der Karte um 180° drehen.</value>
+      <edge>
+        <point x="76.25" y="-64.5" />
+        <point x="500.25" y="1145.0" />
+        <point x="662.0" y="1145.0" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+  </notes>
   <edges>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput.EnterKeyListener" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="0.0" y="-30.0" />
-      <point x="531.2916666666666" y="1784.0" />
-      <point x="668.290681003584" y="1784.0" />
-      <point x="-73.55555555555554" y="317.0" />
+    <edge source="ki.robotics.server.robot.RobotImplSojourner.LineReturnCode" target="ki.robotics.server.robot.RobotImplSojourner">
+      <point x="-76.25" y="-64.5" />
+      <point x="347.75" y="1145.0" />
+      <point x="186.0" y="1145.0" />
+      <point x="0.0" y="521.5" />
     </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay" target="ki.robotics.robot.RoverSimulation.SimulationDisplay">
-      <point x="64.40000000000009" y="70.0" />
-      <point x="430.5379032258062" y="2894.0" />
-      <point x="511.6710573476703" y="2894.0" />
-      <point x="-45.75" y="-82.5" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.SimulationDisplay" target="ki.robotics.robot.RoverSimulation.ControlPanel">
-      <point x="45.75" y="-82.5" />
-      <point x="603.1710573476703" y="2904.0" />
-      <point x="663.3462365591395" y="2904.0" />
-      <point x="-78.5" y="148.0" />
-    </edge>
-    <edge source="ki.robotics.robot.Sojourner.LineReturnCode" target="ki.robotics.robot.Sojourner">
-      <point x="110.66666666666674" y="69.5" />
-      <point x="1368.3879032258064" y="580.0" />
-      <point x="1359.2212365591395" y="580.0" />
-      <point x="152.25000000000006" y="-564.5" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="0.0" y="-70.0" />
-      <point x="366.1379032258061" y="2548.0" />
-      <point x="392.5" y="2548.0" />
-      <point x="392.5" y="1774.0" />
-      <point x="631.5129032258062" y="1774.0" />
-      <point x="-110.33333333333337" y="317.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay" target="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput">
-      <point x="35.77777777777783" y="-70.0" />
-      <point x="401.9156810035839" y="2518.0" />
-      <point x="470.875" y="2518.0" />
-      <point x="-102.75" y="96.0" />
-    </edge>
-    <edge source="ki.robotics.robot.Sojourner" target="ki.robotics.robot.Sojourner.LineReturnCode">
-      <point x="50.75" y="-564.5" />
-      <point x="0.0" y="69.5" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.Rover" target="ki.robotics.robot.RoverSimulation">
-      <point x="-152.79999999999995" y="148.0" />
-      <point x="38.200000000000045" y="2548.0" />
-      <point x="143.0499103942651" y="2548.0" />
-      <point x="143.0499103942651" y="3159.0" />
-      <point x="465.37195340501796" y="3159.0" />
-      <point x="-180.44444444444446" y="-174.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay" target="ki.robotics.robot.RoverSimulation.Rover">
-      <point x="-107.33333333333326" y="-70.0" />
-      <point x="258.80456989247284" y="2528.0" />
-      <point x="191.0" y="2528.0" />
-      <point x="0.0" y="148.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="102.75" y="-96.0" />
-      <point x="676.375" y="2177.0" />
-      <point x="693.5" y="2177.0" />
-      <point x="693.5" y="1784.0" />
-      <point x="705.0684587813616" y="1784.0" />
-      <point x="-36.77777777777783" y="317.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.Rover" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="0.0" y="-148.0" />
-      <point x="191.0" y="1764.0" />
-      <point x="594.7351254480284" y="1764.0" />
-      <point x="-147.1111111111111" y="317.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="135.33333333333326" y="-174.0" />
-      <point x="781.1497311827957" y="3149.0" />
-      <point x="909.3462365591395" y="3149.0" />
-      <point x="909.3462365591395" y="1784.0" />
-      <point x="778.6240143369173" y="1784.0" />
-      <point x="36.777777777777715" y="317.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.SimulationDisplay" target="ki.robotics.robot.RoverSimulation.MapOverlay">
-      <point x="-106.75" y="-82.5" />
-      <point x="450.6710573476703" y="2914.0" />
-      <point x="301.737903225806" y="2914.0" />
-      <point x="-64.40000000000009" y="70.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.ControlPanel" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="0.0" y="-148.0" />
-      <point x="0.0" y="317.0" />
-    </edge>
-    <edge source="ki.robotics.robot.MCLParticle" target="ki.robotics.robot.VirtualRobotModel">
-      <point x="-101.5" y="-174.0" />
-      <point x="1021.3462365591395" y="1774.0" />
-      <point x="815.4017921146951" y="1774.0" />
-      <point x="73.55555555555554" y="317.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput" target="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput.EnterKeyListener">
-      <point x="-102.75" y="-96.0" />
-      <point x="470.875" y="2177.0" />
-      <point x="446.6249999999999" y="2177.0" />
-      <point x="-84.66666666666674" y="30.0" />
-    </edge>
-    <edge source="ki.robotics.robot.VirtualRobotModel" target="ki.robotics.robot.Robot">
-      <point x="0.0" y="-317.0" />
-      <point x="-101.5" y="277.5" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay" target="ki.robotics.robot.RoverSimulation">
-      <point x="-128.79999999999995" y="70.0" />
-      <point x="237.33790322580614" y="2924.0" />
-      <point x="337.8747311827958" y="2924.0" />
-      <point x="337.8747311827958" y="3149.0" />
-      <point x="510.48306451612916" y="3149.0" />
-      <point x="-135.33333333333326" y="-174.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.Rover" target="ki.robotics.robot.RoverSimulation.MapOverlay">
-      <point x="152.79999999999995" y="148.0" />
-      <point x="343.79999999999995" y="2548.0" />
-      <point x="330.36012544802827" y="2548.0" />
-      <point x="-35.77777777777783" y="-70.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.ControlPanel" target="ki.robotics.robot.RoverSimulation">
-      <point x="130.83333333333326" y="148.0" />
-      <point x="872.6795698924727" y="2924.0" />
-      <point x="798.6247311827958" y="2924.0" />
-      <point x="798.6247311827958" y="3139.0" />
-      <point x="736.0386200716846" y="3139.0" />
-      <point x="90.22222222222217" y="-174.0" />
-    </edge>
-    <edge source="ki.robotics.robot.Sojourner" target="ki.robotics.robot.Robot">
-      <point x="-152.25" y="-564.5" />
-      <point x="1054.7212365591395" y="580.0" />
-      <point x="944.8462365591395" y="580.0" />
-      <point x="101.5" y="277.5" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation" target="ki.robotics.robot.RoverSimulation.SimulationDisplay">
-      <point x="-45.111111111111086" y="-174.0" />
-      <point x="600.7052867383513" y="3129.0" />
-      <point x="557.4210573476703" y="3129.0" />
-      <point x="0.0" y="82.5" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput" target="ki.robotics.robot.RoverSimulation.MapOverlay">
-      <point x="102.75" y="96.0" />
-      <point x="676.375" y="2548.0" />
-      <point x="509.2490143369172" y="2548.0" />
-      <point x="143.1111111111111" y="-70.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.SimulationDisplay" target="ki.robotics.robot.RoverSimulation">
-      <point x="81.33333333333326" y="82.5" />
-      <point x="638.7543906810035" y="3159.0" />
-      <point x="645.8163978494624" y="3159.0" />
-      <point x="0.0" y="-174.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput.EnterKeyListener" target="ki.robotics.robot.RoverSimulation.MapOverlay.CoordinateInput">
-      <point x="0.0" y="30.0" />
-      <point x="531.2916666666666" y="2177.0" />
-      <point x="539.375" y="2177.0" />
-      <point x="-34.25" y="-96.0" />
-    </edge>
-    <edge source="ki.robotics.robot.RoverSimulation.ControlPanel" target="ki.robotics.robot.RoverSimulation.SimulationDisplay">
-      <point x="26.166666666666742" y="148.0" />
-      <point x="768.0129032258062" y="2924.0" />
-      <point x="664.1710573476703" y="2924.0" />
-      <point x="106.75" y="-82.5" />
+    <edge source="ki.robotics.server.robot.virtualRobots.RoverSimulation" target="ki.robotics.server.robot.RobotImplVirtualRobot">
+      <point x="93.0" y="-161.0" />
+      <point x="1381.25" y="688.0" />
+      <point x="1449.5" y="688.0" />
+      <point x="0.0" y="293.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="1.0" x="715.0" y="2437.0" />
-  <SelectedNodes>
-    <node>ki.robotics.robot.RoverSimulation.ControlPanel</node>
-  </SelectedNodes>
+  <settings layout="Hierarchic Group" zoom="0.5" x="394.36363636363694" y="836.0" />
+  <SelectedNodes />
   <Categories>
     <Category>Fields</Category>
     <Category>Constructors</Category>

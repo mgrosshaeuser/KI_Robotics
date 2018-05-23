@@ -3,225 +3,136 @@
   <ID>JAVA</ID>
   <OriginalElement>ki.robotics.client</OriginalElement>
   <nodes>
-    <node x="384.05062260536397" y="2579.0">ki.robotics.client.ComController</node>
-    <node x="1140.256660509031" y="347.0">ki.robotics.client.MCL.SensorModel</node>
-    <node x="815.5392172961137" y="581.0">ki.robotics.robot</node>
-    <node x="782.3456793924465" y="3817.0">ki.robotics.client.Main</node>
-    <node x="725.8866652983032" y="3210.0">ki.robotics.client.ComControllerImplGUI</node>
-    <node x="661.738803366174" y="0.0">ki.robotics.common.MapPanel</node>
-    <node x="428.40817939244647" y="3990.0">ki.robotics.client.ComControllerImplTerminal</node>
-    <node x="945.0342843459224" y="1740.0">ki.robotics.client.MCL.Configuration</node>
-    <node x="771.150328407225" y="2965.0">ki.robotics.client.GUI</node>
-    <node x="10.5" y="2834.0">ki.robotics.client.Communicator</node>
-    <node x="760.7566605090311" y="899.0">ki.robotics.client.MCL.MCL_Provider</node>
+    <node x="254.49062500000042" y="2169.0">ki.robotics.client.ComControllerImplTerminal</node>
+    <node x="449.20833333333337" y="77.0">ki.robotics.client.MCL.Configuration</node>
+    <node x="461.4117187500001" y="1259.0">ki.robotics.client.ComController</node>
+    <node x="1142.2083333333335" y="209.5">ki.robotics.client.MCL.SensorModel</node>
+    <node x="345.7406250000004" y="2397.0">ki.robotics.client.Main</node>
+    <node x="107.33333333333337" y="1835.0">ki.robotics.client.Communicator</node>
+    <node x="724.4117187500001" y="886.0">ki.robotics.client.MCL.MCL_Provider</node>
   </nodes>
-  <notes />
+  <notes>
+    <note x="591.3333333333334" y="1958.5">
+      <node>ki.robotics.client.ComControllerImplTerminal</node>
+      <value>Andere Betriebsart, um Bot textbasiert über ein Terminal steuern zu können.</value>
+      <edge>
+        <point x="97.20000000000005" y="-89.0" />
+        <point x="473.19062500000047" y="2149.0" />
+        <point x="901.3333333333334" y="2149.0" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+    <note x="203.70833333333326" y="0.0">
+      <node>ki.robotics.client.MCL.Configuration</node>
+      <value>Unterschiedliche Konfigurationen für z.B. 1D, 2D und welche Sensoren genutzt werden sollen.</value>
+      <edge>
+        <point x="-1.1368683772161603E-13" y="-364.5" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+    <note x="68.18255208333335" y="1322.0">
+      <node>ki.robotics.client.Communicator</node>
+      <value>Kommunikation mit Bot. In eigenem Thread.</value>
+      <edge>
+        <point x="-154.33333333333337" y="-137.0" />
+        <point x="184.5" y="1815.0" />
+        <point x="242.18255208333335" y="1815.0" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+    <note x="726.2083333333334" y="428.0">
+      <node>ki.robotics.client.MCL.MCL_Provider</node>
+      <value>Hier sind die Algorithmen zur MCL implementiert</value>
+      <edge>
+        <point x="101.40000000000009" y="-449.5" />
+        <point x="1079.3117187500002" y="826.0" />
+        <point x="924.2083333333334" y="826.0" />
+        <point x="0.0" y="13.5" />
+      </edge>
+    </note>
+  </notes>
   <edges>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.common.MapPanel">
-      <point x="-26.22222222222217" y="-17.0" />
-      <point x="803.9281061850028" y="2784.0" />
-      <point x="657.550622605364" y="2784.0" />
-      <point x="657.550622605364" y="317.0" />
-      <point x="696.113803366174" y="317.0" />
-      <point x="-103.125" y="148.5" />
-    </edge>
-    <edge source="ki.robotics.client.MCL.MCL_Provider" target="ki.robotics.robot">
-      <point x="-209.625" y="-395.5" />
-      <point x="830.6316605090311" y="879.0" />
-      <point x="898.4677887246853" y="879.0" />
-      <point x="18.428571428571445" y="17.0" />
-    </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.robot">
-      <point x="0.0" y="-17.0" />
-      <point x="830.150328407225" y="2764.0" />
-      <point x="729.2298747947455" y="2764.0" />
-      <point x="729.2298747947455" y="869.0" />
-      <point x="880.0392172961137" y="869.0" />
-      <point x="0.0" y="17.0" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.MCL.MCL_Provider">
-      <point x="134.00000000000014" y="-278.5" />
-      <point x="1127.8866652983033" y="3170.0" />
-      <point x="1253.700951012589" y="3170.0" />
-      <point x="1253.700951012589" y="1720.0" />
-      <point x="1279.8280890804594" y="1720.0" />
-      <point x="239.5714285714284" y="395.5" />
-    </edge>
     <edge source="ki.robotics.client.ComController" target="ki.robotics.client.MCL.Configuration">
-      <point x="0.0" y="-82.5" />
-      <point x="515.550622605364" y="2554.0" />
-      <point x="973.1342843459224" y="2554.0" />
-      <point x="-112.39999999999998" y="394.5" />
-    </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.MCL.Configuration">
-      <point x="52.44444444444446" y="-17.0" />
-      <point x="882.5947728516694" y="2814.0" />
-      <point x="1048.9065065681446" y="2814.0" />
-      <point x="1048.9065065681446" y="2554.0" />
-      <point x="1029.3342843459222" y="2554.0" />
-      <point x="-56.200000000000045" y="394.5" />
+      <point x="0.0" y="-76.5" />
+      <point x="582.9117187500001" y="866.0" />
+      <point x="526.3083333333334" y="866.0" />
+      <point x="-51.39999999999998" y="364.5" />
     </edge>
     <edge source="ki.robotics.client.MCL.MCL_Provider" target="ki.robotics.client.MCL.Configuration">
-      <point x="79.85714285714278" y="395.5" />
-      <point x="1120.113803366174" y="1720.0" />
-      <point x="1085.5342843459223" y="1720.0" />
-      <point x="0.0" y="-394.5" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.MCL.SensorModel">
-      <point x="187.60000000000005" y="-278.5" />
-      <point x="1181.4866652983033" y="3180.0" />
-      <point x="1384.0079365079364" y="3180.0" />
-      <point x="1384.0079365079364" y="879.0" />
-      <point x="1330.256660509031" y="879.0" />
-      <point x="0.0" y="251.0" />
+      <point x="-202.79999999999995" y="-449.5" />
+      <point x="775.1117187500001" y="856.0" />
+      <point x="577.7083333333334" y="856.0" />
+      <point x="0.0" y="364.5" />
     </edge>
     <edge source="ki.robotics.client.ComControllerImplTerminal" target="ki.robotics.client.Main">
-      <point x="21.916666666666742" y="-96.0" />
-      <point x="581.8248460591133" y="3950.0" />
-      <point x="831.0956793924465" y="3950.0" />
-      <point x="-48.75" y="56.5" />
-    </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.ComController">
-      <point x="-39.33333333333337" y="-17.0" />
-      <point x="790.8169950738916" y="2794.0" />
-      <point x="628.2649083196497" y="2794.0" />
-      <point x="112.71428571428578" y="82.5" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.Main">
-      <point x="134.00000000000003" y="278.5" />
-      <point x="1127.8866652983033" y="3792.0" />
-      <point x="944.8456793924465" y="3792.0" />
-      <point x="65.0" y="-56.5" />
-    </edge>
-    <edge source="ki.robotics.client.MCL.MCL_Provider" target="ki.robotics.client.MCL.SensorModel">
-      <point x="209.625" y="-395.5" />
-      <point x="1249.881660509031" y="879.0" />
-      <point x="1203.5899938423645" y="879.0" />
-      <point x="-126.66666666666667" y="251.0" />
-    </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.GUI">
-      <point x="0.0" y="17.0" />
-      <point x="830.150328407225" y="3039.0" />
-      <point x="731.150328407225" y="3039.0" />
-      <point x="731.150328407225" y="2970.666666666667" />
-      <point x="-59.0" y="-11.333333333333258" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.ComController">
-      <point x="-134.0" y="-278.5" />
-      <point x="859.8866652983032" y="3170.0" />
-      <point x="678.650328407225" y="3170.0" />
-      <point x="678.650328407225" y="2814.0" />
-      <point x="553.1220511767926" y="2814.0" />
-      <point x="37.57142857142867" y="82.5" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.GUI">
-      <point x="-80.39999999999998" y="-278.5" />
-      <point x="913.4866652983033" y="3160.0" />
-      <point x="853.750328407225" y="3160.0" />
-      <point x="23.600000000000023" y="17.0" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.MCL.Configuration">
-      <point x="26.800000000000068" y="-278.5" />
-      <point x="1020.6866652983033" y="3150.0" />
-      <point x="1083.2696702244116" y="3150.0" />
-      <point x="1083.2696702244116" y="2554.0" />
-      <point x="1085.5342843459223" y="2554.0" />
-      <point x="0.0" y="394.5" />
-    </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.MCL.MCL_Provider">
-      <point x="39.33333333333337" y="-17.0" />
-      <point x="869.4836617405583" y="2804.0" />
-      <point x="909.6696702244114" y="2804.0" />
-      <point x="909.6696702244114" y="1720.0" />
-      <point x="960.3995176518882" y="1720.0" />
-      <point x="-79.85714285714289" y="395.5" />
+      <point x="60.75" y="89.0" />
+      <point x="0.0" y="-52.5" />
     </edge>
     <edge source="ki.robotics.client.ComControllerImplTerminal" target="ki.robotics.client.ComController">
-      <point x="-109.58333333333348" y="-96.0" />
-      <point x="450.324846059113" y="3970.0" />
-      <point x="0.0" y="3970.0" />
-      <point x="0.0" y="2794.0" />
-      <point x="402.8363368910782" y="2794.0" />
-      <point x="-112.71428571428578" y="82.5" />
+      <point x="48.59999999999991" y="-89.0" />
+      <point x="424.59062500000033" y="2139.0" />
+      <point x="580.8333333333334" y="2139.0" />
+      <point x="580.8333333333334" y="1815.0" />
+      <point x="613.2867187500001" y="1815.0" />
+      <point x="30.375" y="76.5" />
+    </edge>
+    <edge source="ki.robotics.client.MCL.MCL_Provider" target="ki.robotics.client.MCL.SensorModel">
+      <point x="202.79999999999995" y="-449.5" />
+      <point x="1180.71171875" y="866.0" />
+      <point x="1313.2083333333335" y="866.0" />
+      <point x="0.0" y="232.0" />
     </edge>
     <edge source="ki.robotics.client.Main" target="ki.robotics.client.ComController">
-      <point x="-65.0" y="-56.5" />
-      <point x="814.8456793924465" y="3792.0" />
-      <point x="532.0" y="3792.0" />
-      <point x="532.0" y="2814.0" />
-      <point x="515.550622605364" y="2814.0" />
-      <point x="0.0" y="82.5" />
+      <point x="60.66666666666674" y="-52.5" />
+      <point x="497.40729166666716" y="2372.0" />
+      <point x="1221.8333333333335" y="2372.0" />
+      <point x="1221.8333333333335" y="1815.0" />
+      <point x="674.0367187500001" y="1815.0" />
+      <point x="91.125" y="76.5" />
     </edge>
     <edge source="ki.robotics.client.Communicator" target="ki.robotics.client.ComController">
-      <point x="127.75" y="-148.0" />
-      <point x="393.75" y="2814.0" />
-      <point x="477.9791940339355" y="2814.0" />
-      <point x="-37.57142857142844" y="82.5" />
+      <point x="154.33333333333326" y="-137.0" />
+      <point x="493.16666666666663" y="1815.0" />
+      <point x="552.5367187500001" y="1815.0" />
+      <point x="-30.375" y="76.5" />
     </edge>
     <edge source="ki.robotics.client.MCL.Configuration" target="ki.robotics.client.MCL.MCL_Provider">
-      <point x="-93.66666666666674" y="-394.5" />
-      <point x="991.8676176792557" y="1720.0" />
-      <point x="1040.2566605090312" y="1720.0" />
-      <point x="0.0" y="395.5" />
-    </edge>
-    <edge source="ki.robotics.client.Main" target="ki.robotics.client.ComControllerImplTerminal">
-      <point x="48.75" y="56.5" />
-      <point x="928.5956793924465" y="3960.0" />
-      <point x="625.6581793924465" y="3960.0" />
-      <point x="65.75" y="-96.0" />
-    </edge>
-    <edge source="ki.robotics.robot" target="ki.robotics.common.MapPanel">
-      <point x="-32.25" y="-17.0" />
-      <point x="847.7892172961137" y="327.0" />
-      <point x="833.613803366174" y="327.0" />
-      <point x="34.375" y="148.5" />
-    </edge>
-    <edge source="ki.robotics.robot" target="ki.robotics.robot">
-      <point x="-36.85714285714285" y="17.0" />
-      <point x="843.182074438971" y="645.0" />
-      <point x="785.5392172961137" y="645.0" />
-      <point x="785.5392172961137" y="598.0" />
-      <point x="-64.5" y="-0.0" />
-    </edge>
-    <edge source="ki.robotics.client.Main" target="ki.robotics.client.ComControllerImplGUI">
-      <point x="0.0" y="-56.5" />
-      <point x="879.8456793924465" y="3792.0" />
-      <point x="859.8866652983032" y="3792.0" />
-      <point x="-134.0" y="278.5" />
+      <point x="102.80000000000007" y="364.5" />
+      <point x="680.5083333333334" y="836.0" />
+      <point x="977.9117187500001" y="836.0" />
+      <point x="0.0" y="-449.5" />
     </edge>
     <edge source="ki.robotics.client.ComControllerImplTerminal" target="ki.robotics.client.MCL.Configuration">
-      <point x="109.58333333333326" y="-96.0" />
-      <point x="669.4915127257798" y="3970.0" />
-      <point x="1406.0079365079364" y="3970.0" />
-      <point x="1406.0079365079364" y="2554.0" />
-      <point x="1197.9342843459226" y="2554.0" />
-      <point x="112.40000000000012" y="394.5" />
-    </edge>
-    <edge source="ki.robotics.client.ComControllerImplGUI" target="ki.robotics.client.Communicator">
-      <point x="-241.20000000000005" y="-278.5" />
-      <point x="752.6866652983032" y="3190.0" />
-      <point x="329.875" y="3190.0" />
-      <point x="63.875" y="148.0" />
+      <point x="-97.19999999999993" y="-89.0" />
+      <point x="278.7906250000005" y="2149.0" />
+      <point x="0.0" y="2149.0" />
+      <point x="0.0" y="866.0" />
+      <point x="474.9083333333334" y="866.0" />
+      <point x="-102.79999999999995" y="364.5" />
     </edge>
     <edge source="ki.robotics.client.ComControllerImplTerminal" target="ki.robotics.client.Communicator">
-      <point x="-65.75" y="-96.0" />
-      <point x="494.15817939244647" y="3960.0" />
-      <point x="187.9613368910783" y="3960.0" />
-      <point x="187.9613368910783" y="3190.0" />
-      <point x="74.375" y="3190.0" />
-      <point x="-191.625" y="148.0" />
+      <point x="-48.59999999999991" y="-89.0" />
+      <point x="327.3906250000005" y="2139.0" />
+      <point x="223.08333333333337" y="2139.0" />
+      <point x="-115.75" y="137.0" />
+    </edge>
+    <edge source="ki.robotics.client.Main" target="ki.robotics.client.ComControllerImplTerminal">
+      <point x="-60.66666666666674" y="-52.5" />
+      <point x="376.0739583333337" y="2372.0" />
+      <point x="315.2406250000004" y="2372.0" />
+      <point x="-60.75" y="89.0" />
     </edge>
   </edges>
-  <settings layout="Hierarchic Group" zoom="0.6000000000000001" x="714.9999999999999" y="691.6666666666665" />
+  <settings layout="Hierarchic Group" zoom="0.6865751590224305" x="658.5434952213768" y="603.3840452506339" />
   <SelectedNodes>
-    <node>ki.robotics.common.MapPanel</node>
+    <node>ki.robotics.client.ComControllerImplTerminal</node>
   </SelectedNodes>
   <Categories>
-    <Category>Inner Classes</Category>
-    <Category>Properties</Category>
-    <Category>Methods</Category>
-    <Category>Constructors</Category>
     <Category>Fields</Category>
+    <Category>Constructors</Category>
+    <Category>Methods</Category>
+    <Category>Properties</Category>
+    <Category>Inner Classes</Category>
   </Categories>
   <SCOPE>All</SCOPE>
   <VISIBILITY>private</VISIBILITY>
