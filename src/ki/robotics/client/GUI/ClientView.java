@@ -73,9 +73,16 @@ public class ClientView extends JFrame {
     ClientMapPanel getMapPanel() { return  mapPanel; }
 
     void refreshParticleInfo() {
+        /*
         particleValuePoseX.setText(String.valueOf(guiModel.getParticleX()));
         particleValuePoseY.setText(String.valueOf(guiModel.getParticleY()));
         particleValueWeight.setText(String.valueOf(Math.round(guiModel.getParticleWeight() * 10000000.0) / 10000000.0));
+        */
+
+        MCLParticle selectedParticle = guiModel.getSelectedParticle();
+        particleValuePoseX.setText(String.valueOf(selectedParticle.getPose().getX()));
+        particleValuePoseY.setText(String.valueOf(selectedParticle.getPose().getY()));
+        particleValueWeight.setText(String.valueOf(Math.round(selectedParticle.getWeight() * 10000000.0) / 10000000.0));
     }
 
     private void createWindow() {

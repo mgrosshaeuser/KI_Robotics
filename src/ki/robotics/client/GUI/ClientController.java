@@ -9,6 +9,7 @@ import lejos.robotics.navigation.Pose;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
@@ -280,7 +281,7 @@ class ClientController {
             guiModel.setUseSignatureSeven(selected);
         }
     }
-    
+
 
 
     public class measureDistanceToLeftActionListener implements ActionListener {
@@ -317,30 +318,60 @@ class ClientController {
         }
     }
 
-    public class setXYWhenClickOnMap implements MouseListener {
+
+
+    public class setXYWhenClickOnMap extends MouseAdapter {
         @Override
-        public void mouseClicked(MouseEvent e) {
-            setParticleInfoInGUI(e);
+        public void mouseClicked(MouseEvent mouseEvent) {
+            if (guiModel.getMclProvider() == null)
+                return;
+
+            Point clickCoordinates = transformClickCoordinatesToMapCoordinateSystem(mouseEvent);
+            MCLParticle selectedParticle = findClosestParticleToUserClick(clickCoordinates);
+            guiModel.setSelectedParticle(selectedParticle);
+            guiView.refreshParticleInfo();
         }
 
-        @Override
-        public void mousePressed(MouseEvent e) {
 
+        private Point transformClickCoordinatesToMapCoordinateSystem(MouseEvent mouseEvent) {
+            MapPanel mapPanel = guiView.getMapPanel();
+
+            int menuBarYOffset = 35;
+            int yOffset = menuBarYOffset + guiView.getControlPanel().getHeight() + mapPanel.getYOffset();
+            int xOffset = mapPanel.getXOffset();
+
+            float xClickTransformed = (mouseEvent.getX() - xOffset) / mapPanel.getScaleFactor();
+            float yClickTransformed = (mouseEvent.getY() - yOffset) / mapPanel.getScaleFactor();
+
+            return new Point(Math.round(xClickTransformed), Math.round(yClickTransformed));
         }
 
-        @Override
-        public void mouseReleased(MouseEvent e) {
 
+        private MCLParticle findClosestParticleToUserClick(Point clickCoordinates) {
+            ArrayList<MCLParticle> particles = guiModel.getMclProvider().getParticles();
+            MCLParticle currentParticle = particles.get(0);
+            for (MCLParticle p : particles) {
+                currentParticle = chooseCloserParticleToUserClick(clickCoordinates, currentParticle, p);
+            }
+            return currentParticle;
         }
 
-        @Override
-        public void mouseEntered(MouseEvent e) {
 
+        private MCLParticle chooseCloserParticleToUserClick(Point clickCoordinates, MCLParticle particleA, MCLParticle particleB) {
+            double dxParticleA = clickCoordinates.getX() - particleA.getPose().getX();
+            double dyParticleA = clickCoordinates.getY() - particleA.getPose().getY();
+            double distanceClickPointToParticleA = Math.sqrt(Math.pow(dxParticleA, 2) + Math.pow(dyParticleA, 2));
+
+            double dxParticleB = clickCoordinates.getX() - particleB.getPose().getX();
+            double dyParticleB = clickCoordinates.getY() - particleB.getPose().getY();
+            double distanceClickPointToParticleB = Math.sqrt(Math.pow(dxParticleB, 2) + Math.pow(dyParticleB, 2));
+
+            if (distanceClickPointToParticleA < distanceClickPointToParticleB) {
+                return particleA;
+            } else {
+                return particleB;
+            }
         }
 
-        @Override
-        public void mouseExited(MouseEvent e) {
-
-        }
     }
 }
