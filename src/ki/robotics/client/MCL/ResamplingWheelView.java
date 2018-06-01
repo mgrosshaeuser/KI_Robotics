@@ -7,7 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class ResamplingWheelVisual extends JFrame {
+class ResamplingWheelView extends JFrame {
+    private static final String WINDOW_TITLE = "Resampling Wheel";
     private static final int WINDOW_WIDTH = 600;
     private static final int WINDOW_HEIGHT = 600;
 
@@ -15,10 +16,9 @@ public class ResamplingWheelVisual extends JFrame {
     private Color[] resamplingWheelColors;
     private ArrayList<MCLParticle> particles;
 
-    private DiagramPanel cake;
 
 
-    ResamplingWheelVisual(double[] resamplingWheelFractions, Color[] resamplingWheelColors, ArrayList<MCLParticle> particles) {
+    ResamplingWheelView(double[] resamplingWheelFractions, Color[] resamplingWheelColors, ArrayList<MCLParticle> particles) {
         createWindow();
         this.resamplingWheelFractions = resamplingWheelFractions;
         this.resamplingWheelColors = resamplingWheelColors;
@@ -26,18 +26,31 @@ public class ResamplingWheelVisual extends JFrame {
     }
 
 
+    Color weightToColor(double weight) {
+
+        double epsilon = 0.001;
+
+        for (int i = 0; i < resamplingWheelFractions.length   ; i++) {
+            if (Math.abs(weight - resamplingWheelFractions[i]) < epsilon) {
+                return resamplingWheelColors[i];
+            }
+        }
+        return Color.CYAN;
+    }
+
+
 
     private void createWindow() {
-        this.setTitle("Resampling Wheel");
+        this.setTitle(WINDOW_TITLE);
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        cake = new DiagramPanel();
+        DiagramPanel cake = new DiagramPanel();
         this.add(cake, BorderLayout.CENTER);
         this.setVisible(true);
     }
 
-    public void update(ArrayList<MCLParticle> particles) {
+    void update(ArrayList<MCLParticle> particles) {
         this.particles = particles;
         repaint();
     }

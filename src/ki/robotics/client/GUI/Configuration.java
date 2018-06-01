@@ -1,12 +1,10 @@
-package ki.robotics.client.MCL;
+package ki.robotics.client.GUI;
 
-import ki.robotics.client.MCL.MCL_Provider;
+import ki.robotics.client.MCL.LocalizationProvider;
 import ki.robotics.utility.map.Map;
 
-import java.util.ArrayList;
-
 public interface Configuration {
-    MCL_Provider getMclProvider();
+    LocalizationProvider getLocalizationProvider();
 
     Map getMap();
 
@@ -24,7 +22,7 @@ public interface Configuration {
 
     boolean isStopWhenDone();
 
-    int getAcceptableTolerance();
+    int getAcceptableDeviation();
 
     boolean isStartFromLeft();
 
@@ -63,4 +61,6 @@ public interface Configuration {
     boolean isUseSignatureSix();
 
     boolean isUseSignatureSeven();
+
+    boolean isPaused();
 }

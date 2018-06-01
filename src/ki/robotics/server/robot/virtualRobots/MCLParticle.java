@@ -6,6 +6,7 @@ import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
+import java.io.Serializable;
 
 /**
  * Implementation of the Robot-Interface through the RobotImplVirtualRobot abstract-class.
@@ -13,7 +14,7 @@ import java.awt.*;
  *
  * @version 1.0 01/02/18
  */
-public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCLParticle> {
+public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCLParticle>, Serializable {
     private float weight;
     private Color color;
 
@@ -42,6 +43,12 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
         this.sensorHeadPosition = particle.sensorHeadPosition;
         this.weight = 0;
         this.color = particle.getColor();
+    }
+
+    public static MCLParticle makeDeepCopy(MCLParticle particle) {
+        MCLParticle p = new MCLParticle(particle);
+        p.setWeight(particle.getWeight());
+        return p;
     }
 
     /**

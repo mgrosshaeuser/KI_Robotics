@@ -1,16 +1,18 @@
-package ki.robotics.client.MCL;
+package ki.robotics.client;
 
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
 import ki.robotics.utility.pixyCam.DTOColorCodeQuery;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 
+import java.io.Serializable;
+
 /**
  * A simple 'book-keeping'-class for the sensor-feedback from the robot.
  *
  * @version 1.0 01/02/18
  */
-public class SensorModel {
+public class SensorModel implements Serializable {
 
     private double distanceToLeft;
     private double distanceToCenter;
@@ -18,17 +20,27 @@ public class SensorModel {
     private int color;
     private double sensorHeadPosition;
 
-    private DTOGeneralQuery generalQuery;
-    private DTOAngleQuery angleQuery;
-    private DTOColorCodeQuery colorCodeQuery;
-    private DTOSignatureQuery unspecifiedSignatureQuery;
-    private DTOSignatureQuery signatureQuery1;
-    private DTOSignatureQuery signatureQuery2;
-    private DTOSignatureQuery signatureQuery3;
-    private DTOSignatureQuery signatureQuery4;
-    private DTOSignatureQuery signatureQuery5;
-    private DTOSignatureQuery signatureQuery6;
-    private DTOSignatureQuery signatureQuery7;
+    private transient DTOGeneralQuery generalQuery;
+    private transient DTOAngleQuery angleQuery;
+    private transient DTOColorCodeQuery colorCodeQuery;
+    private transient DTOSignatureQuery unspecifiedSignatureQuery;
+    private transient DTOSignatureQuery signatureQuery1;
+    private transient DTOSignatureQuery signatureQuery2;
+    private transient DTOSignatureQuery signatureQuery3;
+    private transient DTOSignatureQuery signatureQuery4;
+    private transient DTOSignatureQuery signatureQuery5;
+    private transient DTOSignatureQuery signatureQuery6;
+    private transient DTOSignatureQuery signatureQuery7;
+
+    public static SensorModel makeDeepCopy(SensorModel sensorModel) {
+        SensorModel newModel = new SensorModel();
+        newModel.distanceToLeft = sensorModel.distanceToLeft;
+        newModel.distanceToCenter = sensorModel.distanceToCenter;
+        newModel.distanceToRight = sensorModel.distanceToRight;
+        newModel.color = sensorModel.color;
+        newModel.sensorHeadPosition = sensorModel.sensorHeadPosition;
+        return newModel;
+    }
 
 
     public double[] getAllDistances() {

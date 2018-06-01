@@ -4,7 +4,6 @@ import ki.robotics.client.ComController;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.MapPanel;
 import ki.robotics.utility.map.MapProvider;
-import lejos.robotics.navigation.Pose;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -33,75 +32,73 @@ class ClientController {
             limitations[2] = 180;
         }
         guiModel.createMclProvider();
+        guiView.setTitle(ClientView.WINDOW_TITLE + " | paused");
         comController.start(guiModel);
+        guiView.replay.setEnabled(false);
         guiView.repaint();
     }
 
 
     private void stop() {
         comController.stop();
+        guiView.replay.setEnabled(true);
         guiView.repaint();
     }
 
-
-    private void setParticleInfoInGUI(MouseEvent mouseEvent) {
-        if (guiModel.getMclProvider() != null) {
-            int menuBarYOffset = 35;
-            int controlPanelYOffset = guiView.getControlPanel().getHeight();
-            int heightOffset = menuBarYOffset + controlPanelYOffset;
-            ArrayList<MCLParticle> mclParticles = guiModel.getMclProvider().getParticles();
-            int xParticle, yParticle;
-            double particleWeight;
-            MCLParticle oldNearestMclP = mclParticles.get(0);
-            MapPanel mapPanel = guiView.getMapPanel();
-
-            for (MCLParticle mclPtoAnalyse : mclParticles) {
-                boolean newParticleIsCloser = isMclPtoAnalyseNearer(oldNearestMclP, mclPtoAnalyse, mouseEvent, heightOffset, mapPanel);
-
-                if (newParticleIsCloser) {
-                    oldNearestMclP = mclPtoAnalyse;
-                }
-            }
-            xParticle = (int) ((oldNearestMclP.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
-            yParticle = (int) ((oldNearestMclP.getPose().getY() * mapPanel.getScaleFactor())
-                    + mapPanel.getYOffset() + controlPanelYOffset + menuBarYOffset);
-            particleWeight = oldNearestMclP.getWeight();
-
-            guiModel.setSelectedParticleX(xParticle);
-            guiModel.setSelectedParticleY(yParticle);
-            guiModel.setSelectedParticleWeight(particleWeight);
-            guiView.refreshParticleInfo();
-        }
+    void postLocalizationWork() {
+        guiModel.setPaused();
     }
 
-    private boolean isMclPtoAnalyseNearer(MCLParticle oldNearestMclP, MCLParticle mclPtoAnalyse, MouseEvent e, int heightOffset, MapPanel mapPanel) {
-        int xToAnalyse;
-        int yToAnalyse;
-        Pose pose = mclPtoAnalyse.getPose();
 
-        xToAnalyse = (int) ((pose.getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
-        yToAnalyse = (int) ((pose.getY() * mapPanel.getScaleFactor())
-                + mapPanel.getYOffset() + heightOffset);
 
-        int xOldNearestMclP = (int) ((oldNearestMclP.getPose().getX() * mapPanel.getScaleFactor()) + mapPanel.getXOffset());
-        int yOldNearestMclP = (int) ((oldNearestMclP.getPose().getY() * mapPanel.getScaleFactor())
-                + mapPanel.getYOffset() + heightOffset);
 
-        int xDiffToAnalyse = Math.abs(xToAnalyse - e.getX());
-        int yDiffToAnalyse = Math.abs(yToAnalyse - e.getY());
-        int addedDiff = xDiffToAnalyse + yDiffToAnalyse;
 
-        int xDiffOldNearestMclP = Math.abs(xOldNearestMclP - e.getX());
-        int yDiffOldNearestMclP = Math.abs(yOldNearestMclP - e.getY());
-        int addedDiffPrevious = xDiffOldNearestMclP + yDiffOldNearestMclP;
-        return addedDiff < addedDiffPrevious;
+    Action getSpacePressedAction() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (guiModel.isPaused()) {
+                    guiModel.togglePlayPaused();
+                    guiModel.getLocalizationProvider().resetToLatestWorldState();
+                    guiView.setTitle(ClientView.WINDOW_TITLE + " | running");
+                } else {
+                    guiModel.togglePlayPaused();
+                    guiView.setTitle(ClientView.WINDOW_TITLE + " | paused");
+                }
+                guiView.repaint();
+            }
+
+        };
+    }
+
+    Action getLeftArrowPressedAction() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (guiModel.isPaused()) {
+                    guiModel.getLocalizationProvider().stepBackInLocalizationHistory();
+                    guiView.repaint();
+                }
+            }
+        };
+    }
+
+    Action getRightArrowPressedAction() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (guiModel.isPaused()) {
+                    guiModel.getLocalizationProvider().stepForwardInLocalizationHistory();
+                    guiView.repaint();
+                }
+            }
+        };
     }
 
 
     public class StartButtonActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            guiView.start.setEnabled(false);
             int distancePerTravelInstruction = guiModel.getStepSize();
             int numberOfParticles = guiModel.getNumberOfParticles();
             try {
@@ -116,6 +113,9 @@ class ClientController {
             if (numberOfParticles > 0) {
                 guiModel.setNumberOfParticles(numberOfParticles);
             }
+            guiView.start.setText("Stop");
+            guiView.start.removeActionListener(this);
+            guiView.start.addActionListener(new StopButtonActionListener());
             start();
         }
     }
@@ -124,10 +124,20 @@ class ClientController {
         @Override
         public void actionPerformed(ActionEvent e) {
             stop();
-            guiView.start.setEnabled(true);
+            guiView.start.setText("Start");
+            guiView.start.removeActionListener(this);
+            guiView.start.addActionListener(new StartButtonActionListener());
+            guiModel.setPaused();
         }
     }
 
+
+    public class ReplayButtonActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Not yet implemented");
+        }
+    }
 
 
 
@@ -323,7 +333,7 @@ class ClientController {
     public class setXYWhenClickOnMap extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            if (guiModel.getMclProvider() == null)
+            if (guiModel.getLocalizationProvider() == null)
                 return;
 
             Point clickCoordinates = transformClickCoordinatesToMapCoordinateSystem(mouseEvent);
@@ -348,7 +358,7 @@ class ClientController {
 
 
         private MCLParticle findClosestParticleToUserClick(Point clickCoordinates) {
-            ArrayList<MCLParticle> particles = guiModel.getMclProvider().getParticles();
+            ArrayList<MCLParticle> particles = guiModel.getLocalizationProvider().getParticles();
             MCLParticle currentParticle = particles.get(0);
             for (MCLParticle p : particles) {
                 currentParticle = chooseCloserParticleToUserClick(clickCoordinates, currentParticle, p);

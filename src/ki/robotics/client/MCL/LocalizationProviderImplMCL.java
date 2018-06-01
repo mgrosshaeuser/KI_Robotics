@@ -1,20 +1,17 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.utility.map.Map;
+import ki.robotics.client.SensorModel;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
+import ki.robotics.utility.map.Map;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.Random;
 
 /**
@@ -22,116 +19,59 @@ import java.util.Random;
  *
  * @version 1.0 01/02/18
  */
-public class MCL_Provider {
-    //private static final int[] RESAMPLING_WEIGHTS = new int[]{20,10,5,2,1};     // Best working with physical robot.
-    private static final int[] RESAMPLING_WEIGHTS = new int[]{81,27,9,3,1};   // Best working in Simulation.
-    private static final Color RESAMPLING_WHEEL_PARTICLE_INITIAL_COLOR = Color.GRAY;
+public class LocalizationProviderImplMCL implements LocalizationProvider {
+    private MclModel mclModel;
 
 
-    private static double[] resamplingWheelFractions;
-    private static Color[] resamplingWheelColors;
-
-
-
-    public static final int MCL_TOLERANCE_FOR_LOCAL_LOCALIZATION = 20;
-
-    private final Map map;
-    private final int particleCount;
-    private final int fixedX;
-    private final int fixedY;
-    private final int fixedHeading;
-    private final Configuration configuration;
-    private final int acceptableTolerance;
-    private final ArrayList<MCLParticle> particles;
-    private boolean localized;
-
-    private ArrayList<ParticleSet> particleSets = new ArrayList<>();
-    private ParticleSet currentSet;
-
-    private ResamplingWheelVisual wheelVisual;
 
     /**
      * Constructor.
      *
-     * @param map               The map used for the MCL.
-     * @param particleCount     The number of particles used for the MCL.
-     * @param limitations       Limitations for particle-location and -heading;
+     * @param model     Model for Monte-Carlo-Localization.
      */
-    public MCL_Provider(Map map, int particleCount, int[] limitations, Configuration configuration) {
-        this.map = map;
-        this.particleCount = particleCount;
-        this.fixedX = limitations[0];
-        this.fixedY = limitations[1];
-        this.fixedHeading = limitations[2];
-        this.configuration = configuration;
-        this.particles = generateSetOfRandomParticles();
-
-        //erstellte Partikel zu set hinzufügen, set speichern
-        this.currentSet = new ParticleSet(particles);
-        this.particleSets.add(currentSet);
-
-        if (configuration.isWithCamera()) {
-            this.acceptableTolerance = MCL_TOLERANCE_FOR_LOCAL_LOCALIZATION;
-        } else {
-            this.acceptableTolerance = configuration.getAcceptableTolerance();
-        }
-        resamplingWheelFractions = createResamplingWheelCategoryArray();
-        resamplingWheelColors = createResamplingWheelColorArray();
-        this.wheelVisual = new ResamplingWheelVisual(resamplingWheelFractions, resamplingWheelColors, currentSet.getParticles());
+    public LocalizationProviderImplMCL(MclModel model) {
+        this.mclModel = model;
     }
 
 
 
-    private double[] createResamplingWheelCategoryArray() {
-        double d[] = new double[36];
-        int x=0;
-        for (int i = 0   ;   i < RESAMPLING_WEIGHTS.length   ;   i++) {
-            for (int j = i   ;   j < RESAMPLING_WEIGHTS.length   ;   j++) {
-                for (int k = j   ;   k < RESAMPLING_WEIGHTS.length   ;   k++) {
-                    int sum = RESAMPLING_WEIGHTS[i] + RESAMPLING_WEIGHTS[j] + RESAMPLING_WEIGHTS[k];
-                    d[x++] = 1/(double)sum;
-                }
-            }
-        }
-        return d;
-    }
+    /**
+     * Returns the acceptable spreading of the particles around the estimated bot-position.
+     *
+     * @return  The acceptable spreading.
+     */
+    @Override
+    public int getAcceptableSpreading() { return mclModel.getAcceptableSpreading(); }
 
-
-    private Color[] createResamplingWheelColorArray() {
-        Color c[] = new Color[35];
-        double max = 255;
-        double min = 0;
-        for (int i = 1   ;   i < c.length - 1   ;   i++) {
-            int newRed = (int) Math.round(max - (max / 35 * i));
-            int newGreen = (int) Math.round(min + (max / 35 * i));
-            c[i] = new Color(newRed, newGreen, 0);
-        }
-        c[0] = new Color(255,0,0);
-        c[34] = new Color(0,255,0);
-        return c;
-    }
 
 
     /**
      * Returns a List of the particles.
      * @return  A list of the particles.
      */
+    @Override
     public ArrayList<MCLParticle> getParticles() {
-        return this.currentSet.getParticles();
+        return mclModel.getParticles();
     }
 
 
-    public int getAcceptableTolerance() { return acceptableTolerance; }
+
+    @Override
+    public ArrayList<WorldState> getWorldStateSequence() {
+        return mclModel.getWorldStateSequence();
+    }
 
     /**
      * Generates a set of random particles.
      *
      * @return      A set of random particles.
      */
-    private ArrayList<MCLParticle> generateSetOfRandomParticles() {
+    @Override
+    public ArrayList<MCLParticle> generateInitialParticleSet() {
         ArrayList<MCLParticle> particles = new ArrayList<>();
-        for (int i = 0  ;  i < particleCount  ;  i++) {
-            particles.add(createRandomParticle(fixedX, fixedY, fixedHeading));
+        for (int i = 0  ;  i < mclModel.getNumberOfParticles()  ;  i++) {
+            particles.add(createRandomParticle(mclModel.getLimitations()));
+            //particles.add(createRandomParticle(fixedX, fixedY, fixedHeading));
         }
         return particles;
     }
@@ -140,12 +80,11 @@ public class MCL_Provider {
     /**
      * Creates one random particle within given limitations and map-bounds.
      *
-     * @param fixedX        A fixed x-value; -1 if free.
-     * @param fixedY        A fixed y-value; -1 if free.
-     * @param fixedHeading  A fixed heading-value; -1 if free.
+     * @param limitations   Limitations for x- and y-Axis and heading.
      * @return              A random particle.
      */
-    private MCLParticle createRandomParticle(int fixedX, int fixedY, int fixedHeading) {
+    private MCLParticle createRandomParticle(int[] limitations) {
+        Map map = mclModel.getMap();
         Polygon boundaries = map.getOperatingRange();
         Rectangle limits = boundaries.getBounds();
         double xOffset = limits.getX();
@@ -154,11 +93,11 @@ public class MCL_Provider {
         double heightLimit = limits.getHeight();
 
         while (true) {
-            int x = (fixedX >= 0) ? fixedX : (int)Math.round(Math.random() * widthLimit + xOffset);
-            int y = (fixedY >= 0) ? fixedY : (int)Math.round(Math.random() * heightLimit + yOffset);
-            int h = (fixedHeading >= 0 ? fixedHeading : (int) (Math.round(Math.random() * 4) *90));
+            int x = (limitations[0] >= 0) ? limitations[0] : (int)Math.round(Math.random() * widthLimit + xOffset);
+            int y = (limitations[1] >= 0) ? limitations[1] : (int)Math.round(Math.random() * heightLimit + yOffset);
+            int h = (limitations[2] >= 0  ? limitations[2] : (int) (Math.round(Math.random() * 4) *90));
             if (boundaries.contains(x, y)) {
-                return new MCLParticle(new Pose(x, y, h), map, 1, RESAMPLING_WHEEL_PARTICLE_INITIAL_COLOR);
+                return new MCLParticle(new Pose(x, y, h), map, 1, Color.GRAY);
             }
         }
     }
@@ -169,8 +108,9 @@ public class MCL_Provider {
      *
      * @param bot   The sensor-model of the robot.
      */
+    @Override
     public void recalculateParticleWeight(SensorModel bot) {
-        ArrayList<MCLParticle> particles = currentSet.getParticles();
+        ArrayList<MCLParticle> particles = mclModel.getParticles();
         for (MCLParticle p : particles) {
             if (p.isOutOfBounds()) {
                 p.setWeight(0);
@@ -178,11 +118,13 @@ public class MCL_Provider {
             } else {
                 double deviation = calculateBotParticleDeviation(bot, p);
                 p.setWeight((float) deviation);
-                p.setColor(weightToColor(deviation));
+                p.setColor(mclModel.getResamplingWheel().weightToColor(deviation));
             }
         }
-        wheelVisual.update(particles);
+        mclModel.getResamplingWheel().update(particles);
+        mclModel.setSensorModel(bot);
     }
+
 
     /**
      * Calculates an absolute weight for a particle as the multiplicative inverse of the arithmetic
@@ -198,7 +140,7 @@ public class MCL_Provider {
         Factor the weight from uss scans get multiplied with, depending on how much the particles view deviates from the bots camera view. Between 1 and 3.
          */
         double seeingColorScale = 1;
-        if (configuration.isWithCamera() ){
+        if (mclModel.getUserSettings().isWithCamera() ){
             double camDeviation = calculatedCameraSupportedDeviation(bot, particle);
             seeingColorScale = ( camDeviation > 0 ) ? camDeviation*4+1 : 1;
           }
@@ -287,30 +229,21 @@ public class MCL_Provider {
 
 
     private int deviationToWeight(double deviation, double referenceValue) {
+        int[] resamplingWeights = MclModel.RESAMPLING_WEIGHTS;
         if (deviation > 0.9 * referenceValue) {
-            return RESAMPLING_WEIGHTS[0];
+            return resamplingWeights[0];
         } else if (deviation > 0.75 * referenceValue) {
-            return RESAMPLING_WEIGHTS[1];
+            return resamplingWeights[1];
         } else if (deviation > 0.5 * referenceValue) {
-            return RESAMPLING_WEIGHTS[2];
+            return resamplingWeights[2];
         } else if (deviation > 0.25 * referenceValue) {
-            return RESAMPLING_WEIGHTS[3];
+            return resamplingWeights[3];
         } else {
-            return RESAMPLING_WEIGHTS[4];
+            return resamplingWeights[4];
         }
     }
 
-    private Color weightToColor(double weight) {
 
-        double epsilon = 0.001;
-
-        for (int i = 0; i < resamplingWheelFractions.length   ; i++) {
-            if (Math.abs(weight - resamplingWheelFractions[i]) < epsilon) {
-                return resamplingWheelColors[i];
-            }
-        }
-        return Color.CYAN;
-    }
 
 
 
@@ -319,7 +252,7 @@ public class MCL_Provider {
      */
     private void normalizeParticleWeight() {
         double sum = getSumOfParticleWeights();
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
             p.setWeight((float)(p.getWeight() / sum));
         }
     }
@@ -331,20 +264,21 @@ public class MCL_Provider {
     private void resample() {
         normalizeParticleWeight();
         Random r = new Random();
-        ArrayList<MCLParticle> newSet = new ArrayList<>();
+        ArrayList<MCLParticle> resampledParticles = new ArrayList<>();
+        int particleCount = mclModel.getNumberOfParticles();
         int index = Math.abs(r.nextInt()) % particleCount;
         double beta = 0.0;
         double maxWeight = getHighestParticleWeight();
         for (int i = 0  ;  i < particleCount  ;  i++) {
             beta += r.nextDouble() * 2 * maxWeight;
-            while (beta > currentSet.getParticles().get(index).getWeight()) {
-                beta -= currentSet.getParticles().get(index).getWeight();
+            while (beta > mclModel.getParticles().get(index).getWeight()) {
+                beta -= mclModel.getParticles().get(index).getWeight();
                 index = (index + 1) % particleCount;
             }
-            newSet.add(new MCLParticle(currentSet.getParticles().get(index)));
+            resampledParticles.add(new MCLParticle(mclModel.getParticles().get(index)));
         }
-        currentSet = new ParticleSet(newSet);
-        particleSets.add(currentSet);
+        mclModel.setParticles(resampledParticles);
+        mclModel.takeSnapShot();
         checkLocalizationStatus();
     }
 
@@ -355,7 +289,7 @@ public class MCL_Provider {
      */
     private float getHighestParticleWeight() {
         float weight = 0f;
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
             float pWeight = p.getWeight();
             weight = pWeight > weight ? pWeight : weight;
         }
@@ -363,8 +297,8 @@ public class MCL_Provider {
     }
 
 
-    public float getMedianParticleWeight() {
-        return (float)( getSumOfParticleWeights() / particleCount);
+    public double getMedianParticleWeight() {
+        return ( getSumOfParticleWeights() / mclModel.getNumberOfParticles());
     }
 
     /**
@@ -374,10 +308,20 @@ public class MCL_Provider {
      */
     private double getSumOfParticleWeights() {
         double sum = 0;
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
                 sum += p.getWeight();
         }
         return sum;
+    }
+
+
+
+    private Pose getEstimatedBotPose() {
+        double[] estimatedPose = getEstimatedPose();
+        float estimatedX = (float) estimatedPose[0];
+        float estimatedY = (float) estimatedPose[1];
+        float estimatedHeading = (float) estimatedPose[2];
+        return new Pose(estimatedX, estimatedY, estimatedHeading);
     }
 
 
@@ -385,61 +329,31 @@ public class MCL_Provider {
      * Tries to guess the robot-position by calculating the arithmetic means of the x- and y-coordinates and
      * the heading of the particles, while mcl is still ready.
      *
-     * @return  The estimated Pose of the robot.
+     * @return  The estimated Pose of the robot as double-Array containing x, y and heading.
      */
-    public Pose getEstimatedBotPose() {
+    @Override
+    public double[] getEstimatedPose() {
         double xSum = 0;
         double ySum = 0;
         double hSum = 0;
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
             Pose pPose = p.getPose();
             xSum += pPose.getX();
             ySum += pPose.getY();
             hSum += pPose.getHeading();
         }
-        float estimatedX = (float) xSum/particleCount;
-        float estimatedY = (float) ySum/particleCount;
-        float estimatedHeading = (float) hSum/particleCount;
-        return new Pose(estimatedX, estimatedY, estimatedHeading);
+        int particleCount = mclModel.getNumberOfParticles();
+        double estimatedX = xSum/particleCount;
+        double estimatedY = ySum/particleCount;
+        double estimatedHeading = hSum/particleCount;
+        return new double[]{estimatedX, estimatedY, estimatedHeading};
     }
 
 
-    private void checkLocalizationStatus() {
-        if (localized) {
-            return;
-        }
-        Pose bPose = getEstimatedBotPose();
-        for (MCLParticle p : currentSet.getParticles()) {
-            Pose pPose = p.getPose();
-            double dx = pPose.getX()- bPose.getX();
-            double dy = pPose.getY()-bPose.getY();
-            double distance;
-            if (configuration.isOneDimensional()) {
-                if (Math.abs(dx) > acceptableTolerance) {
-                    localized = false;
-                    return;
-                }
-            } else {
-                distance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
-                if (distance > acceptableTolerance) {
-                    localized = false;
-                    return;
-                }
-            }
-        }
-        localized = true;
-    }
-
-
-    public boolean isLocalizationDone() {
-        return localized;
-    }
-
-
-    public double getEstimatedBotPoseDeviation() {
+    public double getEstimatedPoseDeviation() {
         double distance = 0;
         Pose bPose = getEstimatedBotPose();
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
             Pose pPose = p.getPose();
             double dx = pPose.getX()- bPose.getX();
             double dy = pPose.getY()-bPose.getY();
@@ -450,20 +364,59 @@ public class MCL_Provider {
     }
 
 
+
+    private void checkLocalizationStatus() {
+        if (mclModel.isLocalized()) {
+            return;
+        }
+        Pose bPose = getEstimatedBotPose();
+        for (MCLParticle p : mclModel.getParticles()) {
+            Pose pPose = p.getPose();
+            double dx = pPose.getX()- bPose.getX();
+            double dy = pPose.getY()-bPose.getY();
+            double distance;
+            if (mclModel.getUserSettings().isOneDimensional()) {
+                if (Math.abs(dx) > mclModel.getAcceptableSpreading()) {
+                    mclModel.setLocalized(false);
+                    return;
+                }
+            } else {
+                distance = Math.sqrt((Math.pow(dx, 2)) + (Math.pow(dy, 2)));
+                if (distance > mclModel.getAcceptableSpreading()) {
+                    mclModel.setLocalized(false);
+                    return;
+                }
+            }
+        }
+        saveLocalizationSequenceToFile();
+        mclModel.setLocalized(true);
+    }
+
+
+    @Override
+    public boolean isLocalizationDone() {
+        return mclModel.isLocalized();
+    }
+
+
+
+
+    @Override
     public void badParticlesFinalKill() {
        resample();
     }
 
 
     /**
-     * Performes a translation of the particles over the given distance.
+     * Performs a translation of the particles over the given distance.
      *
      * @param distance  The distance to translate each particle.
      */
-    public void translateParticle(double distance) {
+    @Override
+    public void translateParticles(double distance) {
         resample();
         Random r = new Random();
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
             float d = (float) r.nextGaussian();
             while (d < -1  ||  d > 1) {
                 d = (float) r.nextGaussian();
@@ -471,6 +424,7 @@ public class MCL_Provider {
             p.botTravelForward(distance * (1 +(d/10)));
             //p.botTravelForward(distance);
         }
+        mclModel.logInstruction(new Object[]{"move", distance});
     }
 
 
@@ -479,53 +433,42 @@ public class MCL_Provider {
      *
      * @param degrees   The degrees to turn.
      */
-    public void turnFull(double degrees){
+    @Override
+    public void turnParticles(double degrees){
         Random r = new Random();
-        for (MCLParticle p : currentSet.getParticles()) {
+        for (MCLParticle p : mclModel.getParticles()) {
             double d = r.nextGaussian();
-            degrees = configuration.isTwoDimensional() ? (int) Math.round(degrees * (1+(d/540))) : (int) Math.round(degrees);
+            degrees = mclModel.getUserSettings().isTwoDimensional() ? (int) Math.round(degrees * (1+(d/540))) : (int) Math.round(degrees);
             p.turnFull((int)degrees);
         }
+        mclModel.logInstruction(new Object[]{"turn", degrees});
     }
 
-    public void saveParticlesToFile(){
-        try {
-            DateFormat sdf = new SimpleDateFormat("yyyyMMddHHmm");
-            Date date = new Date();
-            BufferedWriter writer = new BufferedWriter(new FileWriter(sdf.format(date)+".txt"));
-            int s=1;
-            Pose pose;
-            for(ParticleSet p: particleSets){
-                writer.write("set" + s++ + ":");
-                writer.newLine();
-                int i=1;
-                for(MCLParticle particle : p.getParticles()){
-                    pose = particle.getPose();
-                    writer.write("particle" + i++ + ": " + pose.toString() + " W:" + particle.getWeight()+ " C:" + particle.getColor() + ";");
-                }
-                writer.newLine();
 
-
-            }
-
-            writer.close();
+    @Override
+    public void saveLocalizationSequenceToFile() {
+        String filename = String.valueOf(System.currentTimeMillis()) + ".log";
+        try (FileOutputStream fileOS = new FileOutputStream(filename)) {
+            ObjectOutputStream objectOS = new ObjectOutputStream(fileOS);
+            objectOS.writeObject(mclModel.getWorldStateSequence());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private class ParticleSet{
-        private ArrayList<MCLParticle> particles;
-        private ParticleSet(ArrayList<MCLParticle> particles){
-            this.particles = particles;
-        }
-
-        private void setParticles(ArrayList<MCLParticle> particles){
-            this.particles=particles;
-        }
-        private ArrayList<MCLParticle> getParticles(){
-            return particles;
-        }
-
+    @Override
+    public void resetToLatestWorldState() {
+        mclModel.resetToLatestWorldState();
     }
+
+    @Override
+    public void stepBackInLocalizationHistory() {
+        mclModel.navigateBackwardInHistory();
+    }
+
+    @Override
+    public void stepForwardInLocalizationHistory() {
+        mclModel.navigateForwardInHistory();
+    }
+
 }

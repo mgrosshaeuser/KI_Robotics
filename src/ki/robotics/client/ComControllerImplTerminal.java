@@ -1,6 +1,6 @@
 package ki.robotics.client;
 
-import ki.robotics.client.MCL.Configuration;
+import ki.robotics.client.GUI.Configuration;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 

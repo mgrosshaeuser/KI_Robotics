@@ -1,9 +1,8 @@
 package ki.robotics.client;
 
 import ki.robotics.client.GUI.ClientView;
-import ki.robotics.client.MCL.Configuration;
-import ki.robotics.client.MCL.MCL_Provider;
-import ki.robotics.client.MCL.SensorModel;
+import ki.robotics.client.GUI.Configuration;
+import ki.robotics.client.MCL.LocalizationProvider;
 import ki.robotics.utility.crisp.InstructionSequence;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
@@ -22,7 +21,7 @@ import static ki.robotics.utility.crisp.CRISP.*;
  */
 public class ComControllerImplGUI implements ComController {
     private ClientView window;
-    private MCL_Provider mclProvider;
+    private LocalizationProvider localizationProvider;
     private final SensorModel roverModel;
     private Configuration configuration;
     private Thread communicationThread;
@@ -45,7 +44,7 @@ public class ComControllerImplGUI implements ComController {
      */
     @Override
     public void start(Configuration configuration) {
-        this.mclProvider = configuration.getMclProvider();
+        this.localizationProvider = configuration.getLocalizationProvider();
         this.configuration = configuration;
         communicationThread = new Thread(new Communicator(Main.HOST, Main.PORT, this));
         communicationThread.setDaemon(true);
@@ -91,6 +90,9 @@ public class ComControllerImplGUI implements ComController {
      */
     @Override
     public String getNextRequest() {
+        if (configuration.isPaused())
+            return null;
+
         int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
 
         if (configuration.isOneDimensional()) {
@@ -146,12 +148,10 @@ public class ComControllerImplGUI implements ComController {
      * @return  InstructionSequence for the next request.
      */
     private InstructionSequence getNextRequestWithCamera(int bumper) {
-        if (mclProvider.getEstimatedBotPoseDeviation() <= configuration.getAcceptableTolerance()) {
-            mclProvider.badParticlesFinalKill();
+        if (localizationProvider.getEstimatedPoseDeviation() <= configuration.getAcceptableDeviation()) {
+            localizationProvider.badParticlesFinalKill();
             window.repaint();
-            mclProvider.saveParticlesToFile();
             return new InstructionSequence().disconnect();
-
         }
 
         int stepSize = configuration.getStepSize();
@@ -196,9 +196,9 @@ public class ComControllerImplGUI implements ComController {
                     handleOtherResponse(response);
                     break;
             }
-            if (configuration.isStopWhenDone() && !configuration.isWithCamera() && mclProvider.isLocalizationDone()) {
-                mclProvider.badParticlesFinalKill();
-                mclProvider.saveParticlesToFile();
+            if (configuration.isStopWhenDone() && !configuration.isWithCamera() && localizationProvider.isLocalizationDone()) {
+                localizationProvider.badParticlesFinalKill();
+                window.updateWindowAfterLocalizationFinished();
                 window.repaint();
                 stop();
             }
@@ -222,19 +222,19 @@ public class ComControllerImplGUI implements ComController {
                 break;
             case BOT_U_TURN:
                 configuration.flipDirection();
-                mclProvider.turnFull(180);
+                localizationProvider.turnParticles(180);
                 break;
             case BOT_TRAVEL_FORWARD:
-                mclProvider.translateParticle((double)response.getParameter());
+                localizationProvider.translateParticles((double)response.getParameter());
                 break;
             case BOT_TRAVEL_BACKWARD:
-                mclProvider.translateParticle((double)response.getParameter() * -1);
+                localizationProvider.translateParticles((double)response.getParameter() * -1);
                 break;
             case BOT_TURN_LEFT:
-                mclProvider.turnFull(Math.abs((double)response.getParameter()));
+                localizationProvider.turnParticles(Math.abs((double)response.getParameter()));
                 break;
             case BOT_TURN_RIGHT:
-                mclProvider.turnFull(Math.abs((double)response.getParameter()) * -1);
+                localizationProvider.turnParticles(Math.abs((double)response.getParameter()) * -1);
                 break;
         }
     }
@@ -260,14 +260,14 @@ public class ComControllerImplGUI implements ComController {
                 roverModel.setDistanceToLeft((double) response.getParameters()[0]);
                 roverModel.setDistanceToCenter((double) response.getParameters()[1]);
                 roverModel.setDistanceToRight((double) response.getParameters()[2]);
-                mclProvider.recalculateParticleWeight(roverModel);
+                localizationProvider.recalculateParticleWeight(roverModel);
                 break;
             case SENSOR_RESET:
                 roverModel.setSensorHeadPosition(0);
                 break;
             case SENSOR_SINGLE_DISTANCE_SCAN:
                 measureDistance1D(response);
-                mclProvider.recalculateParticleWeight(roverModel);
+                localizationProvider.recalculateParticleWeight(roverModel);
                 break;
         }
     }
@@ -293,8 +293,8 @@ public class ComControllerImplGUI implements ComController {
                 roverModel.setSignatureQuery(new DTOSignatureQuery(response.getParameters()));
                 break;
         }
-        if (mclProvider.isLocalizationDone()) {
-            mclProvider.recalculateParticleWeight(roverModel);
+        if (localizationProvider.isLocalizationDone()) {
+            localizationProvider.recalculateParticleWeight(roverModel);
         }
     }
 

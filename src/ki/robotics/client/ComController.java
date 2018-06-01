@@ -1,6 +1,6 @@
 package ki.robotics.client;
 
-import ki.robotics.client.MCL.Configuration;
+import ki.robotics.client.GUI.Configuration;
 
 public interface ComController {
     void start(Configuration configuration);

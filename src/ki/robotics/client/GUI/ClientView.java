@@ -1,18 +1,20 @@
 package ki.robotics.client.GUI;
 
 import ki.robotics.client.ComController;
-import ki.robotics.client.MCL.MCL_Provider;
+import ki.robotics.client.MCL.LocalizationProvider;
+import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.gui.ExtButtonGroup;
 import ki.robotics.utility.gui.ExtJPanel;
 import ki.robotics.utility.map.MapPanel;
-import ki.robotics.server.robot.virtualRobots.MCLParticle;
-import lejos.robotics.navigation.Pose;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 public class ClientView extends JFrame {
+    static final String WINDOW_TITLE = "Monte Carlo Localization";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
 
@@ -57,7 +59,7 @@ public class ClientView extends JFrame {
     private JCheckBox stopWhenLocalizationIsFinished = new JCheckBox("Stop when done");
 
     JButton start = new JButton("Start");
-    private JButton stop = new JButton("Stop");
+    JButton replay = new JButton("Replay");
 
 
 
@@ -67,18 +69,14 @@ public class ClientView extends JFrame {
         this.guiController = new ClientController(guiModel, this, comController);
         this.mapPanel = new ClientMapPanel(guiModel);
         createWindow();
+        addKeyControls();
+        this.setVisible(true);
     }
 
     JPanel getControlPanel() { return controlPanel; }
     ClientMapPanel getMapPanel() { return  mapPanel; }
 
     void refreshParticleInfo() {
-        /*
-        particleValuePoseX.setText(String.valueOf(guiModel.getParticleX()));
-        particleValuePoseY.setText(String.valueOf(guiModel.getParticleY()));
-        particleValueWeight.setText(String.valueOf(Math.round(guiModel.getParticleWeight() * 10000000.0) / 10000000.0));
-        */
-
         MCLParticle selectedParticle = guiModel.getSelectedParticle();
         particleValuePoseX.setText(String.valueOf(selectedParticle.getPose().getX()));
         particleValuePoseY.setText(String.valueOf(selectedParticle.getPose().getY()));
@@ -86,7 +84,7 @@ public class ClientView extends JFrame {
     }
 
     private void createWindow() {
-        this.setTitle("Monte Carlo Localization");
+        this.setTitle(WINDOW_TITLE);
         this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
@@ -94,8 +92,39 @@ public class ClientView extends JFrame {
         add(controlPanel, BorderLayout.PAGE_START);
         add(mapPanel, BorderLayout.CENTER);
         addMouseListener(guiController.new setXYWhenClickOnMap());
-        this.setVisible(true);
     }
+
+
+    private void addKeyControls() {
+        InputMap controlPanelInputMap = this.controlPanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap controlPanelActionMap = this.controlPanel.getActionMap();
+
+        controlPanelInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE,KeyEvent.CTRL_DOWN_MASK), "SpacePressed");
+        controlPanelActionMap.put("SpacePressed", guiController.getSpacePressedAction());
+
+        controlPanelInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT,KeyEvent.CTRL_DOWN_MASK), "LeftPressed");
+        controlPanelActionMap.put("LeftPressed", guiController.getLeftArrowPressedAction());
+
+        controlPanelInputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT,KeyEvent.CTRL_DOWN_MASK), "RightPressed");
+        controlPanelActionMap.put("RightPressed", guiController.getRightArrowPressedAction());
+    }
+
+
+
+    public void updateWindowAfterLocalizationFinished() {
+        ActionListener[] listeners = start.getActionListeners();
+        for (ActionListener l : listeners) {
+            start.removeActionListener(l);
+        }
+        start.setText("Start");
+        start.addActionListener(guiController.new StartButtonActionListener());
+
+        replay.setEnabled(true);
+        replay.addActionListener(guiController.new ReplayButtonActionListener());
+        this.setTitle(WINDOW_TITLE);
+        guiController.postLocalizationWork();
+    }
+
 
 
 
@@ -258,8 +287,8 @@ public class ClientView extends JFrame {
         ExtJPanel commonComponents = new ExtJPanel();
         commonComponents.setLayout(new GridLayout(5,1));
 
-        labelForAcceptableLocalizationDeviationSlider.setText("Acceptable Tolerance: " + guiModel.getAcceptableTolerance() + " cm");
-        acceptableLocalizationDeviationSlider.setValue(guiModel.getAcceptableTolerance());
+        labelForAcceptableLocalizationDeviationSlider.setText("Acceptable Tolerance: " + guiModel.getAcceptableDeviation() + " cm");
+        acceptableLocalizationDeviationSlider.setValue(guiModel.getAcceptableDeviation());
         acceptableLocalizationDeviationSlider.addChangeListener(guiController.new DeviationSliderChangeListener());
 
         ExtJPanel firstRow = new ExtJPanel();
@@ -277,8 +306,8 @@ public class ClientView extends JFrame {
         particleCnt.setLabelFor(numberOfParticles);
         numberOfParticles.setHorizontalAlignment(JTextField.RIGHT);
         numberOfParticles.setText(String.valueOf(guiModel.getNumberOfParticles()));
-        stop.addActionListener(guiController.new StopButtonActionListener());
-        secondRow.addAll(particleCnt, numberOfParticles, stop);
+        replay.setEnabled(false);
+        secondRow.addAll(particleCnt, numberOfParticles, replay);
 
         stopWhenLocalizationIsFinished.setSelected(guiModel.isStopWhenDone());
         stopWhenLocalizationIsFinished.addActionListener(guiController.new setStopWhenLocalizationFinishedActionListener());
@@ -296,7 +325,7 @@ public class ClientView extends JFrame {
         private ClientModel model;
 
 
-        ClientMapPanel( ClientModel model) {
+        ClientMapPanel(ClientModel model) {
             super(model.getMap());
             this.model = model;
         }
@@ -305,37 +334,37 @@ public class ClientView extends JFrame {
         public void paint(Graphics g) {
             super.paint(g);
 
-            MCL_Provider mclProvider = model.getMclProvider();
+            LocalizationProvider localizationProvider = model.getLocalizationProvider();
 
-            if (mclProvider == null) {
+            if (localizationProvider == null) {
                 return;
             }
 
-            ArrayList<MCLParticle> particles = mclProvider.getParticles();
+            ArrayList<MCLParticle> particles = localizationProvider.getParticles();
             if (particles != null) {
-                float medianWeight = mclProvider.getMedianParticleWeight();
+                double medianWeight = localizationProvider.getMedianParticleWeight();
                 for (MCLParticle p : particles) {
                     p.paint(g, PARTICLE_DIAMETER, getScaleFactor(), getXOffset(), getYOffset(), medianWeight);
                 }
             }
-            Pose p = mclProvider.getEstimatedBotPose();
+            double[] botPose = localizationProvider.getEstimatedPose();
 
-            g.setColor(mclProvider.isLocalizationDone() ? Color.GREEN : Color.RED);
-            int radius = (int)Math.ceil(mclProvider.getEstimatedBotPoseDeviation());
-            int acceptableTolerance = mclProvider.getAcceptableTolerance();
+            g.setColor(localizationProvider.isLocalizationDone() ? Color.GREEN : Color.RED);
+            int radius = (int)Math.ceil(localizationProvider.getEstimatedPoseDeviation());
+            int acceptableTolerance = localizationProvider.getAcceptableSpreading();
             radius = radius < acceptableTolerance ? acceptableTolerance : radius;
             g.drawOval(
-                    (Math.round(p.getX())-radius) * getScaleFactor() + getXOffset(),
-                    (Math.round(p.getY())-radius) * getScaleFactor() + getYOffset(),
+                    ((int)Math.round(botPose[0])-radius) * getScaleFactor() + getXOffset(),
+                    ((int)Math.round(botPose[1])-radius) * getScaleFactor() + getYOffset(),
                     radius * 2 * getScaleFactor(),
                     radius * 2 * getScaleFactor());
             g.drawString("Deviation: " + String.valueOf(radius),10,40);
 
             g.setColor(Color.BLACK);
             g.drawString("Estimated Bot Position: ", 10,20);
-            g.drawString("X: " + String.valueOf(Math.round(p.getX())),10,55);
-            g.drawString("Y: " + String.valueOf(Math.round(p.getY())), 10,70);
-            g.drawString("H: " + String.valueOf(Math.round(p.getHeading())), 10,85);
+            g.drawString("X: " + String.valueOf((int)Math.round(botPose[0])),10,55);
+            g.drawString("Y: " + String.valueOf((int)Math.round(botPose[1])), 10,70);
+            g.drawString("H: " + String.valueOf((int)Math.round(botPose[2])), 10,85);
         }
     }
 

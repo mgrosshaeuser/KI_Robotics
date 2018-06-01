@@ -23,7 +23,7 @@ final class Communicator implements Runnable{
     private final int port;
     private final ComController ComController;
 
-    public static volatile boolean running = true;
+    static volatile boolean running = true;
 
 
     /**
@@ -88,7 +88,9 @@ final class Communicator implements Runnable{
                     break;
                 }
             } while (true);
-            request = ComController.getNextRequest();
+            while ((request = ComController.getNextRequest()) == null) {
+                Thread.yield();
+            }
         } while ( running && !request.equals(DISCONNECT));
     }
 

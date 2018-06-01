@@ -1,7 +1,7 @@
 package ki.robotics.client.GUI;
 
-import ki.robotics.client.MCL.Configuration;
-import ki.robotics.client.MCL.MCL_Provider;
+import ki.robotics.client.MCL.LocalizationProvider;
+import ki.robotics.client.MCL.LocalizationProviderFactory;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
@@ -14,7 +14,7 @@ public class ClientModel implements Configuration {
     private MapProvider mapProvider = MapProvider.getInstance();
     private Map map;
     private String mapKey;
-    private MCL_Provider mclProvider;
+    private LocalizationProvider localizationProvider;
 
     private boolean isOneDimensional = true;
     private boolean isTwoDimensional = false;
@@ -25,9 +25,6 @@ public class ClientModel implements Configuration {
     private boolean stopWhenDone = true;
     private int acceptableTolerance = 10;
 
-    private int particleX = 0;
-    private int particleY = 0;
-    private double particleWeight = 0.0;
     private MCLParticle selectedParticle;
 
 
@@ -55,16 +52,18 @@ public class ClientModel implements Configuration {
     private boolean useSignatureSix = true;
     private boolean useSignatureSeven = true;
 
+    private boolean paused = true;
+
 
 
 
 
     void createMclProvider() {
-        this.mclProvider = new MCL_Provider(map, numberOfParticles, new int[]{-1,-1,-1}, this);
+        this.localizationProvider = LocalizationProviderFactory.getLocalizationProvider(map, numberOfParticles, new int[]{-1,-1,-1}, this);
     }
 
     @Override
-    public MCL_Provider getMclProvider() { return this.mclProvider; }
+    public LocalizationProvider getLocalizationProvider() { return this.localizationProvider; }
 
 
     @Override
@@ -103,7 +102,7 @@ public class ClientModel implements Configuration {
         isWithCamera = false;
         map = mapProvider.getMap(ONE_DIMENSION_MAP_KEY);
         mapKey = ONE_DIMENSION_MAP_KEY;
-        mclProvider = null;
+        localizationProvider = null;
     }
 
     @Override
@@ -117,7 +116,7 @@ public class ClientModel implements Configuration {
         isWithCamera = false;
         map = mapProvider.getMap(TWO_DIMENSION_MAP_KEY);
         mapKey = TWO_DIMENSION_MAP_KEY;
-        mclProvider = null;
+        localizationProvider = null;
     }
 
     @Override
@@ -131,7 +130,7 @@ public class ClientModel implements Configuration {
         isTwoDimensional = false;
         map = mapProvider.getMap(TWO_DIMENSION_WITH_CAM_MAP_KEY);
         mapKey = TWO_DIMENSION_WITH_CAM_MAP_KEY;
-        mclProvider = null;
+        localizationProvider = null;
     }
 
 
@@ -156,7 +155,7 @@ public class ClientModel implements Configuration {
     }
 
     @Override
-    public int getAcceptableTolerance() {
+    public int getAcceptableDeviation() {
         return acceptableTolerance;
     }
 
@@ -219,6 +218,10 @@ public class ClientModel implements Configuration {
     }
 
 
+
+
+    // Sensor-related getter and setter
+
     @Override
     public boolean isUseLeftSensor() {
         return useLeftSensor;
@@ -248,6 +251,8 @@ public class ClientModel implements Configuration {
 
 
 
+
+    // Camera-related getter and setter.
 
     @Override
     public boolean isUseGeneralQuery() {
@@ -333,17 +338,12 @@ public class ClientModel implements Configuration {
 
 
 
-    int getParticleX() { return particleX; }
+    @Override
+    public boolean isPaused() { return this.paused; }
 
-    void setSelectedParticleX(int particleX) { this.particleX = particleX; }
+    void setPaused() { this.paused = true; }
 
-    int getParticleY() { return particleY; }
-
-    void setSelectedParticleY(int particleY) { this.particleY = particleY; }
-
-    double getParticleWeight() { return particleWeight; }
-
-    void setSelectedParticleWeight(double particleWeight) { this.particleWeight = particleWeight; }
+    void togglePlayPaused() { this.paused = !this.paused; }
 
 
     MCLParticle getSelectedParticle() { return selectedParticle; }
