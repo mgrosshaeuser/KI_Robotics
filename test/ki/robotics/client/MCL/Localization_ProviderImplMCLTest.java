@@ -1,6 +1,7 @@
 package ki.robotics.client.MCL;
 
 import ki.robotics.client.GUI.ClientModel;
+import ki.robotics.client.ClientFactory;
 import ki.robotics.client.SensorModel;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
@@ -25,7 +26,7 @@ public class Localization_ProviderImplMCLTest {
     }
 
     @Test(dataProvider = "getDeviationTestDataProvider")
-    public void testRecalculateParticleWeight(LocalizationProviderImplMCL mclProvider, SensorModel bot) {
+    public void testRecalculateParticleWeight(LocalizationProvider mclProvider, SensorModel bot) {
         mclProvider.recalculateParticleWeight(bot);
     }
 
@@ -38,10 +39,9 @@ public class Localization_ProviderImplMCLTest {
         int numOfParticles = 1000; //via GUI
 
         Map map = MapProvider.getInstance().getMap("Room");
-        LocalizationProvider localizationProvider = LocalizationProviderFactory.getLocalizationProvider(map, numOfParticles, new int[] {-1, -1, -1}, new ClientModel());
-        //LocalizationProviderImplMCL mclProvider = new LocalizationProviderImplMCL(map, numOfParticles, new int[] {-1, -1, -1}, new ClientModel());
+        LocalizationProvider localizationProvider = ClientFactory.createNewLocalizationProvider(map, numOfParticles, new int[] {-1, -1, -1}, new ClientModel());
 
-        SensorModel bot = new SensorModel();
+        SensorModel bot = ClientFactory.createNewSensorModel();
         bot.setDistanceToLeft(10.0);
         bot.setDistanceToCenter(40.0);
         bot.setDistanceToRight(90.0);

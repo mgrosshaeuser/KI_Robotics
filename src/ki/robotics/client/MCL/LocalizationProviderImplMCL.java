@@ -1,5 +1,6 @@
 package ki.robotics.client.MCL;
 
+import ki.robotics.client.GUI.Configuration;
 import ki.robotics.client.SensorModel;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
@@ -11,7 +12,9 @@ import java.awt.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Random;
 
 /**
@@ -23,14 +26,19 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     private MclModel mclModel;
 
 
-
     /**
      * Constructor.
      *
-     * @param model     Model for Monte-Carlo-Localization.
+     * @param map                   The map used for localization
+     * @param numberOfParticles     The number of particles to distribute in the map
+     * @param limitations           Limitations for particle-values regarding x- or y-Axis or heading
+     * @param userSettings          User-settings for localization
      */
-    public LocalizationProviderImplMCL(MclModel model) {
-        this.mclModel = model;
+    public LocalizationProviderImplMCL(Map map, int numberOfParticles, int[] limitations, Configuration userSettings) {
+        ArrayList<MCLParticle> particles = generateInitialParticleSet(numberOfParticles, map, limitations);
+        WorldStateImplMCL ws = new WorldStateImplMCL(this, map, particles);
+        this.mclModel = new MclModel(ws, userSettings);
+        mclModel.takeSnapShot();
     }
 
 
@@ -46,7 +54,8 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
 
 
     /**
-     * Returns a List of the particles.
+     * Returns a List of the particles from the associated MCL-Model.
+     *
      * @return  A list of the particles.
      */
     @Override
@@ -56,22 +65,15 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
 
 
 
-    @Override
-    public ArrayList<WorldState> getWorldStateSequence() {
-        return mclModel.getWorldStateSequence();
-    }
-
     /**
      * Generates a set of random particles.
      *
      * @return      A set of random particles.
      */
-    @Override
-    public ArrayList<MCLParticle> generateInitialParticleSet() {
+    private ArrayList<MCLParticle> generateInitialParticleSet(int numberOfParticles, Map map, int[] limitations) {
         ArrayList<MCLParticle> particles = new ArrayList<>();
-        for (int i = 0  ;  i < mclModel.getNumberOfParticles()  ;  i++) {
-            particles.add(createRandomParticle(mclModel.getLimitations()));
-            //particles.add(createRandomParticle(fixedX, fixedY, fixedHeading));
+        for (int i = 0  ;  i < numberOfParticles  ;  i++) {
+            particles.add(createRandomParticle(map, limitations));
         }
         return particles;
     }
@@ -83,8 +85,7 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
      * @param limitations   Limitations for x- and y-Axis and heading.
      * @return              A random particle.
      */
-    private MCLParticle createRandomParticle(int[] limitations) {
-        Map map = mclModel.getMap();
+    private MCLParticle createRandomParticle(Map map, int[] limitations) {
         Polygon boundaries = map.getOperatingRange();
         Rectangle limits = boundaries.getBounds();
         double xOffset = limits.getX();
@@ -104,9 +105,9 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
 
 
     /**
-     * Sets the particle-weights relative to the robot-feedback (SensorModel).
+     * Recalculates the particle-weights based on the current sensor-model (sensor-feedback from the robot).
      *
-     * @param bot   The sensor-model of the robot.
+     * @param bot   The sensor-model.
      */
     @Override
     public void recalculateParticleWeight(SensorModel bot) {
@@ -228,6 +229,13 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     }
 
 
+    /**
+     * Maps the deviation from a reference-value to a weight-category for the particles.
+     *
+     * @param deviation         Deviation between calculated distance and sensor-feedback
+     * @param referenceValue    Sensor-feedback
+     * @return                  The weight associated with the given deviation from the reference-value
+     */
     private int deviationToWeight(double deviation, double referenceValue) {
         int[] resamplingWeights = MclModel.RESAMPLING_WEIGHTS;
         if (deviation > 0.9 * referenceValue) {
@@ -244,9 +252,6 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     }
 
 
-
-
-
     /**
      * Normalizes the weight of all particles.
      */
@@ -259,7 +264,7 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
 
 
     /**
-     * Resamples the particles.
+     * Resampling of the particles. Implementation of the ResamplingWheel.
      */
     private void resample() {
         normalizeParticleWeight();
@@ -275,12 +280,16 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
                 beta -= mclModel.getParticles().get(index).getWeight();
                 index = (index + 1) % particleCount;
             }
-            resampledParticles.add(new MCLParticle(mclModel.getParticles().get(index)));
+            MCLParticle clonedParticle = mclModel.getParticles().get(index).getClone();
+            clonedParticle.setWeight(0);
+            resampledParticles.add(clonedParticle);
         }
         mclModel.setParticles(resampledParticles);
+        mclModel.logInstruction("Resample");
         mclModel.takeSnapShot();
         checkLocalizationStatus();
     }
+
 
     /**
      * Finds the highest weight among all particles.
@@ -297,9 +306,6 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     }
 
 
-    public double getMedianParticleWeight() {
-        return ( getSumOfParticleWeights() / mclModel.getNumberOfParticles());
-    }
 
     /**
      * Sums up the weights of all particles.
@@ -315,7 +321,11 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     }
 
 
-
+    /**
+     * Returns the current estimation for the pose of the robot as Pose-object.
+     *
+     * @return  The current pose-estimation of the robot (as Pose)
+     */
     private Pose getEstimatedBotPose() {
         double[] estimatedPose = getEstimatedPose();
         float estimatedX = (float) estimatedPose[0];
@@ -326,8 +336,8 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
 
 
     /**
-     * Tries to guess the robot-position by calculating the arithmetic means of the x- and y-coordinates and
-     * the heading of the particles, while mcl is still ready.
+     * Estimates the current robot-position by calculating the arithmetic means of the x- and
+     * y-coordinates and the heading of the particles.
      *
      * @return  The estimated Pose of the robot as double-Array containing x, y and heading.
      */
@@ -350,7 +360,12 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     }
 
 
-    public double getEstimatedPoseDeviation() {
+    /**
+     * Returns the distance from the estimated robot-position to the farthest particle.
+     *
+     * @return  The distance from the estimated robot-position to the farthest particle
+     */
+    public double getSpreadingAroundEstimatedBotPose() {
         double distance = 0;
         Pose bPose = getEstimatedBotPose();
         for (MCLParticle p : mclModel.getParticles()) {
@@ -364,7 +379,9 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
     }
 
 
-
+    /**
+     * Checks whether all particles lie within the acceptable spreading and updates the data-model.
+     */
     private void checkLocalizationStatus() {
         if (mclModel.isLocalized()) {
             return;
@@ -388,19 +405,24 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
                 }
             }
         }
-        saveLocalizationSequenceToFile();
         mclModel.setLocalized(true);
     }
 
 
+    /**
+     * Returns a boolean value indicating whether localization is finished (true) or not (false).
+     *
+     * @return  A boolean value indicating wheter localization is finished or not
+     */
     @Override
     public boolean isLocalizationDone() {
         return mclModel.isLocalized();
     }
 
 
-
-
+    /**
+     * Performs a final resampling and saves the final localization-state.
+     */
     @Override
     public void badParticlesFinalKill() {
        resample();
@@ -422,9 +444,9 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
                 d = (float) r.nextGaussian();
             }
             p.botTravelForward(distance * (1 +(d/10)));
-            //p.botTravelForward(distance);
         }
-        mclModel.logInstruction(new Object[]{"move", distance});
+        mclModel.logInstruction("Move " + String.valueOf(distance));
+        mclModel.takeSnapShot();
     }
 
 
@@ -441,14 +463,21 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
             degrees = mclModel.getUserSettings().isTwoDimensional() ? (int) Math.round(degrees * (1+(d/540))) : (int) Math.round(degrees);
             p.turnFull((int)degrees);
         }
-        mclModel.logInstruction(new Object[]{"turn", degrees});
+        mclModel.logInstruction("Turn " + String.valueOf(degrees));
+        mclModel.takeSnapShot();
     }
 
 
+    /**
+     * Saves the (serialized) localization-sequence to a file using the current date and time as filename.
+     */
     @Override
     public void saveLocalizationSequenceToFile() {
-        String filename = String.valueOf(System.currentTimeMillis()) + ".log";
-        try (FileOutputStream fileOS = new FileOutputStream(filename)) {
+        Calendar calendar = Calendar.getInstance();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+        String filename = simpleDateFormat.format(calendar.getTime());
+        String file = String.valueOf(filename + ".log");
+        try (FileOutputStream fileOS = new FileOutputStream(file)) {
             ObjectOutputStream objectOS = new ObjectOutputStream(fileOS);
             objectOS.writeObject(mclModel.getWorldStateSequence());
         } catch (IOException e) {
@@ -456,16 +485,27 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
         }
     }
 
+    /**
+     * Forwards the request to reset to the latest world-state to the data-model.
+     */
     @Override
     public void resetToLatestWorldState() {
         mclModel.resetToLatestWorldState();
     }
 
+
+    /**
+     * Forwards the request to make a step back in the localization-history to the data-model.
+     */
     @Override
     public void stepBackInLocalizationHistory() {
         mclModel.navigateBackwardInHistory();
     }
 
+
+    /**
+     * Forwards the request to make a step forward in the localization-history to the data-model.
+     */
     @Override
     public void stepForwardInLocalizationHistory() {
         mclModel.navigateForwardInHistory();

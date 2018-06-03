@@ -22,7 +22,7 @@ public interface Configuration {
 
     boolean isStopWhenDone();
 
-    int getAcceptableDeviation();
+    int getAcceptableSpreading();
 
     boolean isStartFromLeft();
 

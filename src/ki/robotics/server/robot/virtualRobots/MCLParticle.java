@@ -1,5 +1,6 @@
 package ki.robotics.server.robot.virtualRobots;
 
+import ki.robotics.server.Robot;
 import ki.robotics.server.robot.RobotImplVirtualRobot;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.map.Map;
@@ -17,6 +18,7 @@ import java.io.Serializable;
 public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCLParticle>, Serializable {
     private float weight;
     private Color color;
+    private float[] poseSerializable;
 
     /**
      * Constructor.
@@ -27,28 +29,26 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
      */
     public MCLParticle(Pose pose, Map map, float weight, Color color) {
         this.pose = pose;
+        this.poseSerializable = new float[]{pose.getX(), pose.getY(), pose.getHeading()};
         this.map = map;
         this.weight = weight;
         this.color = color;
     }
 
-    /**
-     * Constructor.
-     *
-     * @param particle  A particle as 'template'.
-     */
-    public MCLParticle(MCLParticle particle) {
-        this.pose = new Pose(particle.pose.getX(), particle.pose.getY(), particle.pose.getHeading());
-        this.map = particle.map;
-        this.sensorHeadPosition = particle.sensorHeadPosition;
-        this.weight = 0;
-        this.color = particle.getColor();
+
+    public MCLParticle getClone() {
+        Pose pose = new Pose (this.pose.getX(), this.pose.getY(), this.pose.getHeading());
+        MCLParticle particle = new MCLParticle(pose, this.map, this.weight, this.color);
+        particle.sensorHeadPosition = this.sensorHeadPosition;
+        return particle;
     }
 
-    public static MCLParticle makeDeepCopy(MCLParticle particle) {
-        MCLParticle p = new MCLParticle(particle);
-        p.setWeight(particle.getWeight());
-        return p;
+    @Override
+    public Pose getPose() {
+        if (this.pose == null) {
+            this.pose = new Pose(poseSerializable[0], poseSerializable[1], poseSerializable[2]);
+        }
+        return this.pose;
     }
 
     /**
@@ -57,6 +57,7 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
      */
     public MCLParticle(float x, float y, float heading, float weight, Color color){
         this.pose = new Pose(x,y,heading);
+        this.poseSerializable = new float[]{pose.getX(), pose.getY(), pose.getHeading()};
         this.weight = weight;
         this.color = color;
     }
@@ -137,23 +138,22 @@ public class MCLParticle extends RobotImplVirtualRobot implements Comparable<MCL
      * @param scaleFactor   The scale-factor for visualization.
      * @param xOffset       The offset on the x-axis for visualization.
      * @param yOffset       The offset on the y-axis for visualization.
-     * @param medianWeight     The median particle weight used to link weight to color.
      */
-    public void paint(Graphics g, int diameter, int scaleFactor, int xOffset, int yOffset, double medianWeight) {
+    public void paint(Graphics g, int diameter, int scaleFactor, int xOffset, int yOffset) {
         Graphics2D g2d = (Graphics2D) g;
 
         g2d.setColor(this.color);
         g2d.fillOval(
-                Math.round(this.pose.getX() - (diameter / 2)) * scaleFactor + xOffset,
-                Math.round(this.pose.getY() - (diameter / 2)) * scaleFactor + yOffset,
+                Math.round(this.getPose().getX() - (diameter / 2)) * scaleFactor + xOffset,
+                Math.round(this.getPose().getY() - (diameter / 2)) * scaleFactor + yOffset,
                 diameter * scaleFactor,
                 diameter * scaleFactor
         );
 
         g2d.setColor(Color.BLUE);
         g2d.fillArc(
-                (Math.round((pose.getX() - diameter / 2)) * scaleFactor) + xOffset,
-                (Math.round((pose.getY() - diameter / 2)) * scaleFactor) + yOffset,
+                (Math.round((getPose().getX() - diameter / 2)) * scaleFactor) + xOffset,
+                (Math.round((getPose().getY() - diameter / 2)) * scaleFactor) + yOffset,
                 Math.round(diameter  * scaleFactor),
                 Math.round(diameter  * scaleFactor),
                 Math.round(sensorHeadPosition + pose.getHeading() - 10),

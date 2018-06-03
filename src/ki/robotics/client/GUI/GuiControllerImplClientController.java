@@ -1,7 +1,10 @@
 package ki.robotics.client.GUI;
 
-import ki.robotics.client.ComController;
+import ki.robotics.client.MCL.LocalizationProvider;
+import ki.robotics.client.communication.ComController;
+import ki.robotics.client.MCL.WorldState;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
+import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapPanel;
 import ki.robotics.utility.map.MapProvider;
 
@@ -10,19 +13,33 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
 import java.util.ArrayList;
 
-class ClientController {
+public class GuiControllerImplClientController implements GuiController{
     private ClientModel guiModel;
     private ClientView guiView;
     private ComController comController;
 
 
 
-    ClientController(ClientModel guiModel, ClientView guiView, ComController comController) {
-        this.guiModel = guiModel;
-        this.guiView = guiView;
+    public GuiControllerImplClientController(ComController comController) {
         this.comController = comController;
+        this.guiModel = new ClientModel();
+        this.guiView = new ClientView(this, guiModel);
+        this.guiView.initializeView();
+    }
+
+
+
+
+
+    public void repaintWindow() {
+        this.guiView.repaint();
+    }
+
+    public void updateWindowAfterLocalizationFinished() {
+        this.guiView.updateWindowAfterLocalizationFinished();
     }
 
 
@@ -33,7 +50,7 @@ class ClientController {
         }
         guiModel.createMclProvider();
         guiView.setTitle(ClientView.WINDOW_TITLE + " | paused");
-        comController.start(guiModel);
+        comController.start();
         guiView.replay.setEnabled(false);
         guiView.repaint();
     }
@@ -45,8 +62,13 @@ class ClientController {
         guiView.repaint();
     }
 
+    @Override
+    public Configuration getUserSettings() {
+        return this.guiModel;
+    }
+
     void postLocalizationWork() {
-        guiModel.setPaused();
+        guiModel.setPaused(true);
     }
 
 
@@ -57,12 +79,17 @@ class ClientController {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                LocalizationProvider localizationProvider;
+                localizationProvider = guiModel.getLocalizationProvider();
+                if (guiModel.isInReplayMode()   ||   localizationProvider == null) {
+                    return;
+                }
                 if (guiModel.isPaused()) {
-                    guiModel.togglePlayPaused();
-                    guiModel.getLocalizationProvider().resetToLatestWorldState();
-                    guiView.setTitle(ClientView.WINDOW_TITLE + " | running");
+                        guiModel.setPaused(false);
+                        guiModel.getLocalizationProvider().resetToLatestWorldState();
+                        guiView.setTitle(ClientView.WINDOW_TITLE + " | running");
                 } else {
-                    guiModel.togglePlayPaused();
+                    guiModel.setPaused(true);
                     guiView.setTitle(ClientView.WINDOW_TITLE + " | paused");
                 }
                 guiView.repaint();
@@ -75,9 +102,21 @@ class ClientController {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (guiModel.isPaused()) {
-                    guiModel.getLocalizationProvider().stepBackInLocalizationHistory();
+                if (guiModel.isInReplayMode()) {
+                    if (guiModel.getWorldStatesForReplay() == null) {
+                        return;
+                    }
+                    int replayPointer = guiModel.getReplayPointer();
+                    guiModel.setReplayPointer(--replayPointer);
                     guiView.repaint();
+                    return;
+                }
+                if (guiModel.isPaused()) {
+                    LocalizationProvider localizationProvider = guiModel.getLocalizationProvider();
+                    if (localizationProvider != null) {
+                        guiModel.getLocalizationProvider().stepBackInLocalizationHistory();
+                        guiView.repaint();
+                    }
                 }
             }
         };
@@ -87,9 +126,21 @@ class ClientController {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (guiModel.isPaused()) {
-                    guiModel.getLocalizationProvider().stepForwardInLocalizationHistory();
+                if (guiModel.isInReplayMode()) {
+                    if (guiModel.getWorldStatesForReplay() == null) {
+                        return;
+                    }
+                    int replayPointer = guiModel.getReplayPointer();
+                    guiModel.setReplayPointer(++replayPointer);
                     guiView.repaint();
+                    return;
+                }
+                if (guiModel.isPaused()) {
+                    LocalizationProvider localizationProvider = guiModel.getLocalizationProvider();
+                    if (localizationProvider != null) {
+                        localizationProvider.stepForwardInLocalizationHistory();
+                        guiView.repaint();
+                    }
                 }
             }
         };
@@ -127,7 +178,7 @@ class ClientController {
             guiView.start.setText("Start");
             guiView.start.removeActionListener(this);
             guiView.start.addActionListener(new StartButtonActionListener());
-            guiModel.setPaused();
+            guiModel.setPaused(true);
         }
     }
 
@@ -135,7 +186,7 @@ class ClientController {
     public class ReplayButtonActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Not yet implemented");
+            //TODO Implementation
         }
     }
 
@@ -181,6 +232,14 @@ class ClientController {
             guiModel.setWithCamera();
             guiView.getMapPanel().setNewMap(guiModel.getMap());
             guiView.repaint();
+        }
+    }
+
+    public class ReplayControlSubPanelComponentListener extends ComponentAdapter {
+        @Override
+        public void componentShown(ComponentEvent e) {
+            super.componentShown(e);
+            guiModel.setInReplayMode(true);
         }
     }
 
@@ -329,8 +388,40 @@ class ClientController {
     }
 
 
+    public class ReplayFileSelectionActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String selection = (String)((JComboBox)e.getSource()).getSelectedItem();
+            guiModel.setSelectedReplayFileName(selection);
+            ArrayList<WorldState> replay = loadSelectedLocalizationFromFile(selection);
+            guiModel.setWorldStatesForReplay(replay);
+            guiModel.setReplayPointer(0);
+            WorldState ws = replay.get(0);
+            Map map = MapProvider.getInstance().getMap(ws.getMapKey());
+            guiModel.setMap(map);
+            guiView.getMapPanel().setNewMap(map);
+            guiView.replay.setEnabled(true);
+            guiView.repaint();
+        }
 
-    public class setXYWhenClickOnMap extends MouseAdapter {
+        private ArrayList<WorldState> loadSelectedLocalizationFromFile(String filename) {
+            filename = filename + ".log";
+            File file = new File(filename);
+
+            ArrayList<WorldState> worldStates = new ArrayList<>();
+            try {
+                FileInputStream fileOS = new FileInputStream(file);
+                ObjectInputStream objectOS = new ObjectInputStream(fileOS);
+                worldStates = (ArrayList<WorldState>) objectOS.readObject();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            return worldStates;
+        }
+    }
+
+
+    public class ParticleSelectionMouseListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
             if (guiModel.getLocalizationProvider() == null)
@@ -384,4 +475,6 @@ class ClientController {
         }
 
     }
+
+
 }

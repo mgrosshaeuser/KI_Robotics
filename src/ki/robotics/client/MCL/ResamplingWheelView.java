@@ -12,22 +12,53 @@ class ResamplingWheelView extends JFrame {
     private static final int WINDOW_WIDTH = 600;
     private static final int WINDOW_HEIGHT = 600;
 
+    private int[] resamplingWeights;
     private double[] resamplingWheelFractions;
     private Color[] resamplingWheelColors;
     private ArrayList<MCLParticle> particles;
 
 
 
-    ResamplingWheelView(double[] resamplingWheelFractions, Color[] resamplingWheelColors, ArrayList<MCLParticle> particles) {
+    ResamplingWheelView(int[] resamplingWeights, ArrayList<MCLParticle> particles) {
         createWindow();
-        this.resamplingWheelFractions = resamplingWheelFractions;
-        this.resamplingWheelColors = resamplingWheelColors;
+        this.resamplingWeights = resamplingWeights;
+        this.resamplingWheelFractions = createResamplingWheelCategoryArray();
+        this.resamplingWheelColors = createResamplingWheelColorArray();
         this.particles = particles;
     }
 
 
-    Color weightToColor(double weight) {
+    private double[] createResamplingWheelCategoryArray() {
+        double d[] = new double[36];
+        int x=0;
+        for (int i = 0   ;   i < resamplingWeights.length   ;   i++) {
+            for (int j = i   ;   j < resamplingWeights.length   ;   j++) {
+                for (int k = j   ;   k < resamplingWeights.length   ;   k++) {
+                    int sum = resamplingWeights[i] + resamplingWeights[j] + resamplingWeights[k];
+                    d[x++] = 1/(double)sum;
+                }
+            }
+        }
+        return d;
+    }
 
+
+    private Color[] createResamplingWheelColorArray() {
+        Color c[] = new Color[35];
+        double max = 255;
+        double min = 0;
+        for (int i = 1   ;   i < c.length - 1   ;   i++) {
+            int newRed = (int) Math.round(max - (max / 35 * i));
+            int newGreen = (int) Math.round(min + (max / 35 * i));
+            c[i] = new Color(newRed, newGreen, 0);
+        }
+        c[0] = new Color(255,0,0);
+        c[34] = new Color(0,255,0);
+        return c;
+    }
+
+
+    Color weightToColor(double weight) {
         double epsilon = 0.001;
 
         for (int i = 0; i < resamplingWheelFractions.length   ; i++) {

@@ -1,7 +1,7 @@
 package ki.robotics.client.GUI;
 
-import ki.robotics.client.ComController;
 import ki.robotics.client.MCL.LocalizationProvider;
+import ki.robotics.client.MCL.WorldState;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.gui.ExtButtonGroup;
 import ki.robotics.utility.gui.ExtJPanel;
@@ -11,15 +11,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.util.ArrayList;
 
-public class ClientView extends JFrame {
+class ClientView extends JFrame {
     static final String WINDOW_TITLE = "Monte Carlo Localization";
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 800;
 
     private ClientModel guiModel;
-    private ClientController guiController;
+    private GuiControllerImplClientController guiController;
 
     private JPanel controlPanel;
     private ClientMapPanel mapPanel;
@@ -64,10 +65,13 @@ public class ClientView extends JFrame {
 
 
 
-    public ClientView(ComController comController) {
-        this.guiModel = new ClientModel();
-        this.guiController = new ClientController(guiModel, this, comController);
+    public ClientView(GuiControllerImplClientController guiController, ClientModel guiModel) {
+        this.guiController = guiController;
+        this.guiModel = guiModel;
         this.mapPanel = new ClientMapPanel(guiModel);
+    }
+
+    public void initializeView() {
         createWindow();
         addKeyControls();
         this.setVisible(true);
@@ -91,7 +95,7 @@ public class ClientView extends JFrame {
         controlPanel = createControlPanel();
         add(controlPanel, BorderLayout.PAGE_START);
         add(mapPanel, BorderLayout.CENTER);
-        addMouseListener(guiController.new setXYWhenClickOnMap());
+        addMouseListener(guiController.new ParticleSelectionMouseListener());
     }
 
 
@@ -119,8 +123,6 @@ public class ClientView extends JFrame {
         start.setText("Start");
         start.addActionListener(guiController.new StartButtonActionListener());
 
-        replay.setEnabled(true);
-        replay.addActionListener(guiController.new ReplayButtonActionListener());
         this.setTitle(WINDOW_TITLE);
         guiController.postLocalizationWork();
     }
@@ -144,9 +146,11 @@ public class ClientView extends JFrame {
         ExtJPanel oneDimensionalControls = createOneDimensionalControlSubPanel();
         ExtJPanel twoDimensionalControls = createTwoDimensionalControlSubPanel();
         ExtJPanel twoDimWithCameraControls = createTwoDimWithCameraControlSubPanel();
+        ExtJPanel localizationReplay = createReplayControlSubPanel();
         environmentSpecificControlSubPanels.addTab("One-D", oneDimensionalControls);
         environmentSpecificControlSubPanels.addTab("Two-D", twoDimensionalControls);
         environmentSpecificControlSubPanels.addTab("Camera", twoDimWithCameraControls);
+        environmentSpecificControlSubPanels.addTab("Replay", localizationReplay);
         return environmentSpecificControlSubPanels;
     }
 
@@ -233,6 +237,37 @@ public class ClientView extends JFrame {
     }
 
 
+    private ExtJPanel createReplayControlSubPanel() {
+        ExtJPanel container = new ExtJPanel();
+        container.setLayout(new FlowLayout());
+        String files[] = getLocalizationLogFiles();
+        JComboBox fileSelection = new JComboBox(files);
+        fileSelection.addActionListener(guiController.new ReplayFileSelectionActionListener());
+        replay.addActionListener(guiController.new ReplayButtonActionListener());
+        container.addComponentListener(guiController.new ReplayControlSubPanelComponentListener());
+        //container.addAll(fileSelection, replay);
+        //container.addAll(fileSelection, createMouseClickParticleInfo());
+        //TODO Add particle selection to replay.
+        container.addAll(fileSelection);
+        return container;
+    }
+
+    private String[] getLocalizationLogFiles() {
+        File file = new File("./");
+        File fileList[] = file.listFiles();
+        ArrayList<String> names = new ArrayList<>();
+        for (File f : fileList) {
+            String fileName = f.getName();
+            if (fileName.endsWith(".log")) {
+                fileName = fileName.replace(".log", "");
+                names.add(fileName);
+            }
+        }
+        String fileNames[] = new String[names.size()];
+        names.toArray(fileNames);
+        return fileNames;
+    }
+
 
     private ExtJPanel createMovementLimitationSelectionControls() {
         ExtJPanel container = new ExtJPanel();
@@ -287,8 +322,8 @@ public class ClientView extends JFrame {
         ExtJPanel commonComponents = new ExtJPanel();
         commonComponents.setLayout(new GridLayout(5,1));
 
-        labelForAcceptableLocalizationDeviationSlider.setText("Acceptable Tolerance: " + guiModel.getAcceptableDeviation() + " cm");
-        acceptableLocalizationDeviationSlider.setValue(guiModel.getAcceptableDeviation());
+        labelForAcceptableLocalizationDeviationSlider.setText("Acceptable Tolerance: " + guiModel.getAcceptableSpreading() + " cm");
+        acceptableLocalizationDeviationSlider.setValue(guiModel.getAcceptableSpreading());
         acceptableLocalizationDeviationSlider.addChangeListener(guiController.new DeviationSliderChangeListener());
 
         ExtJPanel firstRow = new ExtJPanel();
@@ -306,8 +341,7 @@ public class ClientView extends JFrame {
         particleCnt.setLabelFor(numberOfParticles);
         numberOfParticles.setHorizontalAlignment(JTextField.RIGHT);
         numberOfParticles.setText(String.valueOf(guiModel.getNumberOfParticles()));
-        replay.setEnabled(false);
-        secondRow.addAll(particleCnt, numberOfParticles, replay);
+        secondRow.addAll(particleCnt, numberOfParticles, new JLabel());
 
         stopWhenLocalizationIsFinished.setSelected(guiModel.isStopWhenDone());
         stopWhenLocalizationIsFinished.addActionListener(guiController.new setStopWhenLocalizationFinishedActionListener());
@@ -333,26 +367,57 @@ public class ClientView extends JFrame {
         @Override
         public void paint(Graphics g) {
             super.paint(g);
+            if (model.isInReplayMode()) {
+                if (model.getWorldStatesForReplay() != null) {
+                    paintReplayState(g);
+                }
+            } else {
+                paintLocalizationProgress(g);
+            }
+        }
 
+
+        private void paintReplayState(Graphics g) {
+            int replayPointer = model.getReplayPointer();
+            WorldState ws = model.getWorldStatesForReplay().get(replayPointer);
+            paintParticles(g, ws.getParticles());
+            double[] botPose = ws.getEstimatedBotPose();
+            int radius = (int)Math.ceil(ws.getEstimatedBotPoseDeviation());
+            paintBotPoseEstimation(g, botPose, radius);
+            g.drawString("Op: " + ws.getCausativeInstruction(), 10, 100);
+        }
+
+
+        private void paintLocalizationProgress(Graphics g) {
             LocalizationProvider localizationProvider = model.getLocalizationProvider();
 
             if (localizationProvider == null) {
                 return;
             }
 
-            ArrayList<MCLParticle> particles = localizationProvider.getParticles();
+            paintParticles(g, localizationProvider.getParticles());
+
+            double[] botPose = localizationProvider.getEstimatedPose();
+            g.setColor(localizationProvider.isLocalizationDone() ? Color.GREEN : Color.RED);
+            int radius = (int)Math.ceil(localizationProvider.getSpreadingAroundEstimatedBotPose());
+            int acceptableSpreading = localizationProvider.getAcceptableSpreading();
+            radius = radius < acceptableSpreading ? acceptableSpreading : radius;
+
+            paintBotPoseEstimation(g, botPose, radius);
+        }
+
+
+
+        private void paintParticles(Graphics g, ArrayList<MCLParticle> particles) {
             if (particles != null) {
-                double medianWeight = localizationProvider.getMedianParticleWeight();
                 for (MCLParticle p : particles) {
-                    p.paint(g, PARTICLE_DIAMETER, getScaleFactor(), getXOffset(), getYOffset(), medianWeight);
+                    p.paint(g, PARTICLE_DIAMETER, getScaleFactor(), getXOffset(), getYOffset());
                 }
             }
-            double[] botPose = localizationProvider.getEstimatedPose();
+        }
 
-            g.setColor(localizationProvider.isLocalizationDone() ? Color.GREEN : Color.RED);
-            int radius = (int)Math.ceil(localizationProvider.getEstimatedPoseDeviation());
-            int acceptableTolerance = localizationProvider.getAcceptableSpreading();
-            radius = radius < acceptableTolerance ? acceptableTolerance : radius;
+
+        private void paintBotPoseEstimation(Graphics g, double[] botPose, int radius) {
             g.drawOval(
                     ((int)Math.round(botPose[0])-radius) * getScaleFactor() + getXOffset(),
                     ((int)Math.round(botPose[1])-radius) * getScaleFactor() + getYOffset(),

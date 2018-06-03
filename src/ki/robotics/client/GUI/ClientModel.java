@@ -1,10 +1,13 @@
 package ki.robotics.client.GUI;
 
 import ki.robotics.client.MCL.LocalizationProvider;
-import ki.robotics.client.MCL.LocalizationProviderFactory;
+import ki.robotics.client.ClientFactory;
+import ki.robotics.client.MCL.WorldState;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
+
+import java.util.ArrayList;
 
 public class ClientModel implements Configuration {
     private static final String ONE_DIMENSION_MAP_KEY = MapProvider.MAP_KEY_HOUSES;
@@ -25,7 +28,13 @@ public class ClientModel implements Configuration {
     private boolean stopWhenDone = true;
     private int acceptableTolerance = 10;
 
+
     private MCLParticle selectedParticle;
+
+    private String selectedReplayFileName;
+    private ArrayList<WorldState> worldStatesForReplay;
+    private boolean replay = false;
+    private int replayPointer = 0;
 
 
     // Specific attributes for 1-D-movement.
@@ -59,7 +68,7 @@ public class ClientModel implements Configuration {
 
 
     void createMclProvider() {
-        this.localizationProvider = LocalizationProviderFactory.getLocalizationProvider(map, numberOfParticles, new int[]{-1,-1,-1}, this);
+        this.localizationProvider = ClientFactory.createNewLocalizationProvider(map, numberOfParticles, new int[]{-1,-1,-1}, this);
     }
 
     @Override
@@ -74,6 +83,8 @@ public class ClientModel implements Configuration {
         }
         return map;
     }
+
+    void setMap (Map map) { this.map = map; }
 
     @Override
     public String getMapKey() {
@@ -100,6 +111,7 @@ public class ClientModel implements Configuration {
         isOneDimensional = true;
         isTwoDimensional = false;
         isWithCamera = false;
+        replay = false;
         map = mapProvider.getMap(ONE_DIMENSION_MAP_KEY);
         mapKey = ONE_DIMENSION_MAP_KEY;
         localizationProvider = null;
@@ -114,6 +126,7 @@ public class ClientModel implements Configuration {
         isTwoDimensional = true;
         isOneDimensional = false;
         isWithCamera = false;
+        replay = false;
         map = mapProvider.getMap(TWO_DIMENSION_MAP_KEY);
         mapKey = TWO_DIMENSION_MAP_KEY;
         localizationProvider = null;
@@ -128,6 +141,7 @@ public class ClientModel implements Configuration {
         isWithCamera = true;
         isOneDimensional = false;
         isTwoDimensional = false;
+        replay = false;
         map = mapProvider.getMap(TWO_DIMENSION_WITH_CAM_MAP_KEY);
         mapKey = TWO_DIMENSION_WITH_CAM_MAP_KEY;
         localizationProvider = null;
@@ -155,7 +169,7 @@ public class ClientModel implements Configuration {
     }
 
     @Override
-    public int getAcceptableDeviation() {
+    public int getAcceptableSpreading() {
         return acceptableTolerance;
     }
 
@@ -341,11 +355,28 @@ public class ClientModel implements Configuration {
     @Override
     public boolean isPaused() { return this.paused; }
 
-    void setPaused() { this.paused = true; }
-
-    void togglePlayPaused() { this.paused = !this.paused; }
+    void setPaused(boolean bool) { this.paused = bool; }
 
 
     MCLParticle getSelectedParticle() { return selectedParticle; }
     void setSelectedParticle(MCLParticle particle) { this.selectedParticle = particle; }
+
+    String getSelectedReplayFileName() { return this.selectedReplayFileName; }
+    void setSelectedReplayFileName(String filename) { this.selectedReplayFileName = filename; }
+
+
+    boolean isInReplayMode() { return this.replay; }
+
+    void setInReplayMode(boolean bool) { this.replay = bool; }
+
+    int getReplayPointer() { return this.replayPointer; }
+
+    void setReplayPointer(int val) {
+        if (val >= 0   &&   worldStatesForReplay != null   &&   val < worldStatesForReplay.size()) {
+            this.replayPointer = val;
+        }
+    }
+
+    ArrayList<WorldState> getWorldStatesForReplay() { return this.worldStatesForReplay; }
+    void setWorldStatesForReplay(ArrayList<WorldState> worldStates) { this.worldStatesForReplay = worldStates; }
 }

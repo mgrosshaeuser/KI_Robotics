@@ -1,7 +1,10 @@
 package ki.robotics.client.MCL;
 
+import ki.robotics.client.ClientFactory;
 import ki.robotics.client.SensorModel;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
+import ki.robotics.utility.map.Map;
+import ki.robotics.utility.map.MapProvider;
 
 import java.util.ArrayList;
 
@@ -9,28 +12,37 @@ public class WorldStateImplMCL implements WorldState {
     private transient LocalizationProvider localizationProvider;
     private ArrayList<MCLParticle> particles;
     private double[] estimatedBotPose;
-    private double estimatedBotPoseX;
-    private double estimatedBotPoseY;
-    private double estimatedBotPoseHeading;
     private double estimatedBotPoseDeviation;
-    private ArrayList<Object[]> causativeInstructions;
+    private String causativeInstruction;
     private SensorModel sensorModel;
+    private transient Map map;
+    private String mapKey;
 
-    WorldStateImplMCL(LocalizationProvider localizationProvider, ArrayList<MCLParticle> particles) {
+
+
+    WorldStateImplMCL(LocalizationProvider localizationProvider, Map map, ArrayList<MCLParticle> particles) {
         this.localizationProvider = localizationProvider;
         this.particles = particles;
-        this.causativeInstructions = new ArrayList<>();
-        this.sensorModel = new SensorModel();
+        this.causativeInstruction = "";
+        this.sensorModel = ClientFactory.createNewSensorModel();
+        this.map = map;
+        this.mapKey = map.getMapKey();
     }
 
-    private WorldStateImplMCL(LocalizationProvider localizationProvider) {
-            this(localizationProvider,new ArrayList<MCLParticle>());
+    private WorldStateImplMCL(LocalizationProvider localizationProvider, Map map) {
+            this(localizationProvider, map, new ArrayList<MCLParticle>());
         }
 
     void takeSnapShot() {
         this.estimatedBotPose = localizationProvider.getEstimatedPose();
-        this.estimatedBotPoseDeviation = localizationProvider.getEstimatedPoseDeviation();
+        this.estimatedBotPoseDeviation = localizationProvider.getSpreadingAroundEstimatedBotPose();
         this.particles = localizationProvider.getParticles();
+    }
+
+
+    @Override
+    public int getNumberOfParticles() {
+        return this.particles.size();
     }
 
     @Override
@@ -42,7 +54,19 @@ public class WorldStateImplMCL implements WorldState {
 
 
     @Override
+    public Map getMap() {
+        if (this.map == null) {
+            this.map = MapProvider.getInstance().getMap(mapKey);
+        }
+        return this.map;
+    }
+
+
+    @Override
     public double[] getEstimatedBotPose() {
+        if (estimatedBotPose == null) {
+            return new double[]{0,0,0};
+        }
         return this.estimatedBotPose;
     }
 
@@ -53,38 +77,38 @@ public class WorldStateImplMCL implements WorldState {
         }
 
     @Override
-    public ArrayList<Object[]> getCausativeInstructions() {
-            return this.causativeInstructions;
+    public String getCausativeInstruction() {
+            return this.causativeInstruction;
         }
 
-    void addInstruction(Object[] instruction) {
-            this.causativeInstructions.add(instruction);
-        }
+    void addInstruction(String instruction) { this.causativeInstruction = instruction; }
 
     void setSensorModel(SensorModel sensorModel) {
-            this.sensorModel = SensorModel.makeDeepCopy(sensorModel);
+            this.sensorModel = sensorModel.getClone();
         }
 
     void reset() {
-        this.causativeInstructions = new ArrayList<>();
-        this.sensorModel = new SensorModel();
+        this.causativeInstruction = "";
+        this.sensorModel = ClientFactory.createNewSensorModel();
     }
 
+    @Override
+    public String getMapKey() { return this.mapKey; }
+
     WorldState getClone() {
-        WorldStateImplMCL snapShot = new WorldStateImplMCL(this.localizationProvider);
+        WorldStateImplMCL snapShot = new WorldStateImplMCL(this.localizationProvider, this.map);
         for (MCLParticle p : this.particles) {
-            snapShot.particles.add(MCLParticle.makeDeepCopy(p));
+            snapShot.particles.add(p.getClone());
         }
-        snapShot.estimatedBotPoseX = this.estimatedBotPoseX;
-        snapShot.estimatedBotPoseY = this.estimatedBotPoseY;
-        snapShot.estimatedBotPoseHeading = this.estimatedBotPoseHeading;
+
+        double[] estimation = localizationProvider.getEstimatedPose();
+        snapShot.estimatedBotPose = new double[estimation.length];
+        System.arraycopy(estimation, 0, snapShot.estimatedBotPose, 0, estimation.length);
         snapShot.estimatedBotPoseDeviation = this.estimatedBotPoseDeviation;
-        for (Object[] o : this.causativeInstructions) {
-            Object instruction[] = new Object[o.length];
-            System.arraycopy(o, 0, instruction, 0, o.length);
-            snapShot.causativeInstructions.add(instruction);
-        }
-        snapShot.setSensorModel(SensorModel.makeDeepCopy(this.sensorModel));
+
+        snapShot.causativeInstruction = String.valueOf(this.causativeInstruction);
+
+        snapShot.setSensorModel(this.sensorModel.getClone());
         return snapShot;
     }
 

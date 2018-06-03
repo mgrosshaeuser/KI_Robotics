@@ -1,5 +1,6 @@
 package ki.robotics.server.robot;
 
+import ki.robotics.server.Robot;
 import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;

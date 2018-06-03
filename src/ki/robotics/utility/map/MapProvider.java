@@ -94,6 +94,7 @@ public class MapProvider {
     private void createMap(String key, String filename, Polygon boundaries) {
         SVGParser parser = new SVGParser(new File(getClass().getClassLoader().getResource(filename).getFile()));
         MapImpl map = parser.getMap();
+        map.setMapKey(key);
         map.setOperatingRange(boundaries);
         maps.put(key, map);
         mapKeys.add(key);

@@ -1,4 +1,4 @@
-package ki.robotics.client;
+package ki.robotics.client.communication;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,7 +21,7 @@ final class Communicator implements Runnable{
 
     private final String host;
     private final int port;
-    private final ComController ComController;
+    private final ComController comController;
 
     static volatile boolean running = true;
 
@@ -29,21 +29,19 @@ final class Communicator implements Runnable{
     /**
      * Constructor.
      *
-     * @param host  The host to which to connect.
-     * @param port  The port to address.
+     * @param host  The host to which to connect
+     * @param port  The port to address
      */
     public Communicator(String host, int port, ComController ComController) {
         this.host = host;
         this.port = port;
-        this.ComController = ComController;
+        this.comController = ComController;
     }
 
 
     /**
-     * Starts a connection-attempt to the server.
-     * Once a connection is established an initial request is sent to the server. The connection is kept
-     * until either this client or the server (robots) sends a 'EOSQ'- (End Of SeQuence) or
-     * 'DCNT'- (DisCoNnecT) signal.
+     * Initiates the connection with the server, delegates the ongoing communication and the teardown
+     * of the connection.
      */
     @Override
     public void run() {
@@ -61,7 +59,14 @@ final class Communicator implements Runnable{
     }
 
 
-
+    /**
+     * Creates the communication-Socket
+     *
+     * @param host  The host to which to connect
+     * @param port  The port to address
+     * @return      A socket for port at host
+     * @throws IOException
+     */
     private Socket createSocket(String host, int port) throws IOException {
         Socket socket = new Socket(host, port);
         socket.setKeepAlive(true);
@@ -71,9 +76,18 @@ final class Communicator implements Runnable{
     }
 
 
-
+    /**
+     * Handles the ongoing communication with the server.
+     * Once a connection is established an initial request is sent to the server. The connection is kept
+     * until either this client or the server (robots) sends a 'EOSQ'- (End Of SeQuence) or
+     * 'DCNT'- (DisCoNnecT) signal.
+     *
+     * @param in    BufferedReader to read responses from
+     * @param out   PrintWriter to write requests (instructions) to
+     * @throws IOException
+     */
     private void handleOngoingCommunication(BufferedReader in, PrintWriter out) throws IOException {
-        String request = ComController.getInitialRequest();
+        String request = comController.getInitialRequest();
         String response;
 
         do {
@@ -83,19 +97,29 @@ final class Communicator implements Runnable{
                 if (response == null) {
                     continue;
                 }
-                ComController.handleResponse(response);
+                comController.handleResponse(response);
                 if (response.contains(END_OF_INSTRUCTION_SEQUENCE)) {
                     break;
                 }
             } while (true);
-            while ((request = ComController.getNextRequest()) == null) {
+            while (!comController.isStopped()   &&   (request = comController.getNextRequest()) == null) {
                 Thread.yield();
+            }
+            if (comController.isStopped()) {
+                break;
             }
         } while ( running && !request.equals(DISCONNECT));
     }
 
 
-
+    /**
+     * Closes the Socket, the BufferedReader and the PrintWriter after usage.
+     *
+     * @param socket    The communication-socket
+     * @param in        The BufferedReader used for communication
+     * @param out       The PrintWriter used for communication
+     * @throws IOException
+     */
     private void tearDownConnection(Socket socket, BufferedReader in, PrintWriter out) throws IOException{
         out.println(DISCONNECT);
         out.close();

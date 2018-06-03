@@ -26,16 +26,20 @@ public class MapImpl implements Map {
     private ArrayList<Rectangle> floorTiles;
     private ArrayList<Circle> landmarks;
 
+    private String mapKey;
+
 
 
     /**
      * Constructs and initializes a Map with the specified walls, floor-tiles and landmarks.
      *
+     * @param mapKey the key (or name) to identify this Map
      * @param walls the walls of the newly constructed Map
      * @param floorTiles the floor-tiles of the newly constructed Map
      * @param landmarks the landmarks of the newly constructed Map
      */
-    MapImpl(ArrayList<Line> walls, ArrayList<Rectangle> floorTiles, ArrayList<Circle> landmarks) {
+    MapImpl(String mapKey, ArrayList<Line> walls, ArrayList<Rectangle> floorTiles, ArrayList<Circle> landmarks) {
+        this.mapKey = mapKey;
         this.walls = walls;
         this.floorTiles = floorTiles;
         this.landmarks = landmarks;
@@ -76,6 +80,22 @@ public class MapImpl implements Map {
         }
     }
 
+
+    /**
+     * Returns the map-key (of type String) of this Map.
+     *
+     * @return The map-key of this Map
+     */
+    @Override
+    public String getMapKey() { return this.mapKey; }
+
+
+    /**
+     * Sets the map-key (of type String) of this Map
+     *
+     * @param mapKey The new map-key for this Map
+     */
+    void setMapKey(String mapKey) { this.mapKey = mapKey; }
 
 
     /**
@@ -208,7 +228,7 @@ public class MapImpl implements Map {
 
     //TODO Refactor.
     @Override
-    public int[] getGeneralCameraQuery(float x, float y, float angle) {
+    public int[] getGeneralCameraQuery(double x, double y, double angle) {
         int numberOfAvailableSignatures = 7;
         int byteHoldingSignatureSizeInformation = 3;
         int signature = 1;
@@ -233,20 +253,20 @@ public class MapImpl implements Map {
 
     //TODO Implement.
     @Override
-    public int getCameraAngleQuery(float x, float y, float angle) {
+    public int getCameraAngleQuery(double x, double y, double angle) {
         return 0;
     }
 
     //TODO Implement.
     @Override
-    public int[] getCameraColorCodeQuery(float x, float y, float angle, int coloCode) {
+    public int[] getCameraColorCodeQuery(double x, double y, double angle, int coloCode) {
         return new int[]{0,0,0,0,0,0};
     }
 
 
     //TODO REFACTOR!!!
     @Override
-    public int[] getCameraSignatureQuery(float x, float y, float angle, int signature) {
+    public int[] getCameraSignatureQuery(double x, double y, double angle, int signature) {
         double imageFullAngle = 75;
         double imageHalfAngle = imageFullAngle / 2;
         int pixelInFullAngle = 255;

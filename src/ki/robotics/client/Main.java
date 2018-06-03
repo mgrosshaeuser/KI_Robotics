@@ -1,6 +1,10 @@
 package ki.robotics.client;
 
 
+import ki.robotics.client.communication.ComController;
+import ki.robotics.client.communication.ComControllerImplGUI;
+import ki.robotics.client.communication.ComControllerImplTerminal;
+
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -38,7 +42,7 @@ public class Main {
     public static void main(String[] args) {
         if (args.length >= 1 && args[0].equals("terminal")) {
             ComController comController = new ComControllerImplTerminal();
-            comController.start(null);
+            comController.start();
         } else {
             ComController comController = new ComControllerImplGUI();
         }

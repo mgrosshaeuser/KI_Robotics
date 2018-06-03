@@ -4,6 +4,8 @@ import java.awt.*;
 import java.awt.geom.Point2D;
 
 public interface Map {
+    String getMapKey();
+
     Polygon getOperatingRange();
 
     void paint(Graphics g, int scaleFactor, int xOffset, int yOffset);
@@ -16,15 +18,11 @@ public interface Map {
 
     double getDistanceToNearestObstacle(Point2D position, double viewingDirection);
 
-    //TODO Refactor.
-    int[] getGeneralCameraQuery(float x, float y, float angle);
+    int[] getGeneralCameraQuery(double x, double y, double angle);
 
-    //TODO Implement.
-    int getCameraAngleQuery(float x, float y, float angle);
+    int getCameraAngleQuery(double x, double y, double angle);
 
-    //TODO Implement.
-    int[] getCameraColorCodeQuery(float x, float y, float angle, int coloCode);
+    int[] getCameraColorCodeQuery(double x, double y, double angle, int coloCode);
 
-    //TODO REFACTOR!!!
-    int[] getCameraSignatureQuery(float x, float y, float angle, int signature);
+    int[] getCameraSignatureQuery(double x, double y, double angle, int signature);
 }

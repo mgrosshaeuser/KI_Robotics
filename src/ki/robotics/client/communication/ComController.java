@@ -1,11 +1,12 @@
-package ki.robotics.client;
+package ki.robotics.client.communication;
 
-import ki.robotics.client.GUI.Configuration;
 
 public interface ComController {
-    void start(Configuration configuration);
+    void start();
 
     void stop();
+
+    boolean isStopped();
 
     String getInitialRequest();
 

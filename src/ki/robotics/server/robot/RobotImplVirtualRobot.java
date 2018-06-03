@@ -5,13 +5,14 @@ import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.geom.Point2D;
+import java.io.Serializable;
 
 
-public abstract class RobotImplVirtualRobot implements Robot {
-    protected Pose pose;
+public abstract class RobotImplVirtualRobot implements Robot, Serializable {
+    protected transient Pose pose;
     protected int sensorHeadPosition = 0;
     protected final float bumper = 5f;
-    protected Map map;
+    protected transient Map map;
 
 
     @Override

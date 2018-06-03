@@ -1,8 +1,11 @@
-package ki.robotics.client;
+package ki.robotics.client.communication;
 
-import ki.robotics.client.GUI.ClientView;
+import ki.robotics.client.ClientFactory;
 import ki.robotics.client.GUI.Configuration;
+import ki.robotics.client.GUI.GuiController;
 import ki.robotics.client.MCL.LocalizationProvider;
+import ki.robotics.client.Main;
+import ki.robotics.client.SensorModel;
 import ki.robotics.utility.crisp.InstructionSequence;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
@@ -15,37 +18,38 @@ import java.util.ArrayList;
 import static ki.robotics.utility.crisp.CRISP.*;
 
 /**
- * Monte-Carlo-Localization including a GUI for presentation of results.
- *
- * @version 1.2, 01/02/18
+ * Communication-Controller for:
+ *  - generating instructions based on the sensor-model
+ *  - interpreting responses from the robot (updating sensor-model and localization-provider).
  */
 public class ComControllerImplGUI implements ComController {
-    private ClientView window;
+    private GuiController guiController;
     private LocalizationProvider localizationProvider;
     private final SensorModel roverModel;
     private Configuration configuration;
     private Thread communicationThread;
+    private boolean isStoped;
 
 
 
     /**
      * Constructor.
      */
-    ComControllerImplGUI() {
-        this.window = new ClientView(this);
-        this.roverModel = new SensorModel();
+    public ComControllerImplGUI() {
+        this.guiController = ClientFactory.createNewGuiController(this);
+        this.roverModel = ClientFactory.createNewSensorModel();
+        this.isStoped = true;
     }
 
 
     /**
-     * Stars a new thread to handle the communication with the server (robot).
-     *
-     * @param configuration A run-configuration, chosen by the user.
+     * Performs pre-start assignments and creates a new thread to handle the communication.
      */
     @Override
-    public void start(Configuration configuration) {
-        this.localizationProvider = configuration.getLocalizationProvider();
-        this.configuration = configuration;
+    public void start() {
+        this.isStoped = false;
+        this.configuration = guiController.getUserSettings();
+        this.localizationProvider = this.configuration.getLocalizationProvider();
         communicationThread = new Thread(new Communicator(Main.HOST, Main.PORT, this));
         communicationThread.setDaemon(true);
         communicationThread.start();
@@ -59,8 +63,20 @@ public class ComControllerImplGUI implements ComController {
     public void stop() {
         if (communicationThread != null) {
             Communicator.running = false;
+            this.isStoped = true;
             communicationThread = null;
         }
+    }
+
+
+    /**
+     * Allows the communication-thread to ask about the communication-status (stopped or ongoing).
+     *
+     * @return  boolean value to indicate stopped (true) or ongoing (false)
+     */
+    @Override
+    public boolean isStopped() {
+        return isStoped;
     }
 
 
@@ -148,9 +164,9 @@ public class ComControllerImplGUI implements ComController {
      * @return  InstructionSequence for the next request.
      */
     private InstructionSequence getNextRequestWithCamera(int bumper) {
-        if (localizationProvider.getEstimatedPoseDeviation() <= configuration.getAcceptableDeviation()) {
+        if (localizationProvider.getSpreadingAroundEstimatedBotPose() <= configuration.getAcceptableSpreading()) {
             localizationProvider.badParticlesFinalKill();
-            window.repaint();
+            guiController.repaintWindow();
             return new InstructionSequence().disconnect();
         }
 
@@ -198,11 +214,12 @@ public class ComControllerImplGUI implements ComController {
             }
             if (configuration.isStopWhenDone() && !configuration.isWithCamera() && localizationProvider.isLocalizationDone()) {
                 localizationProvider.badParticlesFinalKill();
-                window.updateWindowAfterLocalizationFinished();
-                window.repaint();
+                localizationProvider.saveLocalizationSequenceToFile();
+                guiController.updateWindowAfterLocalizationFinished();
+                guiController.repaintWindow();
                 stop();
             }
-            window.repaint();
+            guiController.repaintWindow();
         }
     }
 
@@ -335,7 +352,12 @@ public class ComControllerImplGUI implements ComController {
     }
 
 
-    
+    /**
+     * Creates an InstructionSequence from the sensors selected by the user.
+     *
+     * @param configuration     The user-settings, including selected sensors
+     * @return                  An InstructionSequence addressing the selected sensors
+     */
     private InstructionSequence provideSensingInstructionsFrom(Configuration configuration) {
         InstructionSequence sequence = new InstructionSequence();
 
