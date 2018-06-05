@@ -1,12 +1,11 @@
 package ki.robotics.client.MCL;
 
 import ki.robotics.client.SensorModel;
-import ki.robotics.server.robot.virtualRobots.MCLParticle;
 
 import java.util.ArrayList;
 
-public interface LocalizationProvider {
-    ArrayList<MCLParticle> getParticles();
+public interface LocalizationProvider <T extends Particle>{
+    ArrayList<T> getParticles();
 
     void translateParticles(double distance);
 

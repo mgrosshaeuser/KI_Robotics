@@ -3,7 +3,7 @@ package ki.robotics.client.GUI;
 import ki.robotics.client.MCL.LocalizationProvider;
 import ki.robotics.utility.map.Map;
 
-public interface Configuration {
+public interface GuiConfiguration {
     LocalizationProvider getLocalizationProvider();
 
     Map getMap();
@@ -12,11 +12,15 @@ public interface Configuration {
 
     int getNumberOfParticles();
 
+    boolean isPaused();
+
     boolean isOneDimensional();
 
     boolean isTwoDimensional();
 
     boolean isWithCamera();
+
+    boolean isInReplayMode();
 
     int getStepSize();
 
@@ -24,13 +28,11 @@ public interface Configuration {
 
     int getAcceptableSpreading();
 
+
+
     boolean isStartFromLeft();
 
     boolean isStartFromRight();
-
-    boolean isMeasureDistanceToLeft();
-
-    boolean isMeasureDistanceToRight();
 
     void flipDirection();
 
@@ -38,11 +40,19 @@ public interface Configuration {
 
     boolean isUseFreeAngles();
 
+
+
+    boolean isMeasureDistanceToLeft();
+
+    boolean isMeasureDistanceToRight();
+
     boolean isUseLeftSensor();
 
     boolean isUseFrontSensor();
 
     boolean isUseRightSensor();
+
+
 
     boolean isUseGeneralQuery();
 
@@ -61,6 +71,4 @@ public interface Configuration {
     boolean isUseSignatureSix();
 
     boolean isUseSignatureSeven();
-
-    boolean isPaused();
 }

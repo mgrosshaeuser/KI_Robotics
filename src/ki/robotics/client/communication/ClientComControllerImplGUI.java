@@ -1,7 +1,7 @@
 package ki.robotics.client.communication;
 
 import ki.robotics.client.ClientFactory;
-import ki.robotics.client.GUI.Configuration;
+import ki.robotics.client.GUI.GuiConfiguration;
 import ki.robotics.client.GUI.GuiController;
 import ki.robotics.client.MCL.LocalizationProvider;
 import ki.robotics.client.Main;
@@ -22,11 +22,11 @@ import static ki.robotics.utility.crisp.CRISP.*;
  *  - generating instructions based on the sensor-model
  *  - interpreting responses from the robot (updating sensor-model and localization-provider).
  */
-public class ComControllerImplGUI implements ComController {
+public class ClientComControllerImplGUI implements ClientComController {
     private GuiController guiController;
     private LocalizationProvider localizationProvider;
     private final SensorModel roverModel;
-    private Configuration configuration;
+    private GuiConfiguration guiConfiguration;
     private Thread communicationThread;
     private boolean isStoped;
 
@@ -35,11 +35,12 @@ public class ComControllerImplGUI implements ComController {
     /**
      * Constructor.
      */
-    public ComControllerImplGUI() {
+    public ClientComControllerImplGUI() {
         this.guiController = ClientFactory.createNewGuiController(this);
         this.roverModel = ClientFactory.createNewSensorModel();
         this.isStoped = true;
     }
+
 
 
     /**
@@ -48,9 +49,9 @@ public class ComControllerImplGUI implements ComController {
     @Override
     public void start() {
         this.isStoped = false;
-        this.configuration = guiController.getUserSettings();
-        this.localizationProvider = this.configuration.getLocalizationProvider();
-        communicationThread = new Thread(new Communicator(Main.HOST, Main.PORT, this));
+        this.guiConfiguration = guiController.getUserSettings();
+        this.localizationProvider = this.guiConfiguration.getLocalizationProvider();
+        communicationThread = new Thread(new ClientCommunicator(Main.HOST, Main.PORT, this));
         communicationThread.setDaemon(true);
         communicationThread.start();
     }
@@ -62,7 +63,7 @@ public class ComControllerImplGUI implements ComController {
     @Override
     public void stop() {
         if (communicationThread != null) {
-            Communicator.running = false;
+            ClientCommunicator.running = false;
             this.isStoped = true;
             communicationThread = null;
         }
@@ -88,8 +89,8 @@ public class ComControllerImplGUI implements ComController {
     @Override
     public String getInitialRequest() {
         InstructionSequence sequence = new InstructionSequence();
-        InstructionSequence scans = provideSensingInstructionsFrom(configuration);
-        if (configuration.isOneDimensional()) {
+        InstructionSequence scans = provideSensingInstructionsFrom(guiConfiguration);
+        if (guiConfiguration.isOneDimensional()) {
             sequence.sensorReset().botEnableLineFollower().append(scans);
         } else {
             sequence.sensorReset().botDisableLineFollower().append(scans);
@@ -106,15 +107,15 @@ public class ComControllerImplGUI implements ComController {
      */
     @Override
     public String getNextRequest() {
-        if (configuration.isPaused())
+        if (guiConfiguration.isPaused())
             return null;
 
         int bumper = 18; //additional 10cm for Soujourner delta ultra sonic sensor to axis
 
-        if (configuration.isOneDimensional()) {
+        if (guiConfiguration.isOneDimensional()) {
             return getNextInstructionSequenceForOneDimension().toString();
         } else {
-            if (configuration.isWithCamera() ){
+            if (guiConfiguration.isWithCamera() ){
                 return getNextRequestWithCamera(bumper).toString();
             } else {
                 return getNextRequestForTwoDimensions(bumper).toString();
@@ -129,8 +130,8 @@ public class ComControllerImplGUI implements ComController {
      * @return  InstructionSequence for the next request.
      */
     private InstructionSequence getNextInstructionSequenceForOneDimension() {
-        int stepSize = configuration.getStepSize();
-        return new InstructionSequence().botTravelForward(stepSize).append(provideSensingInstructionsFrom(configuration));
+        int stepSize = guiConfiguration.getStepSize();
+        return new InstructionSequence().botTravelForward(stepSize).append(provideSensingInstructionsFrom(guiConfiguration));
     }
 
 
@@ -140,8 +141,8 @@ public class ComControllerImplGUI implements ComController {
      * @return  InstructionSequence for the next request.
      */
     private InstructionSequence getNextRequestForTwoDimensions(int bumper) {
-        int stepSize = configuration.getStepSize();
-        InstructionSequence scans = provideSensingInstructionsFrom(configuration);
+        int stepSize = guiConfiguration.getStepSize();
+        InstructionSequence scans = provideSensingInstructionsFrom(guiConfiguration);
         double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
 
         int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
@@ -164,14 +165,14 @@ public class ComControllerImplGUI implements ComController {
      * @return  InstructionSequence for the next request.
      */
     private InstructionSequence getNextRequestWithCamera(int bumper) {
-        if (localizationProvider.getSpreadingAroundEstimatedBotPose() <= configuration.getAcceptableSpreading()) {
+        if (localizationProvider.getSpreadingAroundEstimatedBotPose() <= guiConfiguration.getAcceptableSpreading()) {
             localizationProvider.badParticlesFinalKill();
             guiController.repaintWindow();
             return new InstructionSequence().disconnect();
         }
 
-        int stepSize = configuration.getStepSize();
-        InstructionSequence scans = provideSensingInstructionsFrom(configuration);
+        int stepSize = guiConfiguration.getStepSize();
+        InstructionSequence scans = provideSensingInstructionsFrom(guiConfiguration);
         double center = roverModel.getDistanceToCenter(), left = roverModel.getDistanceToLeft(), right = roverModel.getDistanceToRight();
 
         int randomNumberSoBoDoesntStutterInFrontOfWall = 4;
@@ -186,7 +187,6 @@ public class ComControllerImplGUI implements ComController {
             return new InstructionSequence().botTurnLeft(180).botTravelForward(stepSize).append(scans);
         }
     }
-
 
 
     /**
@@ -212,7 +212,7 @@ public class ComControllerImplGUI implements ComController {
                     handleOtherResponse(response);
                     break;
             }
-            if (configuration.isStopWhenDone() && !configuration.isWithCamera() && localizationProvider.isLocalizationDone()) {
+            if (guiConfiguration.isStopWhenDone() && !guiConfiguration.isWithCamera() && localizationProvider.isLocalizationDone()) {
                 localizationProvider.badParticlesFinalKill();
                 localizationProvider.saveLocalizationSequenceToFile();
                 guiController.updateWindowAfterLocalizationFinished();
@@ -225,7 +225,7 @@ public class ComControllerImplGUI implements ComController {
 
 
     /**
-     * Handles responses regarding movement of the robot.
+     * Handles responses regarding robot-motion..
      *
      * @param response   The instruction-response.
      */
@@ -238,7 +238,7 @@ public class ComControllerImplGUI implements ComController {
             case BOT_LINE_FOLLOWING_DISABLED:
                 break;
             case BOT_U_TURN:
-                configuration.flipDirection();
+                guiConfiguration.flipDirection();
                 localizationProvider.turnParticles(180);
                 break;
             case BOT_TRAVEL_FORWARD:
@@ -353,45 +353,88 @@ public class ComControllerImplGUI implements ComController {
 
 
     /**
-     * Creates an InstructionSequence from the sensors selected by the user.
+     * Returns an InstructionSequence addressing the sensors selected by the user.
      *
-     * @param configuration     The user-settings, including selected sensors
+     * @param guiConfiguration     The user-settings, including selected sensors
      * @return                  An InstructionSequence addressing the selected sensors
      */
-    private InstructionSequence provideSensingInstructionsFrom(Configuration configuration) {
+    private InstructionSequence provideSensingInstructionsFrom(GuiConfiguration guiConfiguration) {
+        if (guiConfiguration.isOneDimensional()) {
+            return provideSensingInstructionsForOneDim(guiConfiguration);
+        }
+
+        if (guiConfiguration.isTwoDimensional()) {
+            return provideSensingInstructionForTwoDim(guiConfiguration);
+        }
+
+        if (guiConfiguration.isWithCamera()) {
+            return provideSensingInstructionsForTwoDimWithCamera(guiConfiguration);
+        }
+
+        return new InstructionSequence();
+    }
+
+
+    /**
+     * Provides an InstructionSequence addressing the selected sensors in one-dimensional maps.
+     *
+     * @param guiConfiguration  The user-settings, including selected sensors
+     * @return                  An InstructionSequence addressing the selected sensors
+     */
+    private InstructionSequence provideSensingInstructionsForOneDim(GuiConfiguration guiConfiguration) {
         InstructionSequence sequence = new InstructionSequence();
 
-        if (configuration.isOneDimensional()) {
-            if (configuration.isMeasureDistanceToLeft()) {
-                sequence.sensorTurnLeft();
-            } else {
-                sequence.sensorTurnRight();
-            }
-            sequence.measureSingleDistance();
+        if (guiConfiguration.isMeasureDistanceToLeft()) {
+            sequence.sensorTurnLeft();
+        } else {
+            sequence.sensorTurnRight();
         }
+        sequence.measureSingleDistance();
 
-        if (configuration.isTwoDimensional()) {
-            if (configuration.isUseLeftSensor()  &&  configuration.isUseFrontSensor()  &&  configuration.isUseRightSensor()) {
-                sequence.measureAllDistances();
-            } else {
-                if (configuration.isUseLeftSensor()) { sequence.sensorTurnLeft().measureSingleDistance(); }
-                if (configuration.isUseFrontSensor()) { sequence.sensorReset().measureSingleDistance(); }
-                if (configuration.isUseRightSensor()) { sequence.sensorTurnRight().measureSingleDistance(); }
-            }
-        }
+        return sequence;
+    }
 
-        if (configuration.isWithCamera()) {
-            if (configuration.isUseGeneralQuery()) {sequence.cameraGeneralQuery(); }
-            if (configuration.isUseGeneralQuery()  &&  configuration.isUseAngleQuery()) { sequence.camAngleQuery(); }
-            if (configuration.isUseSignatureOne()) { sequence.camQuerySignature(1); }
-            if (configuration.isUseSignatureTwo()) { sequence.camQuerySignature(2); }
-            if (configuration.isUseSignatureThree()) { sequence.camQuerySignature(3); }
-            if (configuration.isUseSignatureFour()) { sequence.camQuerySignature(4); }
-            if (configuration.isUseSignatureFive()) { sequence.camQuerySignature(5); }
-            if (configuration.isUseSignatureSix()) { sequence.camQuerySignature(6); }
-            if (configuration.isUseSignatureSeven()) { sequence.camQuerySignature(7); }
+
+    /**
+     * Provides an InstructionSequence addressing the selected sensors in two-dimensional maps.
+     *
+     * @param guiConfiguration  The user-settings, including selected sensors
+     * @return                  An InstructionSequence addressing the selected sensors
+     */
+    private InstructionSequence provideSensingInstructionForTwoDim(GuiConfiguration guiConfiguration) {
+        InstructionSequence sequence = new InstructionSequence();
+
+        if (guiConfiguration.isUseLeftSensor()  &&  guiConfiguration.isUseFrontSensor()  &&  guiConfiguration.isUseRightSensor()) {
             sequence.measureAllDistances();
+        } else {
+            if (guiConfiguration.isUseLeftSensor()) { sequence.sensorTurnLeft().measureSingleDistance(); }
+            if (guiConfiguration.isUseFrontSensor()) { sequence.sensorReset().measureSingleDistance(); }
+            if (guiConfiguration.isUseRightSensor()) { sequence.sensorTurnRight().measureSingleDistance(); }
         }
+
+        return sequence;
+    }
+
+
+    /**
+     * Provides an InstructionSequence addressing the selected sensors in two-dimensional maps and camera.
+     *
+     * @param guiConfiguration  The user-settings, including selected sensors
+     * @return                  An InstructionSequence addressing the selected sensors
+     */
+    private InstructionSequence provideSensingInstructionsForTwoDimWithCamera(GuiConfiguration guiConfiguration) {
+        InstructionSequence sequence = new InstructionSequence();
+
+        if (guiConfiguration.isUseGeneralQuery()) {sequence.cameraGeneralQuery(); }
+        if (guiConfiguration.isUseGeneralQuery()  &&  guiConfiguration.isUseAngleQuery()) { sequence.camAngleQuery(); }
+        if (guiConfiguration.isUseSignatureOne()) { sequence.camQuerySignature(1); }
+        if (guiConfiguration.isUseSignatureTwo()) { sequence.camQuerySignature(2); }
+        if (guiConfiguration.isUseSignatureThree()) { sequence.camQuerySignature(3); }
+        if (guiConfiguration.isUseSignatureFour()) { sequence.camQuerySignature(4); }
+        if (guiConfiguration.isUseSignatureFive()) { sequence.camQuerySignature(5); }
+        if (guiConfiguration.isUseSignatureSix()) { sequence.camQuerySignature(6); }
+        if (guiConfiguration.isUseSignatureSeven()) { sequence.camQuerySignature(7); }
+        sequence.measureAllDistances();
 
         return sequence;
     }

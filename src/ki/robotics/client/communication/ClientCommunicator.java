@@ -15,13 +15,12 @@ import static ki.robotics.utility.crisp.CRISP.END_OF_INSTRUCTION_SEQUENCE;
  * Communication-Instance for the client-side.
  *
  */
-final class Communicator implements Runnable{
-
+final class ClientCommunicator implements Runnable{
     private static final int TRANSMISSION_TIMEOUT = 0;
 
     private final String host;
     private final int port;
-    private final ComController comController;
+    private final ClientComController clientComController;
 
     static volatile boolean running = true;
 
@@ -32,10 +31,10 @@ final class Communicator implements Runnable{
      * @param host  The host to which to connect
      * @param port  The port to address
      */
-    public Communicator(String host, int port, ComController ComController) {
+    public ClientCommunicator(String host, int port, ClientComController ClientComController) {
         this.host = host;
         this.port = port;
-        this.comController = ComController;
+        this.clientComController = ClientComController;
     }
 
 
@@ -87,7 +86,7 @@ final class Communicator implements Runnable{
      * @throws IOException
      */
     private void handleOngoingCommunication(BufferedReader in, PrintWriter out) throws IOException {
-        String request = comController.getInitialRequest();
+        String request = clientComController.getInitialRequest();
         String response;
 
         do {
@@ -97,15 +96,15 @@ final class Communicator implements Runnable{
                 if (response == null) {
                     continue;
                 }
-                comController.handleResponse(response);
+                clientComController.handleResponse(response);
                 if (response.contains(END_OF_INSTRUCTION_SEQUENCE)) {
                     break;
                 }
             } while (true);
-            while (!comController.isStopped()   &&   (request = comController.getNextRequest()) == null) {
+            while (!clientComController.isStopped()   &&   (request = clientComController.getNextRequest()) == null) {
                 Thread.yield();
             }
-            if (comController.isStopped()) {
+            if (clientComController.isStopped()) {
                 break;
             }
         } while ( running && !request.equals(DISCONNECT));

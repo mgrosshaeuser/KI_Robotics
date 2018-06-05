@@ -1,21 +1,20 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public interface WorldState extends Serializable {
+public interface WorldState<T extends Particle> extends Serializable {
     Map getMap();
 
     int getNumberOfParticles();
 
-    ArrayList<MCLParticle> getParticles();
+    ArrayList<T> getParticles();
 
     double[] getEstimatedBotPose();
 
-    double getEstimatedBotPoseDeviation();
+    double getEstimatedBotPoseSpreading();
 
     String getCausativeInstruction();
 

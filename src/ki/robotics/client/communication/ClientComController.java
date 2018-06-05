@@ -1,7 +1,7 @@
 package ki.robotics.client.communication;
 
 
-public interface ComController {
+public interface ClientComController {
     void start();
 
     void stop();

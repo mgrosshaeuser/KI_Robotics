@@ -1,9 +1,9 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.client.GUI.ClientModel;
+import ki.robotics.client.GUI.impl.GuiConfigurationImplClientModel;
 import ki.robotics.client.ClientFactory;
+import ki.robotics.client.MCL.impl.ParticleImplMCL;
 import ki.robotics.client.SensorModel;
-import ki.robotics.server.robot.virtualRobots.MCLParticle;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
@@ -39,7 +39,7 @@ public class Localization_ProviderImplMCLTest {
         int numOfParticles = 1000; //via GUI
 
         Map map = MapProvider.getInstance().getMap("Room");
-        LocalizationProvider localizationProvider = ClientFactory.createNewLocalizationProvider(map, numOfParticles, new int[] {-1, -1, -1}, new ClientModel());
+        LocalizationProvider localizationProvider = ClientFactory.createNewLocalizationProvider(map, numOfParticles, new int[] {-1, -1, -1}, new GuiConfigurationImplClientModel());
 
         SensorModel bot = ClientFactory.createNewSensorModel();
         bot.setDistanceToLeft(10.0);
@@ -48,7 +48,7 @@ public class Localization_ProviderImplMCLTest {
 
         Pose pose = new Pose();
         pose.setLocation(82.0F, 145.0F);
-        MCLParticle mclParticle = new MCLParticle(pose, null, 1.0F, Color.BLACK);
+        ParticleImplMCL mclParticle = new ParticleImplMCL(pose, null, 1.0F, Color.BLACK);
 
         return new Object[][] {
                 {localizationProvider, bot}

@@ -1,6 +1,5 @@
 package ki.robotics.client.communication;
 
-import ki.robotics.client.GUI.Configuration;
 import ki.robotics.client.Main;
 
 import static ki.robotics.utility.crisp.CRISP.*;
@@ -10,9 +9,8 @@ import java.util.Scanner;
 /**
  * A terminal for communication with the server (robot).
  */
-public class ComControllerImplTerminal implements ComController{
+public class ClientComControllerImplTerminal implements ClientComController {
     private Thread t;
-
 
 
     /**
@@ -22,7 +20,7 @@ public class ComControllerImplTerminal implements ComController{
     public void start() {
         System.out.println("I.R.I.S - Interactive Robot Instruction Shell");
         System.out.print("---------------------------------------------\n\n");
-        t = new Thread(new Communicator(Main.HOST, Main.PORT, this));
+        t = new Thread(new ClientCommunicator(Main.HOST, Main.PORT, this));
         t.start();
     }
 
@@ -33,7 +31,7 @@ public class ComControllerImplTerminal implements ComController{
     @Override
     public void stop() {
         if (t != null) {
-            Communicator.running = false;
+            ClientCommunicator.running = false;
         }
     }
 
@@ -76,6 +74,7 @@ public class ComControllerImplTerminal implements ComController{
         }
         return cmd;
     }
+
 
     /**
      * Prints the server-response to the terminal.

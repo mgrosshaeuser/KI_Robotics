@@ -1,7 +1,7 @@
-package ki.robotics.server;
+package ki.robotics.server.communication;
 
-import ki.robotics.server.robot.virtualRobots.RoverSimulation;
-import ki.robotics.server.robot.RobotImplSojourner;
+import ki.robotics.server.Robot;
+import ki.robotics.server.ServerFactory;
 import ki.robotics.utility.crisp.Message;
 
 import java.io.PrintWriter;
@@ -10,29 +10,29 @@ import java.util.ArrayList;
 import static ki.robotics.utility.crisp.CRISP.*;
 
 
-class BotController {
-    private BotServer server;
+class ServerComController {
+    private ServerCommunicator communicator;
     private PrintWriter out;
     private final Robot robot;
 
 
 
 
-    public BotController(boolean isSimulation, BotServer server) {
-        this.server = server;
+    ServerComController(boolean isSimulation, ServerCommunicator communicator) {
+        this.communicator = communicator;
         this.out = null;
-        this.robot = isSimulation ? new RoverSimulation() : RobotImplSojourner.getInstance();
+        this.robot = isSimulation ? ServerFactory.getSimulatedRobot() : ServerFactory.getPhysicalRobot();
     }
 
 
-    public void registerOutputStream(PrintWriter out) {
+    void registerOutputStream(PrintWriter out) {
         this.out = out;
     }
 
 
 
 
-    public void handleRequest(String transmission) {
+    void handleRequest(String transmission) {
         ArrayList<Message> requests = Message.decodeTransmission(transmission);
         while (! requests.isEmpty()) {
             processRequest(requests.remove(0));
@@ -200,11 +200,11 @@ class BotController {
         switch(instruction.getMnemonic()) {
             case SHUTDOWN:
                 out.println(DISCONNECT);
-                server.disconnect();
+                communicator.disconnect();
                 robot.shutdown();
             case DISCONNECT:
                 out.println(DISCONNECT);
-                server.disconnect();
+                communicator.disconnect();
                 robot.disconnect();
             default:
                 out.println(UNSUPPORTED_INSTRUCTION);

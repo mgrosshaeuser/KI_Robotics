@@ -8,7 +8,6 @@ import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 /**
  * A simple 'book-keeping'-class for the sensor-feedback from the robot.
  *
- * @version 1.0 01/02/18
  */
 class SensorModelImplRoverModel implements SensorModel {
 

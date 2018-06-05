@@ -3,23 +3,23 @@
   <ID>JAVA</ID>
   <OriginalElement>ki.robotics.server</OriginalElement>
   <nodes>
-    <node x="0.0" y="0.0">ki.robotics.server.BotController</node>
-    <node x="2.5" y="398.0">ki.robotics.server.BotServer</node>
+    <node x="0.0" y="0.0">ki.robotics.server.communication.ClientComController</node>
+    <node x="2.5" y="398.0">ki.robotics.server.communication.ServerCommunicator</node>
     <node x="125.0" y="848.0">ki.robotics.server.Main</node>
   </nodes>
   <notes />
   <edges>
-    <edge source="ki.robotics.server.BotController" target="ki.robotics.server.BotServer">
+    <edge source="ki.robotics.server.communication.ClientComController" target="ki.robotics.server.communication.ServerCommunicator">
       <point x="55.625" y="174.0" />
       <point x="55.0" y="-200.0" />
     </edge>
-    <edge source="ki.robotics.server.BotServer" target="ki.robotics.server.BotController">
+    <edge source="ki.robotics.server.communication.ServerCommunicator" target="ki.robotics.server.communication.ClientComController">
       <point x="-165.0" y="-200.0" />
       <point x="57.5" y="373.0" />
       <point x="55.625" y="373.0" />
       <point x="-166.875" y="174.0" />
     </edge>
-    <edge source="ki.robotics.server.Main" target="ki.robotics.server.BotServer">
+    <edge source="ki.robotics.server.Main" target="ki.robotics.server.communication.ServerCommunicator">
       <point x="48.75" y="-82.5" />
       <point x="271.25" y="823.0" />
       <point x="332.5" y="823.0" />

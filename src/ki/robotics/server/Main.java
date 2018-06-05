@@ -1,6 +1,8 @@
 package ki.robotics.server;
 
 
+import ki.robotics.server.communication.ServerCommunicator;
+
 /**
  * Main class of the Server. Communication-Port is specified and an instance of the BotServer is acquired..
  *
@@ -8,7 +10,7 @@ package ki.robotics.server;
  */
 public class Main {
     private static final int PORT = 9999;
-    private static BotServer server;
+    private static ServerCommunicator server;
 
 
     /**
@@ -20,7 +22,7 @@ public class Main {
         if (args.length >=1) {
             isSimulation = Boolean.parseBoolean(args[0].toLowerCase());
         }
-        server = new BotServer(PORT, isSimulation);
+        server = ServerFactory.createNewServerCommunicator(PORT, isSimulation);
         server.powerUp();
     }
 

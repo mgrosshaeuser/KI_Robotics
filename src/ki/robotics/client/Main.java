@@ -1,9 +1,8 @@
 package ki.robotics.client;
 
 
-import ki.robotics.client.communication.ComController;
-import ki.robotics.client.communication.ComControllerImplGUI;
-import ki.robotics.client.communication.ComControllerImplTerminal;
+import ki.robotics.client.communication.ClientComController;
+
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,7 +10,6 @@ import java.net.InetAddress;
 /**
  * Main class of the Control-Communicator. Host and port are specified.
  *
- * @version 1.0, 12/26/17
  */
 public class Main {
     public static final String HOST;
@@ -34,17 +32,19 @@ public class Main {
         }
         HOST = hostToSet;
     }
+
+
     /**
      * Program-Initialization and start of a Communicator.
      *
-     * @param args
+     * @param args  String-argument to choose between graphical- and terminal-client
      */
     public static void main(String[] args) {
         if (args.length >= 1 && args[0].equals("terminal")) {
-            ComController comController = new ComControllerImplTerminal();
-            comController.start();
+            ClientComController clientComController = ClientFactory.createNewTerminalClient();
+            clientComController.start();
         } else {
-            ComController comController = new ComControllerImplGUI();
+            ClientComController clientComController = ClientFactory.createNewGraphicalClient();
         }
     }
 }

@@ -1,4 +1,4 @@
-package ki.robotics.server;
+package ki.robotics.server.communication;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,11 +10,11 @@ import java.net.SocketTimeoutException;
 
 
 /**
- * Comunication-Instance for the Server-Side (e.g. the robot or a simulation).
+ * Communication-Instance for the Server-Side (e.g. the robot or a simulation).
  *
  * @version 1.1, 12/28/17
  */
-public class BotServer {
+public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
 
     private static final int TIMEOUT = 0;
 
@@ -22,7 +22,7 @@ public class BotServer {
     private ServerSocket server;
     private Socket client;
 
-    private final BotController controller;
+    private final ServerComController controller;
 
     private boolean stayOnline;
     private boolean stayConnected;
@@ -34,9 +34,9 @@ public class BotServer {
      * @param port          The port to open for incoming connection-requests.
      * @param isSimulation  Boolean value to decide whether to use a physical or simulated robot.
      */
-    public BotServer(int port, boolean isSimulation) {
+    public ServerCommunicatorImplCommunicator(int port, boolean isSimulation) {
         this.port = port;
-        this.controller = new BotController(isSimulation, this);
+        this.controller = new ServerComController(isSimulation, this);
     }
 
 
@@ -45,6 +45,7 @@ public class BotServer {
      * Starts the server and waits for an incoming connection.
      * Once a connection is established the client-requests (instructions to the robot) are handled.
      */
+    @Override
     public void powerUp() {
 		stayOnline = true;
 		while (stayOnline) {
@@ -98,7 +99,8 @@ public class BotServer {
     /**
      * Allows the robot to disconnect from the client over a detour over the Main-class.
      */
-	public void disconnect() {
+	@Override
+    public void disconnect() {
 		stayConnected = false;
 	}
 
@@ -107,7 +109,8 @@ public class BotServer {
     /**
      * Allows the robot to shutdown the server over a detour over the Main-class.
      */
-	public void shutdown() {
+	@Override
+    public void shutdown() {
 		stayOnline = false;
 	}
 }

@@ -1,4 +1,4 @@
-package ki.robotics.server.robot;
+package ki.robotics.server.robots;
 
 import ki.robotics.server.Main;
 import ki.robotics.server.Robot;
@@ -358,15 +358,15 @@ public class RobotImplSojourner implements Robot {
             this.breakForTurn = breakForTurn;
         }
 
-        public int getDegrees() {
+        int getDegrees() {
             return degrees;
         }
 
-        public boolean isDirection() {
+        boolean isDirection() {
             return direction;
         }
 
-        public boolean isBreakForTurn() {
+        boolean isBreakForTurn() {
             return breakForTurn;
         }
     }

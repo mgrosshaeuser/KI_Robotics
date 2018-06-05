@@ -3,17 +3,17 @@
   <ID>JAVA</ID>
   <OriginalElement>ki.robotics.client</OriginalElement>
   <nodes>
-    <node x="384.05062260536397" y="2579.0">ki.robotics.client.communication.ComController</node>
+    <node x="384.05062260536397" y="2579.0">ki.robotics.client.communication.ClientComControllerroller</node>
     <node x="1140.256660509031" y="347.0">ki.robotics.client.SensorModel</node>
     <node x="815.5392172961137" y="581.0">ki.robotics.robot</node>
     <node x="782.3456793924465" y="3817.0">ki.robotics.client.Main</node>
-    <node x="725.8866652983032" y="3210.0">ki.robotics.client.communication.ComControllerImplGUI</node>
+    <node x="725.8866652983032" y="3210.0">ki.robotics.client.communication.ClientComControllerImplGUI</node>
     <node x="661.738803366174" y="0.0">ki.robotics.common.MapPanel</node>
-    <node x="428.40817939244647" y="3990.0">ki.robotics.client.communication.ComControllerImplTerminal</node>
-    <node x="945.0342843459224" y="1740.0">ki.robotics.client.GUI.Configuration</node>
+    <node x="428.40817939244647" y="3990.0">ki.robotics.client.communication.ClientComControllerImplTerminal</node>
+    <node x="945.0342843459224" y="1740.0">ki.robotics.client.GUI.GuiConfiguration</node>
     <node x="771.150328407225" y="2965.0">ki.robotics.client.GUI</node>
-    <node x="10.5" y="2834.0">ki.robotics.client.communication.Communicator</node>
-    <node x="760.7566605090311" y="899.0">ki.robotics.client.MCL.LocalizationProviderImplMCL</node>
+    <node x="10.5" y="2834.0">ki.robotics.client.communication.ClientCommunicator</node>
+    <node x="760.7566605090311" y="899.0">ki.robotics.client.MCL.impl.LocalizationProviderImplMCL</node>
   </nodes>
   <notes />
   <edges>
@@ -25,7 +25,7 @@
       <point x="696.113803366174" y="317.0" />
       <point x="-103.125" y="148.5" />
     </edge>
-    <edge source="ki.robotics.client.MCL.LocalizationProviderImplMCL" target="ki.robotics.robot">
+    <edge source="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL" target="ki.robotics.robot">
       <point x="-209.625" y="-395.5" />
       <point x="830.6316605090311" y="879.0" />
       <point x="898.4677887246853" y="879.0" />
@@ -39,7 +39,7 @@
       <point x="880.0392172961137" y="869.0" />
       <point x="0.0" y="17.0" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.MCL.LocalizationProviderImplMCL">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL">
       <point x="134.00000000000014" y="-278.5" />
       <point x="1127.8866652983033" y="3170.0" />
       <point x="1253.700951012589" y="3170.0" />
@@ -47,13 +47,13 @@
       <point x="1279.8280890804594" y="1720.0" />
       <point x="239.5714285714284" y="395.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComController" target="ki.robotics.client.GUI.Configuration">
+    <edge source="ki.robotics.client.communication.ClientComControllerroller" target="ki.robotics.client.GUI.GuiConfiguration">
       <point x="0.0" y="-82.5" />
       <point x="515.550622605364" y="2554.0" />
       <point x="973.1342843459224" y="2554.0" />
       <point x="-112.39999999999998" y="394.5" />
     </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.GUI.Configuration">
+    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.GUI.GuiConfiguration">
       <point x="52.44444444444446" y="-17.0" />
       <point x="882.5947728516694" y="2814.0" />
       <point x="1048.9065065681446" y="2814.0" />
@@ -61,13 +61,13 @@
       <point x="1029.3342843459222" y="2554.0" />
       <point x="-56.200000000000045" y="394.5" />
     </edge>
-    <edge source="ki.robotics.client.MCL.LocalizationProviderImplMCL" target="ki.robotics.client.GUI.Configuration">
+    <edge source="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL" target="ki.robotics.client.GUI.GuiConfiguration">
       <point x="79.85714285714278" y="395.5" />
       <point x="1120.113803366174" y="1720.0" />
       <point x="1085.5342843459223" y="1720.0" />
       <point x="0.0" y="-394.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.SensorModel">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.SensorModel">
       <point x="187.60000000000005" y="-278.5" />
       <point x="1181.4866652983033" y="3180.0" />
       <point x="1384.0079365079364" y="3180.0" />
@@ -75,25 +75,25 @@
       <point x="1330.256660509031" y="879.0" />
       <point x="0.0" y="251.0" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplTerminal" target="ki.robotics.client.Main">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplTerminal" target="ki.robotics.client.Main">
       <point x="21.916666666666742" y="-96.0" />
       <point x="581.8248460591133" y="3950.0" />
       <point x="831.0956793924465" y="3950.0" />
       <point x="-48.75" y="56.5" />
     </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.communication.ComController">
+    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.communication.ClientComControllerroller">
       <point x="-39.33333333333337" y="-17.0" />
       <point x="790.8169950738916" y="2794.0" />
       <point x="628.2649083196497" y="2794.0" />
       <point x="112.71428571428578" y="82.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.Main">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.Main">
       <point x="134.00000000000003" y="278.5" />
       <point x="1127.8866652983033" y="3792.0" />
       <point x="944.8456793924465" y="3792.0" />
       <point x="65.0" y="-56.5" />
     </edge>
-    <edge source="ki.robotics.client.MCL.LocalizationProviderImplMCL" target="ki.robotics.client.SensorModel">
+    <edge source="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL" target="ki.robotics.client.SensorModel">
       <point x="209.625" y="-395.5" />
       <point x="1249.881660509031" y="879.0" />
       <point x="1203.5899938423645" y="879.0" />
@@ -106,7 +106,7 @@
       <point x="731.150328407225" y="2970.666666666667" />
       <point x="-59.0" y="-11.333333333333258" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.communication.ComController">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.communication.ClientComControllerroller">
       <point x="-134.0" y="-278.5" />
       <point x="859.8866652983032" y="3170.0" />
       <point x="678.650328407225" y="3170.0" />
@@ -114,13 +114,13 @@
       <point x="553.1220511767926" y="2814.0" />
       <point x="37.57142857142867" y="82.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.GUI">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.GUI">
       <point x="-80.39999999999998" y="-278.5" />
       <point x="913.4866652983033" y="3160.0" />
       <point x="853.750328407225" y="3160.0" />
       <point x="23.600000000000023" y="17.0" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.GUI.Configuration">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.GUI.GuiConfiguration">
       <point x="26.800000000000068" y="-278.5" />
       <point x="1020.6866652983033" y="3150.0" />
       <point x="1083.2696702244116" y="3150.0" />
@@ -128,7 +128,7 @@
       <point x="1085.5342843459223" y="2554.0" />
       <point x="0.0" y="394.5" />
     </edge>
-    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.MCL.LocalizationProviderImplMCL">
+    <edge source="ki.robotics.client.GUI" target="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL">
       <point x="39.33333333333337" y="-17.0" />
       <point x="869.4836617405583" y="2804.0" />
       <point x="909.6696702244114" y="2804.0" />
@@ -136,7 +136,7 @@
       <point x="960.3995176518882" y="1720.0" />
       <point x="-79.85714285714289" y="395.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplTerminal" target="ki.robotics.client.communication.ComController">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplTerminal" target="ki.robotics.client.communication.ClientComControllerroller">
       <point x="-109.58333333333348" y="-96.0" />
       <point x="450.324846059113" y="3970.0" />
       <point x="0.0" y="3970.0" />
@@ -144,7 +144,7 @@
       <point x="402.8363368910782" y="2794.0" />
       <point x="-112.71428571428578" y="82.5" />
     </edge>
-    <edge source="ki.robotics.client.Main" target="ki.robotics.client.communication.ComController">
+    <edge source="ki.robotics.client.Main" target="ki.robotics.client.communication.ClientComControllerroller">
       <point x="-65.0" y="-56.5" />
       <point x="814.8456793924465" y="3792.0" />
       <point x="532.0" y="3792.0" />
@@ -152,19 +152,19 @@
       <point x="515.550622605364" y="2814.0" />
       <point x="0.0" y="82.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.Communicator" target="ki.robotics.client.communication.ComController">
+    <edge source="ki.robotics.client.communication.ClientCommunicator" target="ki.robotics.client.communication.ClientComControllerroller">
       <point x="127.75" y="-148.0" />
       <point x="393.75" y="2814.0" />
       <point x="477.9791940339355" y="2814.0" />
       <point x="-37.57142857142844" y="82.5" />
     </edge>
-    <edge source="ki.robotics.client.GUI.Configuration" target="ki.robotics.client.MCL.LocalizationProviderImplMCL">
+    <edge source="ki.robotics.client.GUI.GuiConfiguration" target="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL">
       <point x="-93.66666666666674" y="-394.5" />
       <point x="991.8676176792557" y="1720.0" />
       <point x="1040.2566605090312" y="1720.0" />
       <point x="0.0" y="395.5" />
     </edge>
-    <edge source="ki.robotics.client.Main" target="ki.robotics.client.communication.ComControllerImplTerminal">
+    <edge source="ki.robotics.client.Main" target="ki.robotics.client.communication.ClientComControllerImplTerminal">
       <point x="48.75" y="56.5" />
       <point x="928.5956793924465" y="3960.0" />
       <point x="625.6581793924465" y="3960.0" />
@@ -183,13 +183,13 @@
       <point x="785.5392172961137" y="598.0" />
       <point x="-64.5" y="-0.0" />
     </edge>
-    <edge source="ki.robotics.client.Main" target="ki.robotics.client.communication.ComControllerImplGUI">
+    <edge source="ki.robotics.client.Main" target="ki.robotics.client.communication.ClientComControllerImplGUI">
       <point x="0.0" y="-56.5" />
       <point x="879.8456793924465" y="3792.0" />
       <point x="859.8866652983032" y="3792.0" />
       <point x="-134.0" y="278.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplTerminal" target="ki.robotics.client.GUI.Configuration">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplTerminal" target="ki.robotics.client.GUI.GuiConfiguration">
       <point x="109.58333333333326" y="-96.0" />
       <point x="669.4915127257798" y="3970.0" />
       <point x="1406.0079365079364" y="3970.0" />
@@ -197,13 +197,13 @@
       <point x="1197.9342843459226" y="2554.0" />
       <point x="112.40000000000012" y="394.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplGUI" target="ki.robotics.client.communication.Communicator">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.communication.ClientCommunicator">
       <point x="-241.20000000000005" y="-278.5" />
       <point x="752.6866652983032" y="3190.0" />
       <point x="329.875" y="3190.0" />
       <point x="63.875" y="148.0" />
     </edge>
-    <edge source="ki.robotics.client.communication.ComControllerImplTerminal" target="ki.robotics.client.communication.Communicator">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplTerminal" target="ki.robotics.client.communication.ClientCommunicator">
       <point x="-65.75" y="-96.0" />
       <point x="494.15817939244647" y="3960.0" />
       <point x="187.9613368910783" y="3960.0" />
