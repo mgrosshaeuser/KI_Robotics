@@ -48,7 +48,7 @@ class SVGParser {
             parseNodes(documentRoot.getChildNodes());
         }
 
-        map = new MapImpl(lines, rectangles, circles);
+        map = new MapImpl(file.getName(), lines, rectangles, circles);
         map.setHeight(mapHeight);
         map.setWidth(mapWidth);
     }

@@ -7,11 +7,10 @@ import java.net.InetAddress;
 /**
  * Main class of the Control-Communicator. Host and port are specified.
  *
- * @version 1.0, 12/26/17
  */
 public class Main {
-    public static final String HOST;
-    public static final int PORT = 9999;
+    private static final String HOST;
+    private static final int PORT = 9999;
 
     static {
         int twoSecondTimeout = 2000;
@@ -30,17 +29,18 @@ public class Main {
         }
         HOST = hostToSet;
     }
+
+
     /**
      * Program-Initialization and start of a Communicator.
      *
-     * @param args
+     * @param args  String-argument to choose between graphical- and terminal-client
      */
     public static void main(String[] args) {
         if (args.length >= 1 && args[0].equals("terminal")) {
-            ComController comController = new ComControllerImplTerminal();
-            comController.start(null);
+            ClientFactory.createNewTerminalClient(HOST, PORT);
         } else {
-            ComController comController = new ComControllerImplGUI();
+            ClientFactory.createNewGraphicalClient(HOST, PORT);
         }
     }
 }

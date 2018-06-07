@@ -5,162 +5,60 @@ import ki.robotics.utility.pixyCam.DTOColorCodeQuery;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 
-/**
- * A simple 'book-keeping'-class for the sensor-feedback from the robot.
- *
- * @version 1.0 01/02/18
- */
-public class SensorModel {
+import java.io.Serializable;
 
-    private double distanceToLeft;
-    private double distanceToCenter;
-    private double distanceToRight;
-    private int color;
-    private double sensorHeadPosition;
+public interface SensorModel extends Serializable {
+    SensorModel getClone();
 
-    private DTOGeneralQuery generalQuery;
-    private DTOAngleQuery angleQuery;
-    private DTOColorCodeQuery colorCodeQuery;
-    private DTOSignatureQuery unspecifiedSignatureQuery;
-    private DTOSignatureQuery signatureQuery1;
-    private DTOSignatureQuery signatureQuery2;
-    private DTOSignatureQuery signatureQuery3;
-    private DTOSignatureQuery signatureQuery4;
-    private DTOSignatureQuery signatureQuery5;
-    private DTOSignatureQuery signatureQuery6;
-    private DTOSignatureQuery signatureQuery7;
+    double[] getAllDistances();
 
+    double getDistanceToLeft();
 
-    public double[] getAllDistances() {
-        return new double[]{distanceToLeft, distanceToCenter, distanceToRight};
-    }
+    void setDistanceToLeft(double distanceToLeft);
 
-    public double getDistanceToLeft() {
-        return distanceToLeft;
-    }
+    double getDistanceToCenter();
 
-    public void setDistanceToLeft(double distanceToLeft) {
-        this.distanceToLeft = distanceToLeft;
-    }
+    void setDistanceToCenter(double distanceToCenter);
 
-    public double getDistanceToCenter() {
-        return distanceToCenter;
-    }
+    double getDistanceToRight();
 
-    public void setDistanceToCenter(double distanceToCenter) {
-        this.distanceToCenter = distanceToCenter;
-    }
+    void setDistanceToRight(double distanceToRight);
 
-    public double getDistanceToRight() {
-        return distanceToRight;
-    }
+    int getColor();
 
-    public void setDistanceToRight(double distanceToRight) {
-        this.distanceToRight = distanceToRight;
-    }
+    void setColor(int color);
 
-    public int getColor() {
-        return color;
-    }
+    double getSensorHeadPosition();
 
-    public void setColor(int color) {
-        this.color = color;
-    }
+    void setSensorHeadPosition(double sensorHeadPosition);
 
-    public double getSensorHeadPosition() {
-        return sensorHeadPosition;
-    }
+    DTOGeneralQuery getGeneralQuery();
 
-    public void setSensorHeadPosition(double sensorHeadPosition) {
-        this.sensorHeadPosition = sensorHeadPosition%360;
-    }
+    void setGeneralQuery(DTOGeneralQuery generalQuery);
 
+    DTOAngleQuery getAngleQuery();
 
+    void setAngleQuery(DTOAngleQuery angleQuery);
 
-    public DTOGeneralQuery getGeneralQuery() {
-        return generalQuery;
-    }
+    DTOColorCodeQuery getColorCodeQuery();
 
-    public void setGeneralQuery(DTOGeneralQuery generalQuery) {
-        this.generalQuery = generalQuery;
-    }
+    void setColorCodeQuery(DTOColorCodeQuery colorCodeQuery);
 
-    public DTOAngleQuery getAngleQuery() {
-        return angleQuery;
-    }
+    DTOSignatureQuery getUnspecifiedSignatureQuery();
 
-    public void setAngleQuery(DTOAngleQuery angleQuery) {
-        this.angleQuery = angleQuery;
-    }
+    void setSignatureQuery(DTOSignatureQuery signatureQuery);
 
+    DTOSignatureQuery getSignatureQuery1();
 
-    public DTOColorCodeQuery getColorCodeQuery() {
-        return colorCodeQuery;
-    }
+    DTOSignatureQuery getSignatureQuery2();
 
-    public void setColorCodeQuery(DTOColorCodeQuery colorCodeQuery) {
-        this.colorCodeQuery = colorCodeQuery;
-    }
+    DTOSignatureQuery getSignatureQuery3();
 
-    public DTOSignatureQuery getUnspecifiedSignatureQuery() {
-        return unspecifiedSignatureQuery;
-    }
+    DTOSignatureQuery getSignatureQuery4();
 
-    public void setSignatureQuery(DTOSignatureQuery signatureQuery) {
-        switch (signatureQuery.getSignature()) {
-            case 1:
-                this.signatureQuery1 = signatureQuery;
-                break;
-            case 2:
-                this.signatureQuery2 = signatureQuery;
-                break;
-            case 3:
-                this.signatureQuery3 = signatureQuery;
-                break;
-            case 4:
-                this.signatureQuery4 = signatureQuery;
-                break;
-            case 5:
-                this.signatureQuery5 = signatureQuery;
-                break;
-            case 6:
-                this.signatureQuery6 = signatureQuery;
-                break;
-            case 7:
-                this.signatureQuery7 = signatureQuery;
-                break;
-            default:
-                this.unspecifiedSignatureQuery = signatureQuery;
-                break;
+    DTOSignatureQuery getSignatureQuery5();
 
-        }
-    }
+    DTOSignatureQuery getSignatureQuery6();
 
-    public DTOSignatureQuery getSignatureQuery1() {
-        return signatureQuery1;
-    }
-
-    public DTOSignatureQuery getSignatureQuery2() {
-        return signatureQuery2;
-    }
-
-    public DTOSignatureQuery getSignatureQuery3() {
-        return signatureQuery3;
-    }
-
-    public DTOSignatureQuery getSignatureQuery4() {
-        return signatureQuery4;
-    }
-
-    public DTOSignatureQuery getSignatureQuery5() {
-        return signatureQuery5;
-    }
-
-    public DTOSignatureQuery getSignatureQuery6() {
-        return signatureQuery6;
-    }
-
-    public DTOSignatureQuery getSignatureQuery7() {
-        return signatureQuery7;
-    }
+    DTOSignatureQuery getSignatureQuery7();
 }

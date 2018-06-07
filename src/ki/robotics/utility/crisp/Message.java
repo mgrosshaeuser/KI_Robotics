@@ -45,10 +45,10 @@ public class Message<T> {
                 }
                 return new Message<>(mnemonic, doubleParameters);
             } catch (Exception e1) {
-                return new Message<>(CRISP.UNSUPPORTED_INSTRUCTION);
+                return new Message<>(CRISP.UNSUPPORTED_INSTRUCTION,0);
             }
         } catch (Exception e) {
-            return new Message<>(CRISP.UNSUPPORTED_INSTRUCTION);
+            return new Message<>(CRISP.UNSUPPORTED_INSTRUCTION,0);
         }
     }
 
