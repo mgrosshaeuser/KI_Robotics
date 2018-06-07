@@ -1,4 +1,4 @@
-package ki.robotics.client;
+package ki.robotics.client.MCL;
 
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
 import ki.robotics.utility.pixyCam.DTOColorCodeQuery;

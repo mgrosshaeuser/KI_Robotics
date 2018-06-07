@@ -2,7 +2,7 @@ package ki.robotics.client.MCL.impl;
 
 import ki.robotics.client.GUI.GuiConfiguration;
 import ki.robotics.client.MCL.WorldState;
-import ki.robotics.client.SensorModel;
+import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.map.Map;
 
 import java.util.ArrayList;

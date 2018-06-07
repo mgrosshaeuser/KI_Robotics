@@ -11,10 +11,8 @@ import java.net.SocketTimeoutException;
 
 /**
  * Communication-Instance for the Server-Side (e.g. the robot or a simulation).
- *
- * @version 1.1, 12/28/17
  */
-public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
+public class ServerCommunicatorImpl implements ServerCommunicator {
 
     private static final int TIMEOUT = 0;
 
@@ -22,7 +20,7 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
     private ServerSocket server;
     private Socket client;
 
-    private final ServerComController controller;
+    private ServerComControllerImpl controller;
 
     private boolean stayOnline;
     private boolean stayConnected;
@@ -32,13 +30,21 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
      * Constructor.
      *
      * @param port          The port to open for incoming connection-requests.
-     * @param isSimulation  Boolean value to decide whether to use a physical or simulated robot.
      */
-    public ServerCommunicatorImplCommunicator(int port, boolean isSimulation) {
+    public ServerCommunicatorImpl(int port) {
         this.port = port;
-        this.controller = new ServerComController(isSimulation, this);
     }
 
+
+    /**
+     * Registers a communication-controller as an intermediate between communicator and robot.
+     *
+     * @param comController A communication-controller
+     */
+    @Override
+    public void registerComController(ServerComControllerImpl comController) {
+        this.controller = comController;
+    }
 
 
     /**
@@ -68,6 +74,12 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
 	}
 
 
+    /**
+     * Creates a new server-socket.
+     *
+     * @param port      Port for the socket
+     * @throws IOException
+     */
 	private void createSockets(int port) throws IOException {
         server = new ServerSocket(port);
         client = server.accept();
@@ -76,6 +88,14 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
         client.setTcpNoDelay(true);
     }
 
+
+    /**
+     * Handles ongoing communication by reading transmissions from the input-stream and forwarding them to
+     * the communication-controller (instance of ServerComController).
+     *
+     * @param in    The BufferedReader for the input-stream
+     * @throws IOException
+     */
     private void handleOngoingCommunication(BufferedReader in) throws IOException {
         String request;
         do {
@@ -87,6 +107,14 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
         } while (stayConnected);
     }
 
+
+    /**
+     * Resets the output-stream known to the communication-controller to null and closes the server-side.
+     *
+     * @param in    The BufferedReader for the input-stream.
+     * @param out   The PrintWriter for the ouput-stream.
+     * @throws IOException
+     */
     private void tearDownConnection(BufferedReader in, PrintWriter out) throws IOException {
         controller.registerOutputStream(null);
         out.close();
@@ -97,7 +125,7 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
 
 
     /**
-     * Allows the robot to disconnect from the client over a detour over the Main-class.
+     * Allows the robot to disconnect from the client over a detour over its communication-controller.
      */
 	@Override
     public void disconnect() {
@@ -107,7 +135,7 @@ public class ServerCommunicatorImplCommunicator implements ServerCommunicator {
 
 
     /**
-     * Allows the robot to shutdown the server over a detour over the Main-class.
+     * Allows the robot to shutdown the server over a detour over its communication-controller.
      */
 	@Override
     public void shutdown() {

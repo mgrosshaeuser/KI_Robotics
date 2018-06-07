@@ -1,5 +1,6 @@
 package ki.robotics.server.robots.simulation;
 
+import ki.robotics.server.ServerFactory;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapPanel;
 import ki.robotics.utility.map.MapProvider;
@@ -7,6 +8,9 @@ import ki.robotics.utility.map.MapProvider;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * The view of the simulation.
+ */
 class SimulationView extends JFrame {
     private static final String WINDOW_TITLE = "Simulated Rover";
     private static final int WINDOW_WIDTH = 800;
@@ -20,28 +24,48 @@ class SimulationView extends JFrame {
 
 
     /**
-     * Constructor.
+     * Constructor
      *
+     * @param controller    The GUI-controller
+     * @param model     The GUI-(data-)model
      */
     SimulationView(SimulationController controller, SimulationModel model) {
         this.controller = controller;
         this.model = model;
-        this.setTitle(WINDOW_TITLE);
-        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.setLayout(new BorderLayout());
         this.controlPanel = new ControlPanel();
-        add(controlPanel, BorderLayout.PAGE_START);
         this.mapOverlay = new MapOverlay(this.model.getMap());
-        add(mapOverlay, BorderLayout.CENTER);
+        initializeWindow();
         this.setVisible(true);
     }
 
 
+    /**
+     * Initializes the window.
+     */
+    private void initializeWindow() {
+        this.setTitle(WINDOW_TITLE);
+        this.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.setLayout(new BorderLayout());
+        add(controlPanel, BorderLayout.PAGE_START);
+        add(mapOverlay, BorderLayout.CENTER);
+    }
+
+
+    /**
+     * Returns a reference to the map-overlay.
+     *
+     * @return  A reference to the map-overlay
+     */
     MapOverlay getMapOverlay() {
         return mapOverlay;
     }
 
+
+    /**
+     * Returns a reference to the control-panel.
+     * @return  A reference to the control-panel
+     */
     ControlPanel getControlPanel() {
         return this.controlPanel;
     }
@@ -57,11 +81,10 @@ class SimulationView extends JFrame {
         private final MapProvider mapProvider;
 
         private JComboBox maps;
+        private final String[] mapKeys;
+
         private JButton lockButton;
         private JLabel headingLabel;
-
-
-        private final String[] mapkeys;
 
 
         /**
@@ -69,9 +92,9 @@ class SimulationView extends JFrame {
          *
          */
         ControlPanel() {
-            this.mapProvider = MapProvider.getInstance();
+            this.mapProvider = ServerFactory.getMapProvider();
             this.setLayout(new FlowLayout());
-            this.mapkeys = mapProvider.getMapKeys();
+            this.mapKeys = mapProvider.getMapKeys();
             addMapSelectionToUI();
             addBotInitPositionChooseToUI();
             addControlElementsToUI();
@@ -79,14 +102,14 @@ class SimulationView extends JFrame {
 
 
         /**
-         * Adds gui-elements for map-selection to the gui.
+         * Adds GUI-elements for map-selection to the gui.
          */
         private void addMapSelectionToUI() {
             JPanel mapSelectionContainer = new JPanel();
             mapSelectionContainer.setLayout(new BorderLayout());
             JLabel mapLabel = new JLabel("Select Map");
 
-            maps = new JComboBox(mapkeys);
+            maps = new JComboBox<>(mapKeys);
             maps.setSelectedIndex(0);
             maps.addActionListener(controller.new MapSelectionActionListener());
 
@@ -134,14 +157,24 @@ class SimulationView extends JFrame {
         }
 
 
+        /**
+         *  Allows the heading-slider-ChangeListener to change the label-text to the new value.
+         *
+         * @param text  The new text for the heading-label (new heading-value)
+         */
         void updateHeadingLabel(String text) {
             headingLabel.setText(text);
         }
 
+
+        /**
+         * Allows the lock-button-ActionListener to change the text of the lock-button.
+         *
+         * @param text  The new text for the lock-button
+         */
         void updateLockButtonTest(String text) {
             lockButton.setText(text);
         }
-
     }
 
 
@@ -149,7 +182,7 @@ class SimulationView extends JFrame {
 
 
     /**
-     * Specialization of the MapOverlay for the simulation.
+     * Specialization of the MapPanel for the simulation.
      */
     class MapOverlay extends MapPanel {
         private final Rover rover;
@@ -167,16 +200,27 @@ class SimulationView extends JFrame {
             this.addMouseMotionListener(controller.new RoverDraggedMouseMotionListener());
         }
 
+
+        /**
+         * Opens a new window for the user to input new robot-coordinates.
+         */
         void userCoordinateInput() {
             new CoordinateInput(this);
         }
 
+
+        /**
+         * Returns a reference to the simulated robot.
+         *
+         * @return  A reference to the simulated robot
+         */
         Rover getRover() {
             return this.rover;
         }
 
+
         /**
-         * Paints the simulated robot. The map is already painted by the super-class.
+         * Paints the map-overlay (essentially the robot). The map is already painted by the super-class.
          *
          * @param g     The graphical context.
          */
@@ -189,16 +233,21 @@ class SimulationView extends JFrame {
         }
 
 
+
+
+
         /**
          * Allows precise specification of the robot-coordinates.
          */
         class CoordinateInput extends JFrame {
-            private final JTextField xInput = new JTextField(10);
-            private final JTextField yInput = new JTextField(10);
+            final JTextField xInput = new JTextField(10);
+            final JTextField yInput = new JTextField(10);
             private final JButton okButton = new JButton("OK");
 
             /**
              * Constructor.
+             *
+             * @param parent The parent-component (of type MapOverlay)
              */
             CoordinateInput(MapOverlay parent) {
                 this.setTitle("Insert Robot-Coordinates");
@@ -207,7 +256,8 @@ class SimulationView extends JFrame {
                 this.setLayout(new FlowLayout());
                 this.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
                 this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-                initializeElements();
+                addGuiElements();
+                this.setResizable(false);
                 this.setVisible(true);
             }
 
@@ -215,47 +265,64 @@ class SimulationView extends JFrame {
             /**
              * Adds the gui-elements to the dialog.
              */
-            private void initializeElements() {
-                JPanel window = new JPanel();
-                window.setLayout(new BorderLayout());
+            private void addGuiElements() {
+                JPanel window = new JPanel(new BorderLayout());
 
-                JPanel panel = new JPanel();
-                panel.setLayout(new GridLayout(2,2));
-
-                JLabel xLabel = new JLabel("x-Value: ");
-                xLabel.setLabelFor(xInput);
-                JLabel yLabel = new JLabel("y-Value: ");
-                yLabel.setLabelFor(yInput);
-
-                xInput.setText("" + Math.round(model.getPose().getX()));
-                xInput.addFocusListener(controller.new UserXCoordinateInputFocusListener());
-                yInput.setText("" + Math.round(model.getPose().getY()));
-                yInput.addFocusListener(controller.new UserYCoordinateInputFocusListener());
-
-                panel.add(xLabel);
-                panel.add(xInput);
-                panel.add(yLabel);
-                panel.add(yInput);
-                window.add(panel, BorderLayout.CENTER);
+                JPanel inputElements = createCoordinateInputPanel();
+                window.add(inputElements, BorderLayout.CENTER);
 
                 okButton.addActionListener(controller.new UserCoordinateInputOKButtonActionListener(this));
-
-                window.add(okButton, BorderLayout.PAGE_END);
-                window.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
-                yInput.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
-                xInput.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
                 okButton.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
-                add(window);
+                window.add(okButton, BorderLayout.PAGE_END);
+
+                window.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
+                this.add(window);
             }
 
 
-            String getXInput() {
-                return xInput.getText();
+            /**
+             * Returns a JPanel holding the input-elements for horizontal and vertical coordinates.
+             *
+             * @return  A JPanel holding the input-elements for horizontal and vertical coordinates
+             */
+            private JPanel createCoordinateInputPanel() {
+                JPanel panel = new JPanel();
+                panel.setLayout(new GridLayout(2,2));
+                addVerticalCoordinateInputElementsToPanel(panel);
+                addHorizontalCoordinateInputElementsToPanel(panel);
+                return panel;
             }
 
 
-            String getYInput() {
-                return yInput.getText();
+            /**
+             * Adds the input-elements for vertical coordinates to the given panel.
+             *
+             * @param panel The panel (of type JPanel)
+             */
+            private void addVerticalCoordinateInputElementsToPanel(JPanel panel) {
+                JLabel xLabel = new JLabel("x-Value: ");
+                xLabel.setLabelFor(xInput);
+                xInput.setText("" + Math.round(model.getPose().getX()));
+                xInput.addFocusListener(controller.new UserXCoordinateInputFocusListener());
+                xInput.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
+                panel.add(xLabel);
+                panel.add(xInput);
+            }
+
+
+            /**
+             * Adds the input-elements for horizontal coordinates to the given panel.
+             *
+             * @param panel The panel (of type JPanel)
+             */
+            private void addHorizontalCoordinateInputElementsToPanel(JPanel panel) {
+                JLabel yLabel = new JLabel("y-Value: ");
+                yLabel.setLabelFor(yInput);
+                yInput.setText("" + Math.round(model.getPose().getY()));
+                yInput.addFocusListener(controller.new UserYCoordinateInputFocusListener());
+                yInput.addKeyListener(controller.new UserCoordinateInputEnterKeyListener(this));
+                panel.add(yLabel);
+                panel.add(yInput);
             }
         }
     }
@@ -275,6 +342,7 @@ class SimulationView extends JFrame {
 
         private final MapOverlay window;
 
+
         /**
          * Constructor.
          *
@@ -283,6 +351,7 @@ class SimulationView extends JFrame {
         Rover(MapOverlay window) {
             this.window = window;
         }
+
 
         /**
          * Paints the robot.
@@ -345,7 +414,7 @@ class SimulationView extends JFrame {
             g2d.fillArc(botX, botY, botDia, botDia, startAngle, arcAngle );
 
             g2d.setColor(Color.BLACK);
-            g2d.drawString("RobotImplSojourner:",10,20);
+            g2d.drawString("Sojourner:",10,20);
             g2d.drawString("X: " + String.valueOf(model.getPose().getX()), 10,40);
             g2d.drawString("Y: " + String.valueOf(model.getPose().getY()), 10,55);
             g2d.drawString("H: " + String.valueOf(model.getPose().getHeading()), 10, 70);

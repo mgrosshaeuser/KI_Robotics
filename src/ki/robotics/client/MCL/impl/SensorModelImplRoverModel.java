@@ -1,5 +1,6 @@
-package ki.robotics.client;
+package ki.robotics.client.MCL.impl;
 
+import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.pixyCam.DTOAngleQuery;
 import ki.robotics.utility.pixyCam.DTOColorCodeQuery;
 import ki.robotics.utility.pixyCam.DTOGeneralQuery;
@@ -9,7 +10,7 @@ import ki.robotics.utility.pixyCam.DTOSignatureQuery;
  * A simple 'book-keeping'-class for the sensor-feedback from the robot.
  *
  */
-class SensorModelImplRoverModel implements SensorModel {
+public class SensorModelImplRoverModel implements SensorModel {
 
     private double distanceToLeft;
     private double distanceToCenter;

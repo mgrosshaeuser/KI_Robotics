@@ -1,5 +1,6 @@
 package ki.robotics.client.communication;
 
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -18,11 +19,12 @@ import static ki.robotics.utility.crisp.CRISP.END_OF_INSTRUCTION_SEQUENCE;
 final class ClientCommunicator implements Runnable{
     private static final int TRANSMISSION_TIMEOUT = 0;
 
+    static volatile boolean running = true;
+
     private final String host;
     private final int port;
     private final ClientComController clientComController;
 
-    static volatile boolean running = true;
 
 
     /**

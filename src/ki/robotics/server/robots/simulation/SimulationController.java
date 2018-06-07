@@ -1,50 +1,49 @@
 package ki.robotics.server.robots.simulation;
 
-import ki.robotics.utility.map.Map;
-import lejos.robotics.navigation.Pose;
-
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * The controller for the simulation.
+ */
 class SimulationController {
     private final SimulationModel model;
     private final SimulationView view;
 
 
+    /**
+     * Constructor.
+     */
     SimulationController() {
         this.model = new SimulationModel();
         this.view = new SimulationView(this, model);
     }
 
-    Pose getPose() {
-        return model.getPose();
-    }
 
-    int getSensorHeadPosition() {
-        return model.getSensorHeadPosition();
-    }
-
-    void setSensorHeadPosition(int sensorHeadPosition) {
-        this.model.setSensorHeadPosition(sensorHeadPosition);
-    }
-
-    Map getMap() {
-        return model.getMap();
-    }
-
-    void setMap(Map map) {
-        this.model.setMap(map);
+    /**
+     * Returns the simulation-(data-)model.
+     *
+     * @return  The simulation-(data-)model
+     */
+    SimulationModel getModel() {
+        return this.model;
     }
 
 
+    /**
+     * Repaints the associated view.
+     */
     void repaintWindow() {
         view.repaint();
     }
 
 
+    /**
+     * Listener for the action: User selects map from JComboBox.
+     */
     class MapSelectionActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -59,6 +58,9 @@ class SimulationController {
     }
 
 
+    /**
+     * Listener for the action: User changes heading of the robot by moving the JSlider.
+     */
     class HeadingSliderChangeListener implements ChangeListener {
         @Override
         public void stateChanged(ChangeEvent e) {
@@ -72,6 +74,9 @@ class SimulationController {
     }
 
 
+    /**
+     * Listener for the action: User clicks Lock-button to lock the GUI (prevent changes to configuration)
+     */
     class LockButtonActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -89,6 +94,9 @@ class SimulationController {
     }
 
 
+    /**
+     * Listener for the action: User clicks on map to enter coordinates for the robot.
+     */
     class MapOverlayClickedMouseListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
@@ -100,6 +108,10 @@ class SimulationController {
         }
     }
 
+
+    /**
+     * Listener for the action: User moves the robot by mouse-dragging.
+     */
     class RoverDraggedMouseMotionListener extends MouseMotionAdapter {
         @Override
         public void mouseDragged(MouseEvent e) {
@@ -119,6 +131,11 @@ class SimulationController {
         }
     }
 
+
+    /**
+     * Listener for the action: User sets cursor to the X-coordinate input JTextField
+     * (in the robot-coordinate input sub-panel)
+     */
     class UserXCoordinateInputFocusListener extends FocusAdapter {
         @Override
         public void focusGained(FocusEvent e) {
@@ -127,6 +144,11 @@ class SimulationController {
         }
     }
 
+
+    /**
+     * Listener for the action: User sets cursor to the Y-coordinate input JTextField
+     * (in the robot-coordinate input sub-panel).
+     */
     class UserYCoordinateInputFocusListener extends FocusAdapter {
         @Override
         public void focusGained(FocusEvent e) {
@@ -135,6 +157,10 @@ class SimulationController {
         }
     }
 
+
+    /**
+     * Listener for the action: User clicks OK-button of the robot-coordinate input sub-panel.
+     */
     class UserCoordinateInputOKButtonActionListener implements ActionListener {
         private final SimulationView.MapOverlay.CoordinateInput dialog;
 
@@ -144,8 +170,8 @@ class SimulationController {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                int xVal = Integer.parseInt(dialog.getXInput());
-                int yVal = Integer.parseInt(dialog.getYInput());
+                int xVal = Integer.parseInt(dialog.xInput.getText());
+                int yVal = Integer.parseInt(dialog.yInput.getText());
                 model.getPose().setLocation(xVal, yVal);
             } catch (NumberFormatException ignored) {
             }
@@ -155,6 +181,10 @@ class SimulationController {
     }
 
 
+    /**
+     * Listener for the action: User hits ENTER while any of the elements of the robot-coordinate input
+     * sub-panel has the focus.
+     */
     class UserCoordinateInputEnterKeyListener extends KeyAdapter {
         private final SimulationView.MapOverlay.CoordinateInput dialog;
 
@@ -167,8 +197,8 @@ class SimulationController {
             super.keyReleased(e);
             if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                 try {
-                    int xVal = Integer.parseInt(dialog.getXInput());
-                    int yVal = Integer.parseInt(dialog.getYInput());
+                    int xVal = Integer.parseInt(dialog.xInput.getText());
+                    int yVal = Integer.parseInt(dialog.yInput.getText());
                     model.getPose().setLocation(xVal, yVal);
                 } catch (NumberFormatException ignored) {
 

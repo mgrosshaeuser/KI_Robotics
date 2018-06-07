@@ -1,9 +1,6 @@
 package ki.robotics.client;
 
 
-import ki.robotics.client.communication.ClientComController;
-
-
 import java.io.IOException;
 import java.net.InetAddress;
 
@@ -12,8 +9,8 @@ import java.net.InetAddress;
  *
  */
 public class Main {
-    public static final String HOST;
-    public static final int PORT = 9999;
+    private static final String HOST;
+    private static final int PORT = 9999;
 
     static {
         int twoSecondTimeout = 2000;
@@ -41,10 +38,9 @@ public class Main {
      */
     public static void main(String[] args) {
         if (args.length >= 1 && args[0].equals("terminal")) {
-            ClientComController clientComController = ClientFactory.createNewTerminalClient();
-            clientComController.start();
+            ClientFactory.createNewTerminalClient(HOST, PORT);
         } else {
-            ClientComController clientComController = ClientFactory.createNewGraphicalClient();
+            ClientFactory.createNewGraphicalClient(HOST, PORT);
         }
     }
 }

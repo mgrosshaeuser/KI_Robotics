@@ -4,7 +4,7 @@
   <OriginalElement>ki.robotics.client</OriginalElement>
   <nodes>
     <node x="384.05062260536397" y="2579.0">ki.robotics.client.communication.ClientComControllerroller</node>
-    <node x="1140.256660509031" y="347.0">ki.robotics.client.SensorModel</node>
+    <node x="1140.256660509031" y="347.0">ki.robotics.client.MCL.SensorModel</node>
     <node x="815.5392172961137" y="581.0">ki.robotics.robot</node>
     <node x="782.3456793924465" y="3817.0">ki.robotics.client.Main</node>
     <node x="725.8866652983032" y="3210.0">ki.robotics.client.communication.ClientComControllerImplGUI</node>
@@ -67,7 +67,7 @@
       <point x="1085.5342843459223" y="1720.0" />
       <point x="0.0" y="-394.5" />
     </edge>
-    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.SensorModel">
+    <edge source="ki.robotics.client.communication.ClientComControllerImplGUI" target="ki.robotics.client.MCL.SensorModel">
       <point x="187.60000000000005" y="-278.5" />
       <point x="1181.4866652983033" y="3180.0" />
       <point x="1384.0079365079364" y="3180.0" />
@@ -93,7 +93,7 @@
       <point x="944.8456793924465" y="3792.0" />
       <point x="65.0" y="-56.5" />
     </edge>
-    <edge source="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL" target="ki.robotics.client.SensorModel">
+    <edge source="ki.robotics.client.MCL.impl.LocalizationProviderImplMCL" target="ki.robotics.client.MCL.SensorModel">
       <point x="209.625" y="-395.5" />
       <point x="1249.881660509031" y="879.0" />
       <point x="1203.5899938423645" y="879.0" />

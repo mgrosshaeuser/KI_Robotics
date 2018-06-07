@@ -1,7 +1,5 @@
 package ki.robotics.client.MCL;
 
-import ki.robotics.client.SensorModel;
-
 import java.util.ArrayList;
 
 public interface LocalizationProvider <T extends Particle>{

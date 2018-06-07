@@ -22,7 +22,7 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
     private final ReplayModel replayModel;
     private final SensorModel sensorModel;
     private final CameraModel cameraModel;
-    private final MovementModel movementModel;
+    private final MotionModel motionModel;
     private final LocalizationModel localizationModel;
 
 
@@ -33,7 +33,7 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
         this.replayModel = new ReplayModel();
         this.sensorModel = new SensorModel();
         this.cameraModel = new CameraModel();
-        this.movementModel = new MovementModel(sensorModel);
+        this.motionModel = new MotionModel(sensorModel);
         this.localizationModel = new LocalizationModel(this);
     }
 
@@ -72,8 +72,8 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
      *
      * @return  A reference to the movement-sub-model
      */
-    MovementModel getMovementModel() {
-        return movementModel;
+    MotionModel getMotionModel() {
+        return motionModel;
     }
 
 
@@ -135,19 +135,19 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
     // Implementation of interface GuiConfiguration as forwarding to the movement-sub-model
 
     @Override
-    public boolean isStartFromLeft() { return movementModel.isStartFromLeft(); }
+    public boolean isStartFromLeft() { return motionModel.isStartFromLeft(); }
 
     @Override
-    public boolean isStartFromRight() { return movementModel.isStartFromRight(); }
+    public boolean isStartFromRight() { return motionModel.isStartFromRight(); }
 
     @Override
-    public void flipDirection() { movementModel.flipDirection(); }
+    public void flipDirection() { motionModel.flipDirection(); }
 
     @Override
-    public boolean isUseRightAngles() { return movementModel.isUseRightAngles(); }
+    public boolean isUseRightAngles() { return motionModel.isUseRightAngles(); }
 
     @Override
-    public boolean isUseFreeAngles() { return movementModel.isUseFreeAngles(); }
+    public boolean isUseFreeAngles() { return motionModel.isUseFreeAngles(); }
 
 
 
@@ -487,7 +487,7 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
 
 
 
-    class MovementModel {
+    class MotionModel {
         // Specific attributes for 1-D-movement.
         private boolean startFromLeft = true;
         // Specific attributes for 2-D-movement.
@@ -502,7 +502,7 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
          *
          * @param sensorModel   The sensor-sub-model.
          */
-        private MovementModel(SensorModel sensorModel) {
+        private MotionModel(SensorModel sensorModel) {
             this.sensorModel = sensorModel;
         }
 
@@ -601,7 +601,7 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
         private static final String TWO_DIMENSION_MAP_KEY = MapProvider.MAP_KEY_ROOM;
         private static final String TWO_DIMENSION_WITH_CAM_MAP_KEY = MapProvider.MAP_KEY_MARKED_ROOM;
 
-        private MapProvider mapProvider = MapProvider.getInstance();
+        private MapProvider mapProvider = ClientFactory.getMapProvider();
         private Map map;
         private String mapKey;
         private LocalizationProvider localizationProvider;

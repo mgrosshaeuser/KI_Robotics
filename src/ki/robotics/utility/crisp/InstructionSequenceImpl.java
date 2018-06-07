@@ -4,11 +4,12 @@ import java.util.ArrayList;
 
 import static ki.robotics.utility.crisp.CRISP.*;
 
-public class ResponseSequence {
+public class InstructionSequenceImpl implements InstructionSequence {
     private StringBuilder sequence = new StringBuilder();
 
 
-    public ResponseSequence perform(ArrayList<String> instructions) {
+    @Override
+    public InstructionSequence perform(ArrayList<String> instructions) {
         for (String s : instructions) {
             if (sequence.length() != 0) { sequence.append(", "); }
             sequence.append(s);
@@ -17,159 +18,179 @@ public class ResponseSequence {
     }
 
 
-    public ResponseSequence append(ResponseSequence seq) {
+    @Override
+    public InstructionSequence append(InstructionSequence seq) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(seq);
         return this;
     }
 
 
-    public ResponseSequence botTravelForward(double distance) {
+    @Override
+    public InstructionSequence botTravelForward(double distance) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TRAVEL_FORWARD).append(" ").append(distance);
         return this;
     }
 
 
-    public ResponseSequence botTravelBackward(double distance) {
+    @Override
+    public InstructionSequence botTravelBackward(double distance) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TRAVEL_BACKWARD).append(" ").append(distance);
         return this;
     }
 
 
-    public ResponseSequence botTurnLeft(double angle) {
+    @Override
+    public InstructionSequence botTurnLeft(double angle) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TURN_LEFT).append(" ").append(angle);
         return this;
     }
 
-    public ResponseSequence botTurnLeft() {
+    @Override
+    public InstructionSequence botTurnLeft() {
         return this.botTurnLeft(90);
     }
 
 
-    public ResponseSequence botTurnRight(double angle) {
+    @Override
+    public InstructionSequence botTurnRight(double angle) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_TURN_RIGHT).append(" ").append(angle);
         return this;
     }
 
-    public ResponseSequence botTurnRight() {
+    @Override
+    public InstructionSequence botTurnRight() {
         return this.botTurnRight(90);
     }
 
-    public ResponseSequence botReturnPose() {
-        return this;
-    }
 
-
-    public ResponseSequence botEnableLineFollower() {
+    @Override
+    public InstructionSequence botEnableLineFollower() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_LINE_FOLLOWING_ENABLED);
         return this;
     }
 
 
-    public ResponseSequence botDisableLineFollower() {
+    @Override
+    public InstructionSequence botDisableLineFollower() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(BOT_LINE_FOLLOWING_DISABLED);
         return this;
     }
 
 
-    public ResponseSequence sensorTurnLeft(double degree) {
+    @Override
+    public InstructionSequence sensorTurnLeft(double degree) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_TURN_LEFT).append(" ").append(degree);
         return this;
     }
 
-    public ResponseSequence sensorTurnLeft() {
+    @Override
+    public InstructionSequence sensorTurnLeft() {
         return this.sensorTurnLeft(90);
     }
 
 
-    public ResponseSequence sensorTurnRight(double degree) {
+    @Override
+    public InstructionSequence sensorTurnRight(double degree) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_TURN_RIGHT).append(" ").append(degree);
         return this;
     }
 
-    public ResponseSequence sensorTurnRight() {
+    @Override
+    public InstructionSequence sensorTurnRight() {
         return this.sensorTurnRight(90);
     }
 
 
-    public ResponseSequence sensorReset() {
+    @Override
+    public InstructionSequence sensorReset() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_RESET);
         return this;
     }
 
 
-    public ResponseSequence measureColor() {
+    @Override
+    public InstructionSequence measureColor() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_MEASURE_COLOR);
         return this;
     }
 
 
-    public ResponseSequence measureSingleDistance() {
+    @Override
+    public InstructionSequence measureSingleDistance() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_SINGLE_DISTANCE_SCAN);
         return this;
     }
 
 
-    public ResponseSequence measureAllDistances() {
+    @Override
+    public InstructionSequence measureAllDistances() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SENSOR_THREE_WAY_SCAN);
         return this;
     }
 
 
-    public ResponseSequence cameraGeneralQuery() {
+    @Override
+    public InstructionSequence cameraGeneralQuery() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(CAMERA_GENERAL_QUERY);
         return this;
     }
 
 
-    public ResponseSequence camAngleQuery() {
+    @Override
+    public InstructionSequence camAngleQuery() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(CAMERA_ANGLE_QUERY);
         return this;
     }
 
 
-    public ResponseSequence camQuerySignature(int signature) {
+    @Override
+    public InstructionSequence camQuerySignature(int signature) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(CAMERA_SINGLE_SIGNATURE_QUERY).append(" ").append(signature);
         return this;
     }
 
 
-    public ResponseSequence camQueryAllSignatures() {
+    @Override
+    public InstructionSequence camQueryAllSignatures() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(CAMERA_ALL_SIGNATURES_QUERY);
         return this;
     }
 
 
-    public ResponseSequence camQueryColorCode(int code) {
+    @Override
+    public InstructionSequence camQueryColorCode(int code) {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(CAMERA_COLOR_CODE_QUERY).append(" ").append(code);
         return this;
     }
 
 
-    public ResponseSequence shutdown() {
+    @Override
+    public InstructionSequence shutdown() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(SHUTDOWN);
         return this;
     }
 
-    public ResponseSequence disconnect() {
+    @Override
+    public InstructionSequence disconnect() {
         if (sequence.length() != 0) { sequence.append(", "); }
         sequence.append(DISCONNECT);
         return this;

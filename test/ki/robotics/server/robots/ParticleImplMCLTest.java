@@ -1,7 +1,7 @@
 package ki.robotics.server.robots;
 
+import ki.robotics.server.ServerFactory;
 import ki.robotics.utility.map.Map;
-import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -29,7 +29,7 @@ public class ParticleImplMCLTest {
 
     @DataProvider(name = "getTurnFullProvider")
     public Object[][] getTurnFullProvider() {
-        Map map = MapProvider.getInstance().getMap("Room");
+        Map map = ServerFactory.getMapProvider().getMap("Room");
         int[] headingsToTest = new int[]{0, 90, 110, 180, 202, 270, 360};
         int[] anglesToTurn = new int[]{-360, -180, -90, 0, 90, 180, 360};
 

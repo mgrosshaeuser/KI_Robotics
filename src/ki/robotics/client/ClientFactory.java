@@ -4,17 +4,43 @@ import ki.robotics.client.GUI.GuiConfiguration;
 import ki.robotics.client.GUI.impl.GuiControllerImplClientController;
 import ki.robotics.client.GUI.GuiController;
 import ki.robotics.client.MCL.LocalizationProvider;
+import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.client.MCL.impl.LocalizationProviderImplMCL;
+import ki.robotics.client.MCL.impl.SensorModelImplRoverModel;
 import ki.robotics.client.communication.ClientComController;
 import ki.robotics.client.communication.ClientComControllerImplGUI;
 import ki.robotics.client.communication.ClientComControllerImplTerminal;
+import ki.robotics.utility.UtilityFactory;
 import ki.robotics.utility.map.Map;
 
 
 /**
  * Factory class for client-side object-instantiation across packages.
  */
-public class ClientFactory {
+abstract public class ClientFactory extends UtilityFactory {
+    /**
+     * Returns a new instance of a graphical client-side communication-controller satisfying the requirements
+     * from interface ClientComController.
+     *
+     */
+    static void createNewGraphicalClient(String host, int port) {
+        ClientComControllerImplGUI controller = new ClientComControllerImplGUI(host, port);
+        controller.setSensorModel(createNewSensorModel());
+        controller.setGuiController(createNewGuiController(controller));
+    }
+
+
+    /**
+     * Returns a new instance of a terminal-based client-side communication-controller satisfying the requirements
+     * from interface ClientComController.
+     *
+     */
+    static void createNewTerminalClient(String host, int port) {
+        new ClientComControllerImplTerminal(host, port);
+    }
+
+
+
     /**
      * Returns a new instance of the a MCL-provider satisfying the requirements from interface LocalizationProvider.
      *
@@ -47,29 +73,8 @@ public class ClientFactory {
      *
      * @return A new instance of GuiControllerImplClientController as interface-type GuiController
      */
-    public static GuiController createNewGuiController(ClientComController clientComController) {
+    private static GuiController createNewGuiController(ClientComController clientComController) {
         return new GuiControllerImplClientController(clientComController);
     }
 
-
-    /**
-     * Returns a new instance of a graphical client-side communication-controller satisfying the requirements
-     * from interface ClientComController.
-     *
-     * @return A new instance of ClientComControllerImplGUI as interface-type ClientComController
-     */
-    static ClientComController createNewGraphicalClient() {
-        return new ClientComControllerImplGUI();
-    }
-
-
-    /**
-     * Returns a new instance of a terminal-based client-side communication-controller satisfying the requirements
-     * from interface ClientComController.
-     *
-     * @return A new instance of ClientComControllerImplTerminal as interface-type ClientComController
-     */
-    static ClientComController createNewTerminalClient() {
-        return new ClientComControllerImplTerminal();
-    }
 }

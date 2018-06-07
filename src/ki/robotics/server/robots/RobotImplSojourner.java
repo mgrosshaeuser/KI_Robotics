@@ -1,7 +1,6 @@
 package ki.robotics.server.robots;
 
-import ki.robotics.server.Main;
-import ki.robotics.server.Robot;
+import ki.robotics.server.communication.ServerComController;
 import ki.robotics.utility.crisp.Message;
 import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import ki.robotics.utility.pixyCam.PixyCam;
@@ -51,6 +50,10 @@ public class RobotImplSojourner implements Robot {
     private final int stepSize = 10;
     private final int distanceOnWhiteLine = 2 * deltaUSSensorAxis + stepSize;
 
+    private ServerComController comController;
+
+
+
     /**
      * Constructor.
      */
@@ -64,7 +67,6 @@ public class RobotImplSojourner implements Robot {
         pose = poseProvider.getPose();
         sensorCurrentPosition = 0;
     }
-
 
 
     /**
@@ -95,7 +97,7 @@ public class RobotImplSojourner implements Robot {
     /**
      * Returns the singleton-instance of this class.
      *
-     * @return returns singleton-instance.
+     * @return the singleton-instance of the robot
      */
     public static RobotImplSojourner getInstance() {
         return INSTANCE;
@@ -110,6 +112,12 @@ public class RobotImplSojourner implements Robot {
     //          Implementation of the methods from the Robot-interface          //
     //                                                                          //
     //////////////////////////////////////////////////////////////////////////////
+
+    @Override
+    public void registerComController(ServerComController comController) {
+        this.comController = comController;
+    }
+
 
     @Override
     public double botTravelForward(double distance) {
@@ -245,13 +253,13 @@ public class RobotImplSojourner implements Robot {
 
     @Override
     public boolean shutdown() {
-        Main.shutdown();
+        comController.shutdown();
         return false;
     }
 
     @Override
     public boolean disconnect() {
-        Main.disconnect();
+        comController.disconnect();
         return false;
     }
 
@@ -266,6 +274,11 @@ public class RobotImplSojourner implements Robot {
         this.stayOnWhiteLine = stayOnWhiteLine;
         return stayOnWhiteLine;
     }
+
+    //////////////////////////////////////////////////////////////////////////////
+
+
+
 
     /**
      * lets RobotImplSojourner end up on the line with its axis

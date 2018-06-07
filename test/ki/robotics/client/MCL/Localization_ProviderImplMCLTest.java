@@ -3,9 +3,8 @@ package ki.robotics.client.MCL;
 import ki.robotics.client.GUI.impl.GuiConfigurationImplClientModel;
 import ki.robotics.client.ClientFactory;
 import ki.robotics.client.MCL.impl.ParticleImplMCL;
-import ki.robotics.client.SensorModel;
+import ki.robotics.server.ServerFactory;
 import ki.robotics.utility.map.Map;
-import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -38,7 +37,7 @@ public class Localization_ProviderImplMCLTest {
     public Object[][] getParticleTestData() {
         int numOfParticles = 1000; //via GUI
 
-        Map map = MapProvider.getInstance().getMap("Room");
+        Map map = ServerFactory.getMapProvider().getMap("Room");
         LocalizationProvider localizationProvider = ClientFactory.createNewLocalizationProvider(map, numOfParticles, new int[] {-1, -1, -1}, new GuiConfigurationImplClientModel());
 
         SensorModel bot = ClientFactory.createNewSensorModel();

@@ -1,5 +1,6 @@
 package ki.robotics.server.robots.simulation;
 
+import ki.robotics.server.ServerFactory;
 import ki.robotics.utility.map.Map;
 import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
@@ -19,7 +20,7 @@ class SimulationModel {
         this.pose = new Pose();
         this.pose.setLocation(10,10);
         this.pose.setHeading(0);
-        this.mapProvider = MapProvider.getInstance();
+        this.mapProvider = ServerFactory.getMapProvider();
         this.map = mapProvider.getMap(DEFAULT_SELECTED_MAP);
         this.mapKeys = mapProvider.getMapKeys();
     }

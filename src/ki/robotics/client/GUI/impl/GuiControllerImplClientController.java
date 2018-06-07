@@ -1,5 +1,6 @@
 package ki.robotics.client.GUI.impl;
 
+import ki.robotics.client.ClientFactory;
 import ki.robotics.client.GUI.GuiConfiguration;
 import ki.robotics.client.GUI.GuiController;
 import ki.robotics.client.MCL.LocalizationProvider;
@@ -7,8 +8,6 @@ import ki.robotics.client.MCL.Particle;
 import ki.robotics.client.communication.ClientComController;
 import ki.robotics.client.MCL.WorldState;
 import ki.robotics.utility.map.Map;
-import ki.robotics.utility.map.MapPanel;
-import ki.robotics.utility.map.MapProvider;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
@@ -61,7 +60,7 @@ public class GuiControllerImplClientController implements GuiController {
      * Starts the localization.
      */
     private void start() {
-        int[] limitations = MapProvider.getInstance().getMapLimitations(guiModel.getMapKey());
+        int[] limitations = ClientFactory.getMapProvider().getMapLimitations(guiModel.getMapKey());
         if (guiModel.isOneDimensional()   && guiModel.isStartFromRight()) {
             limitations[2] = 180;
         }
@@ -402,7 +401,7 @@ public class GuiControllerImplClientController implements GuiController {
     public class startLineFollowingFromLeftActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            guiModel.getMovementModel().setStartFromLeft();
+            guiModel.getMotionModel().setStartFromLeft();
         }
     }
 
@@ -413,7 +412,7 @@ public class GuiControllerImplClientController implements GuiController {
     public class startLineFollowingFromRightActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            guiModel.getMovementModel().setStartFromRight();
+            guiModel.getMotionModel().setStartFromRight();
         }
     }
 
@@ -424,7 +423,7 @@ public class GuiControllerImplClientController implements GuiController {
     public class useRandomAnglesWhenTurningActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            guiModel.getMovementModel().setUseFreeAngles();
+            guiModel.getMotionModel().setUseFreeAngles();
         }
     }
 
@@ -435,7 +434,7 @@ public class GuiControllerImplClientController implements GuiController {
     public class useRightAnglesWhenTurningActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            guiModel.getMovementModel().setUseRightAngles();
+            guiModel.getMotionModel().setUseRightAngles();
         }
     }
 
@@ -623,7 +622,7 @@ public class GuiControllerImplClientController implements GuiController {
             guiModel.getReplayModel().setWorldStatesForReplay(replay);
             guiModel.getReplayModel().setReplayPointer(0);
             WorldState ws = replay.get(0);
-            Map map = MapProvider.getInstance().getMap(ws.getMapKey());
+            Map map = ClientFactory.getMapProvider().getMap(ws.getMapKey());
             guiModel.getLocalizationModel().setMap(map);
             guiView.getMapPanel().setNewMap(map);
             replayControlsSubPanel.replayButton.setEnabled(true);
@@ -642,9 +641,9 @@ public class GuiControllerImplClientController implements GuiController {
 
             ArrayList<WorldState> worldStates = new ArrayList<>();
             try {
-                FileInputStream fileOS = new FileInputStream(file);
-                ObjectInputStream objectOS = new ObjectInputStream(fileOS);
-                worldStates = (ArrayList<WorldState>) objectOS.readObject();
+                FileInputStream fileIS = new FileInputStream(file);
+                ObjectInputStream objectIS = new ObjectInputStream(fileIS);
+                worldStates = (ArrayList<WorldState>) objectIS.readObject();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -682,7 +681,7 @@ public class GuiControllerImplClientController implements GuiController {
          * @return  The click-coordinates in the map-coordinate-system, of type Point.
          */
         private Point transformClickCoordinatesToMapCoordinateSystem(MouseEvent mouseEvent) {
-            MapPanel mapPanel = guiView.getMapPanel();
+            ClientView.ClientMapPanel mapPanel = guiView.getMapPanel();
 
             int menuBarYOffset = 35;
             int yOffset = menuBarYOffset + guiView.getControlPanel().getHeight() + mapPanel.getYOffset();

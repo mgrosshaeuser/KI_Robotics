@@ -6,11 +6,9 @@ import ki.robotics.server.communication.ServerCommunicator;
 /**
  * Main class of the Server. Communication-Port is specified and an instance of the BotServer is acquired..
  *
- * @version 1.0, 12/26/17
  */
 public class Main {
     private static final int PORT = 9999;
-    private static ServerCommunicator server;
 
 
     /**
@@ -22,26 +20,8 @@ public class Main {
         if (args.length >=1) {
             isSimulation = Boolean.parseBoolean(args[0].toLowerCase());
         }
-        server = ServerFactory.createNewServerCommunicator(PORT, isSimulation);
+
+        ServerCommunicator server = ServerFactory.createNewServerCommunicator(PORT, isSimulation);
         server.powerUp();
     }
-
-
-
-    /**
-     * Allows the robot to disconnect from the client.
-     */
-    public static void disconnect() {
-        server.disconnect();
-    }
-
-
-
-    /**
-     * Allows the robot to shutdown the server.
-     */
-    public static void shutdown() {
-        server.shutdown();
-    }
-
 }

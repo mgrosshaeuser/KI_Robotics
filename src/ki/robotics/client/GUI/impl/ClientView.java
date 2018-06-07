@@ -518,7 +518,7 @@ class ClientView extends JFrame {
             ReplayControlsSubPanel() {
                 this.setLayout(new FlowLayout());
                 String files[] = getLocalizationLogFiles();
-                JComboBox fileSelection = new JComboBox(files);
+                JComboBox<String> fileSelection = new JComboBox<>(files);
                 fileSelection.addActionListener(guiController.new ReplayFileSelectionActionListener(this));
                 replayButton.addActionListener(guiController.new ReplayButtonActionListener());
                 this.addComponentListener(guiController.new ReplayControlSubPanelComponentListener());
@@ -532,19 +532,24 @@ class ClientView extends JFrame {
              * @return The names of the saved localization-files as String[]
              */
             private String[] getLocalizationLogFiles() {
-                File file = new File("./");
-                File fileList[] = file.listFiles();
-                ArrayList<String> names = new ArrayList<>();
-                for (File f : fileList) {
-                    String fileName = f.getName();
-                    if (fileName.endsWith(".log")) {
-                        fileName = fileName.replace(".log", "");
-                        names.add(fileName);
+                File defaultPath = new File("./");
+                File savedLocalizations[] = defaultPath.listFiles();
+
+                if (savedLocalizations != null) {
+                    ArrayList<String> files = new ArrayList<>();
+                    for (File f : savedLocalizations) {
+                        String fileName = f.getName();
+                        if (fileName.endsWith(".log")) {
+                            fileName = fileName.replace(".log", "");
+                            files.add(fileName);
+                        }
                     }
+                    String fileNames[] = new String[files.size()];
+                    files.toArray(fileNames);
+                    return fileNames;
                 }
-                String fileNames[] = new String[names.size()];
-                names.toArray(fileNames);
-                return fileNames;
+
+                return new String[0];
             }
         }
     }
@@ -633,10 +638,10 @@ class ClientView extends JFrame {
          * @param g The graphical context
          * @param particles A list (ArrayList) of particles
          */
-        private void paintParticles(Graphics g, ArrayList<Particle> particles) {
+        private void paintParticles(Graphics g, ArrayList<?> particles) {
             if (particles != null) {
-                for (Particle p : particles) {
-                    p.paint(g, PARTICLE_DIAMETER, getScaleFactor(), getXOffset(), getYOffset());
+                for (Object p : particles) {
+                    ((Particle)p).paint(g, PARTICLE_DIAMETER, getScaleFactor(), getXOffset(), getYOffset());
                 }
             }
         }

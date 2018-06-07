@@ -2,9 +2,8 @@ package ki.robotics.client.MCL.impl;
 
 import ki.robotics.client.ClientFactory;
 import ki.robotics.client.MCL.WorldState;
-import ki.robotics.client.SensorModel;
+import ki.robotics.client.MCL.SensorModel;
 import ki.robotics.utility.map.Map;
-import ki.robotics.utility.map.MapProvider;
 
 import java.util.ArrayList;
 
@@ -123,7 +122,7 @@ public class WorldStateImplMCL implements WorldState<ParticleImplMCL> {
     @Override
     public Map getMap() {
         if (this.map == null) {
-            this.map = MapProvider.getInstance().getMap(mapKey);
+            this.map = ClientFactory.getMapProvider().getMap(mapKey);
         }
         return this.map;
     }
