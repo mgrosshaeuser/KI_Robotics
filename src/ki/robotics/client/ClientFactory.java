@@ -13,11 +13,46 @@ import ki.robotics.client.communication.ClientComControllerImplTerminal;
 import ki.robotics.utility.UtilityFactory;
 import ki.robotics.utility.map.Map;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.Properties;
+
 
 /**
  * Factory class for client-side object-instantiation across packages.
  */
-abstract public class ClientFactory extends UtilityFactory {
+public class ClientFactory extends UtilityFactory {
+    private static Properties properties = loadProperties();
+
+    /**
+     * Loads and returns project-properties from file 'robotics.config'
+     *
+     * @return  The project-properties from file 'robotics.config
+     */
+    private static Properties loadProperties() {
+        Properties properties = new Properties();
+        try (FileInputStream in = new FileInputStream("./robotics.config")) {
+            properties.load(in);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        return properties;
+    }
+
+
+    /**
+     * Returns project-properties.
+     *
+     * @return  The project-properties
+     */
+    public static Properties getProperties() {
+        return properties;
+    }
+
+
     /**
      * Returns a new instance of a graphical client-side communication-controller satisfying the requirements
      * from interface ClientComController.

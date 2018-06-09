@@ -1,5 +1,6 @@
 package ki.robotics.client.MCL.impl;
 
+import ki.robotics.client.ClientFactory;
 import ki.robotics.client.GUI.GuiConfiguration;
 import ki.robotics.client.MCL.LocalizationProvider;
 import ki.robotics.client.MCL.SensorModel;
@@ -668,7 +669,8 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
             Calendar calendar = Calendar.getInstance();
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
             String filename = simpleDateFormat.format(calendar.getTime());
-            String file = String.valueOf(filename + ".log");
+            String path = ClientFactory.getProperties().getProperty("savedLocalizationsPath");
+            String file = path + String.valueOf(filename) + ".log";
             try (FileOutputStream fileOS = new FileOutputStream(file)) {
                 ObjectOutputStream objectOS = new ObjectOutputStream(fileOS);
                 objectOS.writeObject(mclModel.getWorldStateSequence());

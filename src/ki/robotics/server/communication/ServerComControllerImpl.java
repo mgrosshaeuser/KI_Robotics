@@ -1,5 +1,6 @@
 package ki.robotics.server.communication;
 
+import ki.robotics.server.ServerFactory;
 import ki.robotics.server.robots.Robot;
 import ki.robotics.utility.crisp.Message;
 
@@ -73,7 +74,7 @@ public class ServerComControllerImpl implements ServerComController {
             this.requestHandler = new RequestHandler(out, robot);
         }
         requestHandler.processTransmission(transmission);
-        out.println(new Message<>(END_OF_INSTRUCTION_SEQUENCE));
+        out.println(ServerFactory.createMeassage(END_OF_INSTRUCTION_SEQUENCE));
     }
 
 
@@ -103,7 +104,7 @@ public class ServerComControllerImpl implements ServerComController {
          * @param transmission  The transmission from a client
          */
         private void processTransmission(String transmission) {
-            ArrayList<Message> requests = Message.decodeTransmission(transmission);
+            ArrayList<Message> requests = ServerFactory.createMessageListFromTransmission(transmission);
             while (! requests.isEmpty()) {
                 processRequest(requests.remove(0));
             }
@@ -143,22 +144,22 @@ public class ServerComControllerImpl implements ServerComController {
             switch (instruction.getMnemonic()) {
                 case BOT_RETURN_POSE:
                     //TODO Implementation
-                    out.println(new Message<>(BOT_RETURN_POSE, 0,0,0));
+                    out.println(ServerFactory.createMessage(BOT_RETURN_POSE, 0,0,0));
                     break;
                 case BOT_LINE_FOLLOWING_ENABLED:
                     robot.setStayOnWhiteLine(true);
-                    out.println(new Message<>(BOT_LINE_FOLLOWING_ENABLED));
+                    out.println(ServerFactory.createMeassage(BOT_LINE_FOLLOWING_ENABLED));
                     break;
                 case BOT_LINE_FOLLOWING_DISABLED:
                     robot.setStayOnWhiteLine(false);
-                    out.println(new Message<>(BOT_LINE_FOLLOWING_DISABLED));
+                    out.println(ServerFactory.createMeassage(BOT_LINE_FOLLOWING_DISABLED));
                     break;
                 case BOT_TRAVEL_FORWARD:
                     botTravelForwardWithCollisionAvoidance(instruction);
                     break;
                 case BOT_TRAVEL_BACKWARD:
                     double travelledBackward = robot.botTravelBackward((double)instruction.getParameter());
-                    out.println(new Message<>(instruction.getMnemonic(), travelledBackward));
+                    out.println(ServerFactory.createMessage(instruction.getMnemonic(), travelledBackward));
                     break;
                 case BOT_TURN_LEFT:
                     robot.botTurnLeft((double)instruction.getParameter());
@@ -185,12 +186,12 @@ public class ServerComControllerImpl implements ServerComController {
         private void botTravelForwardWithCollisionAvoidance(Message instruction) {
             double travelledForward = robot.botTravelForward((double)instruction.getParameter());
             if (travelledForward < -8) { //bumper
-                out.println(new Message<>(BOT_U_TURN));
-                out.println(new Message<>(instruction.getMnemonic(), -travelledForward ));
+                out.println(ServerFactory.createMeassage(BOT_U_TURN));
+                out.println(ServerFactory.createMessage(instruction.getMnemonic(), -travelledForward ));
             }else if (travelledForward < 0 ) {
-                out.println(new Message<>(instruction.getMnemonic(), travelledForward));
+                out.println(ServerFactory.createMessage(instruction.getMnemonic(), travelledForward));
             } else {
-                out.println(new Message<>(instruction.getMnemonic(), travelledForward));
+                out.println(ServerFactory.createMessage(instruction.getMnemonic(), travelledForward));
             }
         }
 
@@ -217,15 +218,15 @@ public class ServerComControllerImpl implements ServerComController {
                     break;
                 case SENSOR_MEASURE_COLOR:
                     int color = robot.measureColor();
-                    out.println(new Message<>(SENSOR_MEASURE_COLOR, color));
+                    out.println(ServerFactory.createMessage(SENSOR_MEASURE_COLOR, color));
                     break;
                 case SENSOR_SINGLE_DISTANCE_SCAN:
                     double distance = robot.measureDistance();
-                    out.println(new Message<>(SENSOR_SINGLE_DISTANCE_SCAN, distance));
+                    out.println(ServerFactory.createMessage(SENSOR_SINGLE_DISTANCE_SCAN, distance));
                     break;
                 case SENSOR_THREE_WAY_SCAN:
                     double[] tws = robot.ultrasonicThreeWayScan();
-                    out.println(new Message<>(SENSOR_THREE_WAY_SCAN, tws[0], tws[1], tws[2]));
+                    out.println(ServerFactory.createMessage(SENSOR_THREE_WAY_SCAN, tws[0], tws[1], tws[2]));
                     break;
                 default:
                     out.println(UNSUPPORTED_INSTRUCTION);
@@ -244,16 +245,16 @@ public class ServerComControllerImpl implements ServerComController {
         private void processCameraInstruction(Message instruction) {
             switch (instruction.getMnemonic()) {
                 case CAMERA_GENERAL_QUERY:
-                    out.println(new Message<>(CAMERA_GENERAL_QUERY, robot.cameraGeneralQuery()));
+                    out.println(ServerFactory.createMessage(CAMERA_GENERAL_QUERY, robot.cameraGeneralQuery()));
                     break;
                 case CAMERA_SINGLE_SIGNATURE_QUERY:
                     int[] singleSignatureResult = robot.cameraSignatureQuery((int)instruction.getParameter());
-                    out.println(new Message<>(CAMERA_SINGLE_SIGNATURE_QUERY, singleSignatureResult));
+                    out.println(ServerFactory.createMessage(CAMERA_SINGLE_SIGNATURE_QUERY, singleSignatureResult));
                     break;
                 case CAMERA_ALL_SIGNATURES_QUERY:
                     int[][] allSignatures = robot.cameraAllSignaturesQuery();
                     for (int[] signature : allSignatures) {
-                        out.println(new Message<>(CAMERA_SINGLE_SIGNATURE_QUERY, signature));
+                        out.println(ServerFactory.createMessage(CAMERA_SINGLE_SIGNATURE_QUERY, signature));
                     }
                     break;
                 case CAMERA_COLOR_CODE_QUERY:
@@ -262,11 +263,11 @@ public class ServerComControllerImpl implements ServerComController {
                     int[] colorCodeResult = new int[colorCodeResponse.length + 1];
                     colorCodeResult[0] = colorCode;
                     System.arraycopy(colorCodeResponse, 0, colorCodeResult, 1, colorCodeResponse.length);
-                    out.println(new Message<>(CAMERA_COLOR_CODE_QUERY, colorCodeResult));
+                    out.println(ServerFactory.createMessage(CAMERA_COLOR_CODE_QUERY, colorCodeResult));
                     break;
                 case CAMERA_ANGLE_QUERY:
                     int angleResult = robot.cameraAngleQuery();
-                    out.println(new Message<>(CAMERA_ANGLE_QUERY, angleResult));
+                    out.println(ServerFactory.createMessage(CAMERA_ANGLE_QUERY, angleResult));
                     break;
                 default:
                     out.println(UNSUPPORTED_INSTRUCTION);

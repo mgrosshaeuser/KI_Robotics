@@ -417,7 +417,7 @@ public final class ClientComControllerImplGUI extends ClientComControllerImpl {
          * @param botResponse   The robot-response
          */
         private void handleResponse(String botResponse) {
-            ArrayList<Message> responses = Message.decodeTransmission(botResponse);
+            ArrayList<Message> responses = ClientFactory.createMessageListFromTransmission(botResponse);
             for (Message response : responses) {
                 switch (response.getMessageGroup()) {
                     case BOT_INSTRUCTION:

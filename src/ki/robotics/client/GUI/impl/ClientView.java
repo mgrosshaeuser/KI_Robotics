@@ -1,5 +1,6 @@
 package ki.robotics.client.GUI.impl;
 
+import ki.robotics.client.ClientFactory;
 import ki.robotics.client.MCL.LocalizationProvider;
 import ki.robotics.client.MCL.Particle;
 import ki.robotics.client.MCL.WorldState;
@@ -140,7 +141,7 @@ class ClientView extends JFrame {
         /**
          * Constructor.
          */
-        public ControlPanel() {
+        ControlPanel() {
             this.setLayout(new FlowLayout());
             this.environmentSpecificControls = createEnvironmentSpecificControls();
             this.add(environmentSpecificControls);
@@ -532,7 +533,8 @@ class ClientView extends JFrame {
              * @return The names of the saved localization-files as String[]
              */
             private String[] getLocalizationLogFiles() {
-                File defaultPath = new File("./");
+                String path = ClientFactory.getProperties().getProperty("savedLocalizationsPath");
+                File defaultPath = new File(path);
                 File savedLocalizations[] = defaultPath.listFiles();
 
                 if (savedLocalizations != null) {

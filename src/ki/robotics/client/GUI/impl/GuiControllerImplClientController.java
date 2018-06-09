@@ -636,7 +636,8 @@ public class GuiControllerImplClientController implements GuiController {
          * @return  The saved localization as list (ArrayList<WorldState>)
          */
         private ArrayList<WorldState> loadSelectedLocalizationFromFile(String filename) {
-            filename = filename + ".log";
+            String path = ClientFactory.getProperties().getProperty("savedLocalizationsPath");
+            filename = path + filename + ".log";
             File file = new File(filename);
 
             ArrayList<WorldState> worldStates = new ArrayList<>();
