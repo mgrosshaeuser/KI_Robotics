@@ -667,7 +667,7 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
          */
         void saveLocalizationSequenceToFile() {
             Calendar calendar = Calendar.getInstance();
-            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH:mm:ss");
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss");
             String filename = simpleDateFormat.format(calendar.getTime());
             String path = ClientFactory.getProperties().getProperty("savedLocalizationsPath");
             String file = path + String.valueOf(filename) + ".log";

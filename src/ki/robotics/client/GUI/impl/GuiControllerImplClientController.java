@@ -666,13 +666,25 @@ public class GuiControllerImplClientController implements GuiController {
          */
         @Override
         public void mouseClicked(MouseEvent mouseEvent) {
-            if (guiModel.getLocalizationProvider() == null)
+            if (guiModel.getLocalizationProvider() == null && !guiModel.isInReplayMode())
                 return;
-
             Point clickCoordinates = transformClickCoordinatesToMapCoordinateSystem(mouseEvent);
-            Particle selectedParticle = findClosestParticleToUserClick(clickCoordinates);
-            guiModel.getLocalizationModel().setSelectedParticle(selectedParticle);
-            guiView.refreshParticleInfo();
+            Particle selectedParticle;
+
+            if(guiModel.isInReplayMode()){
+                ArrayList<Particle> particles = guiModel.getReplayModel().getWorldStatesForReplay().get(guiModel.getReplayModel().getReplayPointer()).getParticles();
+                selectedParticle = findClosestParticleToUserClick(clickCoordinates,particles);
+                guiModel.getLocalizationModel().setSelectedParticle(selectedParticle);
+                guiView.refreshParticleInfoReplay();
+            }else{
+                ArrayList<Particle> particles = guiModel.getLocalizationProvider().getParticles();
+                selectedParticle = findClosestParticleToUserClick(clickCoordinates, particles);
+                guiModel.getLocalizationModel().setSelectedParticle(selectedParticle);
+                guiView.refreshParticleInfo2D();
+            }
+
+
+
         }
 
         /**
@@ -700,15 +712,13 @@ public class GuiControllerImplClientController implements GuiController {
          * @param clickCoordinates The coordinates of the user-click (int the map-coordinate-system!)
          * @return  The particle closest to the user-click
          */
-        private Particle findClosestParticleToUserClick(Point clickCoordinates) {
-            ArrayList<Particle> particles = guiModel.getLocalizationProvider().getParticles();
+        private Particle findClosestParticleToUserClick(Point clickCoordinates, ArrayList<Particle> particles) {
             Particle currentParticle = particles.get(0);
             for (Particle p : particles) {
                 currentParticle = chooseCloserParticleToUserClick(clickCoordinates, currentParticle, p);
             }
             return currentParticle;
         }
-
 
         /**
          * Return, of two given particles, the one that is closer to the click-coordinates.

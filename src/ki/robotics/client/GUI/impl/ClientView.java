@@ -70,8 +70,9 @@ class ClientView extends JFrame {
     /**
      * Refreshes the information about the selected particle on display.
      */
-    void refreshParticleInfo() { controlPanel.refreshParticleInfo(); }
+    void refreshParticleInfo2D() { controlPanel.refreshParticleInfo2D(); }
 
+    void refreshParticleInfoReplay() {controlPanel.refreshParticlInfoReplay();}
 
     /**
      * Creates the primary window including control- and map-panel.
@@ -153,8 +154,12 @@ class ClientView extends JFrame {
         /**
          * Refreshes the information about the selected particle on display.
          */
-        void refreshParticleInfo() {
+        void refreshParticleInfo2D() {
             twoDimensionalControlsSubPanel.refreshParticleInfo();
+        }
+
+        void refreshParticlInfoReplay(){
+            replayControlsSubPanel.refreshParticleInfo();
         }
 
 
@@ -306,7 +311,7 @@ class ClientView extends JFrame {
         /**
          * Realises the two-dimensional-tab for the environment-specific control-tabs.
          */
-        private class TwoDimensionalControlsSubPanel extends JPanel {
+        private class TwoDimensionalControlsSubPanel extends JPanel {//TODO
             private JRadioButton useRightAnglesWhenTurning = new JRadioButton("90° Angles");
             private JRadioButton useRandomAnglesWhenTurning = new JRadioButton("Free Angles");
 
@@ -512,6 +517,14 @@ class ClientView extends JFrame {
         class ReplayControlsSubPanel extends JPanel {
             JButton replayButton = new JButton("Replay");
 
+            private JLabel particleLabelInfo = new JLabel("Particle");
+            private JLabel particleLabelPoseX = new JLabel("X: ");
+            private JLabel particleLabelPoseY = new JLabel("Y: ");
+            private JLabel particleLabelWeight = new JLabel("W: ");
+            private JLabel particleValuePoseX = new JLabel();
+            private JLabel particleValuePoseY = new JLabel();
+            private JLabel particleValueWeight = new JLabel();
+
 
             /**
              * Constructor.
@@ -525,6 +538,9 @@ class ClientView extends JFrame {
                 this.addComponentListener(guiController.new ReplayControlSubPanelComponentListener());
                 //TODO Add particle selection to replayButton.
                 this.add(fileSelection);
+                JPanel mouseClickParticleInfo = createMouseClickParticleInfo();
+                this.add(mouseClickParticleInfo);
+
             }
 
             /**
@@ -552,6 +568,39 @@ class ClientView extends JFrame {
                 }
 
                 return new String[0];
+            }
+
+            void refreshParticleInfo() {
+                Particle selectedParticle = guiModel.getLocalizationModel().getSelectedParticle();
+                particleValuePoseX.setText(String.valueOf(selectedParticle.getPose().getX()));
+                particleValuePoseY.setText(String.valueOf(selectedParticle.getPose().getY()));
+                particleValueWeight.setText(String.valueOf(Math.round(selectedParticle.getWeight() * 10000000.0) / 10000000.0));
+            }
+
+            /**
+             * Returns a JPanel to display information about a selected particle.
+             * @return  A JPanel to display information about a selected particle
+             */
+            private JPanel createMouseClickParticleInfo() {
+                JPanel labels = new JPanel();
+                labels.setLayout(new GridLayout(3,1));
+                labels.add(particleLabelPoseX);
+                labels.add(particleLabelPoseY);
+                labels.add(particleLabelWeight);
+
+                JPanel values = new JPanel();
+                values.setLayout(new GridLayout(3,1));
+                values.add(particleValuePoseX);
+                values.add(particleValuePoseY);
+                values.add(particleValueWeight);
+
+                JPanel container = new JPanel();
+                container.setLayout(new BorderLayout());
+                container.add(particleLabelInfo, BorderLayout.PAGE_START);
+                container.add(labels, BorderLayout.LINE_START);
+                container.add(values, BorderLayout.CENTER);
+
+                return container;
             }
         }
     }
