@@ -5,6 +5,7 @@ import ki.robotics.utility.map.Map;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.io.Serializable;
 
@@ -176,9 +177,19 @@ public class ParticleImplMCL implements Particle, Comparable<ParticleImplMCL>, S
     public boolean isOutOfMapOperatingRange() {
         float xPos = this.pose.getX();
         float yPos = this.pose.getY();
-        Polygon boundaries = this.map.getOperatingRange();
 
-        return !boundaries.contains(xPos, yPos);
+        if (map.getBaseLine() != null) {
+            Line2D baseLine = map.getBaseLine();
+            int acceptableDistanceFromBaseLine = 10;
+            return baseLine.ptLineDist(xPos, yPos) > acceptableDistanceFromBaseLine;
+        }
+
+        if (map.getOperatingRange() != null) {
+            Polygon boundaries = this.map.getOperatingRange();
+            return !boundaries.contains(xPos, yPos);
+        }
+
+        return false;
     }
 
 

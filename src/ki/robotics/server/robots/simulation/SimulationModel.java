@@ -6,7 +6,7 @@ import ki.robotics.utility.map.MapProvider;
 import lejos.robotics.navigation.Pose;
 
 class SimulationModel {
-    private static final String DEFAULT_SELECTED_MAP = MapProvider.MAP_KEY_ROOM;
+    private static final String DEFAULT_SELECTED_MAP = MapProvider.MAP_KEY_HOUSES;
 
     private Pose pose;
     private int sensorHeadPosition = 0;

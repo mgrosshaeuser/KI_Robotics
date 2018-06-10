@@ -1,13 +1,11 @@
 package ki.robotics.utility.map;
 
 public interface MapProvider {
-    String MAP_KEY_ROOM = "Room";
-    String MAP_KEY_HOUSES = "Houses";
-    String MAP_KEY_MARKED_ROOM = "MarkedRoom";
+    String MAP_KEY_ROOM = "room.svg";
+    String MAP_KEY_HOUSES = "Houses.svg";
+    String MAP_KEY_MARKED_ROOM = "room_with_marks.svg";
 
     String[] getMapKeys();
 
     Map getMap(String key);
-
-    int[] getMapLimitations(String key);
 }

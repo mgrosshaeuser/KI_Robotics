@@ -639,7 +639,7 @@ public class GuiConfigurationImplClientModel implements GuiConfiguration {
          * Creates a new LocalizationProvider
          */
         void createLocalizationProvider() {
-            this.localizationProvider = ClientFactory.createNewLocalizationProvider(map, numberOfParticles, new int[]{-1,-1,-1}, model);
+            this.localizationProvider = ClientFactory.createNewLocalizationProvider(map, numberOfParticles, model);
         }
 
 

@@ -1,16 +1,17 @@
 package ki.robotics.utility.map;
 
-import java.awt.*;
+import ki.robotics.client.ClientFactory;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MapProviderImpl implements MapProvider {
-
     private static final MapProvider INSTANCE = new MapProviderImpl();
 
     private final HashMap<String, Map> maps = new HashMap<>();
     private final ArrayList<String> mapKeys = new ArrayList<>();
+
 
 
     /**
@@ -21,38 +22,17 @@ public class MapProviderImpl implements MapProvider {
     public static MapProvider getInstance() { return INSTANCE; }
 
 
-
     /**
      * Constructs and initializes the singleton-instance of the MapProvider.
      *
      */
     private MapProviderImpl() {
-        createMap(
-                MAP_KEY_ROOM,
-                "room.svg",
-                new Polygon(new int[]{0, 150, 150, 100, 100, 0}, new int[]{0, 0, 150, 150, 200, 200},6)
-        );
-
-        createMap(
-                MAP_KEY_HOUSES,
-                "Houses.svg",
-                new Polygon (new int[]{1,601, 601,1}, new int[]{69,69,71,71}, 4)
-        );
-
-        createMap(
-                MAP_KEY_MARKED_ROOM,
-                "room_with_marks.svg",
-                new Polygon(new int[]{0, 150, 150, 100, 100, 0}, new int[]{0, 0, 150, 150, 200, 200},6)
-        );
-
-
-        //TODO Move limitation-handling out of the map and into gui-configurations.
-        limitations = new HashMap<>();
-        int noLimitation = -1;
-        this.limitations.put(MAP_KEY_ROOM, new int[]{noLimitation, noLimitation, noLimitation});
-        this.limitations.put(MAP_KEY_MARKED_ROOM, new int[]{noLimitation, noLimitation, noLimitation});
-        this.limitations.put(MAP_KEY_HOUSES, new int[]{noLimitation, 70,0});
+        ArrayList<File> mapFiles = getMapFiles();
+        for (File file : mapFiles) {
+            this.mapKeys.add(file.getName());
+        }
     }
+
 
 
 
@@ -69,47 +49,59 @@ public class MapProviderImpl implements MapProvider {
     }
 
 
-
     /**
      * Returns the map associated with the specified key.
+     * If the requested map wasn't loaded yet, it is loaded on-demand.
      *
      * @param key the specified key to a map
      * @return the map associated with the specified key
      */
     @Override
     public Map getMap(String key) {
+        Map map;
+        if (maps.get(key) == null) {
+            map = createMap(key);
+            this.maps.put(key, map);
+        }
         return maps.get(key);
     }
 
 
+    /**
+     * Creates a map based on the file indicated by the given key.
+     *
+     * @param key   A map key
+     * @return  The map from the file indicated by the key
+     */
+    private Map createMap(String key) {
+        String path = ClientFactory.getProperties().getProperty("mapPath");
+        File mapFile = new File(path + key);
+        SVGParser parser = new SVGParser(mapFile);
+        return parser.getMap();
+    }
+
 
     /**
-     * Constructs a map identified by the specified key, from a specified file with a specified operating-range.
+     * Returns a list with all svg-files in the default map-directory.
      *
-     * @param key the key to identify the map
-     * @param filename the name of the (SVG-)file
-     * @param boundaries the operating-range within the map
+     * @return  A list of map-files
      */
-    private void createMap(String key, String filename, Polygon boundaries) {
-        SVGParser parser = new SVGParser(new File(getClass().getClassLoader().getResource(filename).getFile()));
-        MapImpl map = parser.getMap();
-        map.setMapKey(key);
-        map.setOperatingRange(boundaries);
-        maps.put(key, map);
-        mapKeys.add(key);
+    private ArrayList<File> getMapFiles() {
+        String path = ClientFactory.getProperties().getProperty("mapPath");
+        File defaultPath = new File(path);
+        File mapFiles[] = defaultPath.listFiles();
+        ArrayList<File> foundMaps = new ArrayList<>();
+
+        if (mapFiles != null) {
+            for (File f : mapFiles) {
+                if (f.getName().endsWith(".svg")) {
+                    foundMaps.add(f);
+                }
+            }
+        }
+
+        return foundMaps;
     }
 
 
-
-
-
-    //TODO Remove when limitation-handling is moved to gui-configuration.
-
-    private final HashMap<String, int[]> limitations;     // int[0] fixated x-value, int[1] fixated y-value, int[2] fixated heading
-
-
-    @Override
-    public int[] getMapLimitations(String key) {
-        return limitations.get(key);
-    }
 }

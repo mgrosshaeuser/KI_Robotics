@@ -60,10 +60,6 @@ public class GuiControllerImplClientController implements GuiController {
      * Starts the localization.
      */
     private void start() {
-        int[] limitations = ClientFactory.getMapProvider().getMapLimitations(guiModel.getMapKey());
-        if (guiModel.isOneDimensional()   && guiModel.isStartFromRight()) {
-            limitations[2] = 180;
-        }
         guiModel.getLocalizationModel().createLocalizationProvider();
         guiView.setTitle(ClientView.WINDOW_TITLE + " | paused");
         clientComController.start();

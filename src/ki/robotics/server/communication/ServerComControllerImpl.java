@@ -42,6 +42,9 @@ public class ServerComControllerImpl implements ServerComController {
      */
     void registerOutputStream(PrintWriter out) {
         this.out = out;
+        if (this.requestHandler != null) {
+            requestHandler.registerNewOutputStream(out);
+        }
     }
 
 
@@ -82,7 +85,7 @@ public class ServerComControllerImpl implements ServerComController {
 
 
     private class RequestHandler {
-        private final PrintWriter out;
+        private PrintWriter out;
         private final Robot robot;
 
 
@@ -95,6 +98,16 @@ public class ServerComControllerImpl implements ServerComController {
         private RequestHandler(PrintWriter out, Robot robot) {
             this.out = out;
             this.robot = robot;
+        }
+
+
+        /**
+         * Registers a new PrintWriter for re-established communication.
+         *
+         * @param out   A new PrintWriter
+         */
+        private void registerNewOutputStream(PrintWriter out) {
+            this.out = out;
         }
 
 
@@ -289,10 +302,12 @@ public class ServerComControllerImpl implements ServerComController {
                     out.println(DISCONNECT);
                     communicator.disconnect();
                     robot.shutdown();
+                    break;
                 case DISCONNECT:
                     out.println(DISCONNECT);
                     communicator.disconnect();
                     robot.disconnect();
+                    break;
                 default:
                     out.println(UNSUPPORTED_INSTRUCTION);
                     robot.handleUnsupportedInstruction(instruction);

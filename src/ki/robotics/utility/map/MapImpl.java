@@ -6,6 +6,7 @@ import ki.robotics.utility.map.mapElements.Line;
 import ki.robotics.utility.pixyCam.PixyCam;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class MapImpl implements Map {
     private double height;
 
     private Polygon operatingRange;
+    private Line2D baseLine;
 
     private ArrayList<Line> walls;
     private ArrayList<Rectangle> floorTiles;
@@ -121,6 +123,24 @@ public class MapImpl implements Map {
 
 
 
+    /**
+     * Returns the base-line for a one-dimensional map or null for a two-dimensional.
+     *
+     * @return  A base-line for one-dimensional map or null for two-dimensional
+     */
+    public Line2D getBaseLine() {
+        return this.baseLine;
+    }
+
+
+    /**
+     * Sets the base-line within this Map.
+     *
+     * @param baseLine The new base-line
+     */
+    void setBaseLine(Line2D baseLine) {
+        this.baseLine = baseLine;
+    }
 
 
 

@@ -38,7 +38,7 @@ public class Localization_ProviderImplMCLTest {
         int numOfParticles = 1000; //via GUI
 
         Map map = ServerFactory.getMapProvider().getMap("Room");
-        LocalizationProvider localizationProvider = ClientFactory.createNewLocalizationProvider(map, numOfParticles, new int[] {-1, -1, -1}, new GuiConfigurationImplClientModel());
+        LocalizationProvider localizationProvider = ClientFactory.createNewLocalizationProvider(map, numOfParticles, new GuiConfigurationImplClientModel());
 
         SensorModel bot = ClientFactory.createNewSensorModel();
         bot.setDistanceToLeft(10.0);

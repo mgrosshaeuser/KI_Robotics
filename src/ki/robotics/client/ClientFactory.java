@@ -81,13 +81,12 @@ public class ClientFactory extends UtilityFactory {
      *
      * @param map       The map to be used
      * @param numberOfParticles The number of particles to be generated
-     * @param limitations   The limitations depending on one- or two-dimensional environment
      * @param userSettings  The user-settings of interface-type GuiConfiguration
      *
      * @return A new instance of LocalizationProviderImplMCL as interface-type LocalizationProvider
      */
-    public static LocalizationProvider createNewLocalizationProvider(Map map, int numberOfParticles, int[] limitations, GuiConfiguration userSettings) {
-        return new LocalizationProviderImplMCL(map, numberOfParticles, limitations, userSettings);
+    public static LocalizationProvider createNewLocalizationProvider(Map map, int numberOfParticles, GuiConfiguration userSettings) {
+        return new LocalizationProviderImplMCL(map, numberOfParticles, userSettings);
     }
 
 

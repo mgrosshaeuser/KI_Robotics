@@ -10,6 +10,8 @@ import ki.robotics.utility.pixyCam.DTOSignatureQuery;
 import lejos.robotics.navigation.Pose;
 
 import java.awt.*;
+import java.awt.geom.Line2D;
+import java.awt.geom.Point2D;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -39,13 +41,12 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
      *
      * @param map                   The map used for localization
      * @param numberOfParticles     The number of particles to distribute in the map
-     * @param limitations           Limitations for particle-values regarding x- or y-Axis or heading
      * @param userSettings          User-settings for localization
      */
-    public LocalizationProviderImplMCL(Map map, int numberOfParticles, int[] limitations, GuiConfiguration userSettings) {
+    public LocalizationProviderImplMCL(Map map, int numberOfParticles, GuiConfiguration userSettings) {
         this.localizationRecorder = new LocalizationRecorder();
 
-        ParticleSetGenerator particleSetGenerator = new ParticleSetGenerator(numberOfParticles, map, limitations);
+        ParticleSetGenerator particleSetGenerator = new ParticleSetGenerator(numberOfParticles, map, userSettings);
         ArrayList<ParticleImplMCL> particles = particleSetGenerator.generateInitialParticleSet();
         WorldStateImplMCL ws = new WorldStateImplMCL(this, map, particles);
 
@@ -212,9 +213,9 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
      * Generator for the initial particle-set used for localization.
      */
     private class ParticleSetGenerator {
-        private int numberOfParticles;
-        private Map map;
-        private int[] limitations;
+        private final int numberOfParticles;
+        private final Map map;
+        private final GuiConfiguration userSettings;
 
 
         /**
@@ -222,12 +223,11 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
          *
          * @param numberOfParticles     The number of particles to distribute in the map
          * @param map                   The map used for localization
-         * @param limitations           Limitations for particle-values regarding x- or y-Axis or heading
          */
-        ParticleSetGenerator(int numberOfParticles, Map map, int[] limitations) {
+        ParticleSetGenerator(int numberOfParticles, Map map, GuiConfiguration userSettings) {
             this.numberOfParticles = numberOfParticles;
             this.map = map;
-            this.limitations = limitations;
+            this.userSettings =userSettings;
         }
 
 
@@ -238,31 +238,98 @@ public class LocalizationProviderImplMCL implements LocalizationProvider {
          */
         ArrayList<ParticleImplMCL> generateInitialParticleSet() {
             ArrayList<ParticleImplMCL> particles = new ArrayList<>();
+
+            if (map.getBaseLine() != null) {
+                particles = generateInitialParticleSetAlongLine(map.getBaseLine());
+            }
+
+            if (map.getOperatingRange() != null) {
+                particles = generateInitialParticleSetWithinRange(map.getOperatingRange());
+            }
+
+            return particles;
+        }
+
+
+        /**
+         * Generates a set of random particles along a base-line specified in the Map.
+         *
+         * @return  A random particle-set along the base-line
+         */
+        private ArrayList<ParticleImplMCL> generateInitialParticleSetAlongLine(Line2D baseLine) {
+            ArrayList<ParticleImplMCL> particles = new ArrayList<>();
+            if (baseLine.getY1() > baseLine.getY2()) {
+                baseLine = new Line2D.Double(baseLine.getP2(), baseLine.getP1());
+            }
+
+            double deltaXSquare = Math.pow((baseLine.getX2()-baseLine.getX1()), 2);
+            double deltaYSquare = Math.pow((baseLine.getY2() - baseLine.getY1()), 2);
+            double lengthOfLine = Math.sqrt(deltaXSquare + deltaYSquare);
+            double cosineOfLineAngle = (baseLine.getX2() - baseLine.getX1()) / lengthOfLine;
+            double angleOfLine = Math.toDegrees(Math.acos(cosineOfLineAngle));
+
             for (int i = 0  ;  i < numberOfParticles  ;  i++) {
-                particles.add(createRandomParticle());
+                particles.add(createRandomParticleAlongLine(baseLine, lengthOfLine, angleOfLine));
             }
             return particles;
         }
 
 
         /**
-         * Creates one random particle within given limitations and map-bounds.
+         * Generates one random particle along the given line (with a deviation of 'delta') and an orientation
+         * in one of the two possible ways (also chosen randomly).
          *
-         * @return              A random particle.
+         * @param line         The base-line for the particles
+         * @return  A random particle
          */
-        private ParticleImplMCL createRandomParticle() {
-            Polygon boundaries = map.getOperatingRange();
-            Rectangle limits = boundaries.getBounds();
-            double xOffset = limits.getX();
-            double yOffset = limits.getY();
-            double widthLimit = limits.getWidth();
-            double heightLimit = limits.getHeight();
+        private ParticleImplMCL createRandomParticleAlongLine(Line2D line, double lengthOfLine, double angleOfLine) {
+            double delta = 10;
+            while (true) {
+                double length = Math.random() * lengthOfLine;
+                int x = (int) Math.round(line.getX1() + (Math.cos(Math.toRadians(angleOfLine)) * length));
+                int y = (int) Math.round(line.getY1() + (Math.sin(Math.toRadians(angleOfLine)) * length));
+                int n = (Math.random() < 0.5) ? 0 : 1;
+                int h = (int) Math.round(angleOfLine + (n * 180));
+                if (line.ptLineDist(x, y) < delta) {
+                    return new ParticleImplMCL(new Pose(x, y, h), map, 1, Color.GRAY);
+                }
+            }
+        }
+
+
+        /**
+         * Generates a set of random particles within an operating-range specified in the Map.
+         *
+         * @return  A random particle-set within the operating-range
+         */
+        ArrayList<ParticleImplMCL> generateInitialParticleSetWithinRange(Polygon range) {
+            ArrayList<ParticleImplMCL> particles = new ArrayList<>();
+            for (int i = 0  ;  i < numberOfParticles  ;  i++) {
+                particles.add(createRandomParticleWithinRange(range, userSettings.isUseRightAngles()));
+            }
+            return particles;
+        }
+
+
+        /**
+         * Creates one random particle within the given range and a randomly chosen orientation.
+         *
+         * @param range The operating-range
+         * @return  A random particle
+         */
+        private ParticleImplMCL createRandomParticleWithinRange(Polygon range, boolean rightAngles) {
+            Rectangle limits = range.getBounds();
+            double particleMinX = limits.getX();
+            double particleMinY = limits.getY();
+            double particleMaxXExtend = limits.getWidth();
+            double particleMaxYExtend = limits.getHeight();
 
             while (true) {
-                int x = (limitations[0] >= 0) ? limitations[0] : (int)Math.round(Math.random() * widthLimit + xOffset);
-                int y = (limitations[1] >= 0) ? limitations[1] : (int)Math.round(Math.random() * heightLimit + yOffset);
-                int h = (limitations[2] >= 0  ? limitations[2] : (int) (Math.round(Math.random() * 4) *90));
-                if (boundaries.contains(x, y)) {
+                int x = (int) Math.round(Math.random() * particleMaxXExtend + particleMinX);
+                int y = (int) Math.round(Math.random() * particleMaxYExtend + particleMinY);
+                double random = Math.random();
+                int h = rightAngles ? (int) Math.round(random * 4) * 90 : (int) Math.round(random * 360);
+                if (range.contains(x, y)) {
                     return new ParticleImplMCL(new Pose(x, y, h), map, 1, Color.GRAY);
                 }
             }
