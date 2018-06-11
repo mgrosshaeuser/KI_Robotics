@@ -41,8 +41,9 @@ public class RobotImplSojourner implements Robot {
 
     private int sensorCurrentPosition;
 
+    //Distance in cm from sensors to the wheel axis
     private final int deltaColorSensorAxis = 15;
-    private final int deltaUSSensorAxis = 13;
+    private final int deltaUSSensorAxis = 11;
     private final int sensorDeltaAfterTurn = 6;
     private boolean stayOnWhiteLine = false;
 
@@ -75,8 +76,12 @@ public class RobotImplSojourner implements Robot {
      * @return  A MovePilot for the robot.
      */
     private MovePilot configureMovePilot() {
+        double oldDiameter = 55.5;
+        double oldOffset = 56.35;
+
+        double offset = 60.5;
         double diameter = 55.5;
-        double offset = 56.35;
+
         Wheel left = WheeledChassis.modelWheel(Motor.A, diameter).offset(-offset);
         Wheel right = WheeledChassis.modelWheel(Motor.D, diameter).offset(offset);
         Chassis chassis = new WheeledChassis(new Wheel[] {left, right}, WheeledChassis.TYPE_DIFFERENTIAL);
